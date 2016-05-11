@@ -5,6 +5,24 @@
 #include "SignalsInstance.h"
 #include "AssetHelper.h"
 #include "HumanPlayerStats.h"
+#include "CachedRandom.h"
+#include "SignalsAction.h"
+
+//-----------------------------------------------------------------------------
+
+// Random number generator with look-ahead.
+static CachedRandom s_rng( 1134771U ); // FDateTime::GetTicks() );
+
+//-----------------------------------------------------------------------------
+
+static bool selectActionAI(Combatant * combatant);
+
+//-----------------------------------------------------------------------------
+
+bool ASignalsBattleMode::CanSelectCommands() const
+{
+	return _commandsEnabled;
+}
 
 TArray<ACharacter *> & ASignalsBattleMode::GetHumanPlayers()
 {
@@ -14,9 +32,6 @@ TArray<ACharacter *> & ASignalsBattleMode::GetHumanPlayers()
 void ASignalsBattleMode::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// TODO: this should be algorithmic.
-	_currentPlayerIndex = 0;
 
 	auto world = GetWorld();
 	if (world == nullptr)
@@ -78,8 +93,17 @@ void ASignalsBattleMode::BeginPlay()
 		SwitchToCamera(0);
 	}
 
-	auto player = _combatants[0].Avatar;
-	OnTurnBeginning(player, _combatants[0].IsHuman);
+	// Initialize the play schedule.
+	for (int i = 0; i < _combatants.Num(); ++i)
+	{
+		auto & comb = _combatants[i];
+		auto * stats = comb.Stats;
+		auto speed = (int)FMath::Clamp((int)(stats->Speed + stats->Fortune*s_rng.HalfGaussian01()), 1, 100);
+		comb.TurnDelay = 100.0f / speed;
+		_scheduler.Add(i, comb.TurnDelay);
+	}
+
+	nextTurn();
 }
 
 void ASignalsBattleMode::SwitchToCamera(int camera)
@@ -106,6 +130,7 @@ void ASignalsBattleMode::Tick(float dt)
 		{
 			if (_cameras.Num() > 1)
 			{
+				// Temporary camera view switching code.
 				_cameraSwitchTimer += dt;
 				if (_cameraSwitchTimer >= 5.0f)
 				{
@@ -113,6 +138,13 @@ void ASignalsBattleMode::Tick(float dt)
 					SwitchToCamera(nextCamera);
 					_cameraSwitchTimer -= 5.0f;
 				}
+			}
+
+			// Main player loop
+			auto currentPlayer = &_combatants[_currentPlayerIndex];
+			if (updateCombatant(world, currentPlayer, dt))
+			{
+				nextTurn();
 			}
 		}
 	}
@@ -138,6 +170,107 @@ FString ASignalsBattleMode::GetActiveCombatant() const
 void ASignalsBattleMode::OnTurnBeginning_Implementation(ACharacter * character, bool isHuman)
 {
 
+}
+
+void ASignalsBattleMode::OnActionComplete()
+{
+	auto combatant = &_combatants[_currentPlayerIndex];
+	combatant->State = ActionState::Complete;
+}
+
+void ASignalsBattleMode::nextTurn()
+{
+	_currentPlayerIndex = _scheduler.Next();
+	auto player = &_combatants[_currentPlayerIndex];
+	_commandsEnabled = false;
+	OnTurnBeginning(player->Avatar, player->IsHuman);
+}
+
+void ASignalsBattleMode::SetCurrentCombatantAction(ActionInstance * action)
+{
+	auto combatant = &_combatants[_currentPlayerIndex];
+	if (combatant->IsHuman)
+	{
+		_commandsEnabled = false;
+	}
+
+	combatant->Activity = action;
+	combatant->TurnCounter = action->GetWarmupTurns();
+	combatant->State = ActionState::Start;
+}
+
+bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,float dt)
+{
+	bool advance = false;
+	switch (combatant->State)
+	{
+		case ActionState::Idle:
+			if (combatant->IsHuman)
+			{
+				// Wait for input.
+				UE_LOG(SignalsLog, Log, TEXT("Waiting for input"));
+				combatant->State = ActionState::Waiting;
+				_commandsEnabled = true;
+			}
+			else
+			{
+				// Let the AI choose a command.
+				if (selectActionAI(combatant))
+				{
+					combatant->State = ActionState::Start;
+				}
+				else
+				{
+					// Oops, the AI failed, next please.
+					UE_LOG(SignalsLog,Warning,TEXT("Combatant %s skipped action selection"), *combatant->Avatar->GetName())
+					advance = true;
+					break;
+				}
+			}
+			break;
+
+		case ActionState::Waiting:
+			// Nothing to do but wait till user selects a command.
+			break;
+
+		case ActionState::Start:
+			combatant->State = ActionState::Warmup;
+			combatant->Activity->RunWarmup(world, combatant);
+			break;
+
+		case ActionState::Warmup:
+			if (combatant->TurnCounter == 0)
+			{
+				// Warmup has finished, time to run the action.
+				checkf(combatant->Activity != nullptr, TEXT("Null action!"));
+				combatant->State = ActionState::Running;
+				combatant->Activity->RunAction(world, combatant);
+			}
+			else
+			{
+				// Still waiting so skip to the next player.
+				--combatant->TurnCounter;
+				advance = true;
+			}
+			break;
+
+		case ActionState::Running:
+			// Waiting for the action to complete.
+			break;
+
+		case ActionState::Complete:
+			UE_LOG(SignalsLog, Log, TEXT("% turn complete"), *combatant->Avatar->GetName());
+			// Run the (instantaneous) payload.
+			combatant->Activity->RunPayload(world, combatant);
+			delete combatant->Activity;
+			combatant->Activity = nullptr;
+			combatant->State = ActionState::Idle;
+			advance = true;
+			break;
+
+	}
+
+	return advance;
 }
 
 //-----------------------------------------------------------------------------
@@ -202,4 +335,11 @@ void ASignalsBattleMode::initCombatant( UWorld * world, APlayerStart * start, FS
 
 	Combatant comb(human, character, stats);
 	_combatants.Add(comb);
+}
+
+//-----------------------------------------------------------------------------
+
+static bool selectActionAI(Combatant * combatant)
+{
+	return false;
 }

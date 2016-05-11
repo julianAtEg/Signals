@@ -11,6 +11,22 @@ Scheduler::~Scheduler()
 {
 }
 
+Scheduler::Scheduler(Scheduler const & that)
+: _queue(that._queue)
+{
+
+}
+
+Scheduler & Scheduler::operator=(Scheduler const & that)
+{
+	if (this != &that)
+	{
+		_queue = that._queue;
+	}
+
+	return *this;
+}
+
 void Scheduler::Add(int playerIndex, float delay)
 {
 	_queue.Enqueue(playerIndex, delay);

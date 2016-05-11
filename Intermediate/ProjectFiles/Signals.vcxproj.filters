@@ -73,6 +73,12 @@
     <ClCompile Include="..\..\Source\Signals\Scheduler.cpp">
       <Filter>Source\Signals</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Signals\Random.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Signals\CachedRandom.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Signals\AssetHelper.h">
@@ -100,6 +106,12 @@
       <Filter>Source\Signals</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Signals\Scheduler.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\Random.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\CachedRandom.h">
       <Filter>Source\Signals</Filter>
     </ClInclude>
   </ItemGroup>

@@ -19,7 +19,7 @@ public:
 	void Add(int playerIndex, float delay);
 
 	// Pulls the next player index from the queue.
-	int Next()
+	int Next();
 
 	// Removes the player index entirely from the schedule.
 	void Cancel(int playerIndex);

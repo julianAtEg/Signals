@@ -406,15 +406,19 @@
     <NMakeOutput>..\..\Binaries\HTML5\Signals-HTML5-Shipping.exe</NMakeOutput>
   </PropertyGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Signals\CachedRandom.cpp" />
     <ClCompile Include="..\..\Source\Signals\Combatant.cpp" />
     <ClCompile Include="..\..\Source\Signals\HumanPlayerStats.cpp" />
     <ClCompile Include="..\..\Source\Signals\PlayerStats.cpp" />
+    <ClCompile Include="..\..\Source\Signals\Random.cpp" />
     <ClCompile Include="..\..\Source\Signals\Scheduler.cpp" />
     <ClCompile Include="..\..\Source\Signals\SignalsPlayerController.cpp" />
+    <ClInclude Include="..\..\Source\Signals\CachedRandom.h" />
     <ClInclude Include="..\..\Source\Signals\Combatant.h" />
     <ClInclude Include="..\..\Source\Signals\HumanPlayerStats.h" />
     <ClInclude Include="..\..\Source\Signals\PlayerStats.h" />
     <ClInclude Include="..\..\Source\Signals\PriorityQueue.h" />
+    <ClInclude Include="..\..\Source\Signals\Random.h" />
     <ClInclude Include="..\..\Source\Signals\Scheduler.h" />
     <ClInclude Include="..\..\Source\Signals\SignalsPlayerController.h" />
     <None Include="..\..\Signals.uproject" />

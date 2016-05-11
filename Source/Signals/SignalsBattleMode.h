@@ -4,10 +4,13 @@
 
 #include "SignalsGameMode.h"
 #include "Combatant.h"
+#include "Scheduler.h"
 #include "SignalsBattleMode.generated.h"
 
+class ActionInstance;
+
 /**
-*
+* Battle mode of the game. Turn-based fighting action.
 */
 UCLASS()
 class SIGNALS_API ASignalsBattleMode : public ASignalsGameMode
@@ -33,14 +36,25 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Battle State")
 	TArray<ACharacter *> & GetHumanPlayers();
 
+	// If true, commands can be selected from the UI.
+	UFUNCTION(BlueprintPure, Category = "Battle State")
+	bool CanSelectCommands() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Camera Control")
 	void SwitchToCamera(int camera);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "BattleState")
+	UFUNCTION(BlueprintNativeEvent, Category = "Battle State")
 	void OnTurnBeginning(ACharacter * character, bool isHuman);
 	void OnTurnBeginning_Implementation(ACharacter * character, bool isHuman);
 
+	UFUNCTION(BlueprintCallable, Category = "Battle State")
+	void OnActionComplete();
+
+	void SetCurrentCombatantAction(ActionInstance * action);
+	
 private:
+	bool updateCombatant(UWorld * world, Combatant * combatant,float dt);
+	void nextTurn();
 	void initCombatant(UWorld * world, APlayerStart * start, FString actorId, bool human);
 	void initCombatants(UWorld * world, APlayerStart * starts[], TArray<FString> const & combatants, bool human);
 
@@ -54,4 +68,6 @@ private:
 	int _currentPlayerIndex;
 	float _cameraSwitchTimer;
 	int _cameraIndex;
+	Scheduler _scheduler;
+	bool _commandsEnabled;
 };

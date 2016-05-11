@@ -29,7 +29,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	int Speed;
 
-	// Modifier to give a random boost to battle stats. Max out at 99.
+	// Modifier to give a random boost to battle stats. Max out at 10.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	int Fortune;
 };

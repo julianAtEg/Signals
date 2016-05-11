@@ -63,12 +63,12 @@ public:
 			}
 		}
 	
-		_queue.InsertAt( finalPos, e );
+		_queue.Insert(e,finalPos);
 	}
 
 	void AdjustPriorities( float delta )
 	{
-		for( int i = 0; i < _queue.Size(); ++i )
+		for( int i = 0; i < _queue.Num(); ++i )
 		{
 			auto & e = _queue[i];
 			e.priority += delta;
@@ -91,11 +91,13 @@ public:
 
 	void Erase( T value )
 	{
-		_queue.Remove(value);
+		_queue.RemoveAll([value](Entry & e)
+		{
+			return(e.item == value);
+		});
 	}
 
 private:
-
 	TArray<Entry> _queue;
 };
 

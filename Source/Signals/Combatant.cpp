@@ -2,4 +2,3 @@
 
 #include "Signals.h"
 #include "Combatant.h"
-
