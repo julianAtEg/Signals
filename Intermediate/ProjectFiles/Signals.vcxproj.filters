@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\..\Signals.uproject" />
+    <Filter Include="Source">
+      <UniqueIdentifier>{68EFCD4B-1F9B-4A1C-B102-6E04B2743113}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\Signals.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\Source\SignalsEditor.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <Filter Include="Config">
+      <UniqueIdentifier>{ACE88E7C-1A0E-4651-9031-3452E19AEB8E}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Config\DefaultEditor.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEngine.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultGame.ini">
+      <Filter>Config</Filter>
+    </None>
+    <Filter Include="Source\Signals">
+      <UniqueIdentifier>{1698FB50-F1E4-43C5-B9B6-9927CB8E63C2}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\Signals\Signals.Build.cs">
+      <Filter>Source\Signals</Filter>
+    </None>
+    <ClCompile Include="..\..\Source\Signals\Signals.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Signals\Signals.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Signals\SignalsGameMode.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Signals\SignalsGameMode.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Signals\SignalsInstance.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Signals\SignalsInstance.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Source\Signals\AssetHelper.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Signals\BattleInfo.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Signals\SignalsBattleMode.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Signals\SignalsPlayerController.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Signals\PlayerStats.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Signals\HumanPlayerStats.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Signals\Combatant.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Signals\Scheduler.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\Signals\AssetHelper.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\BattleInfo.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\SignalsBattleMode.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\SignalsPlayerController.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\PlayerStats.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\HumanPlayerStats.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\Combatant.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\PriorityQueue.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\Scheduler.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
