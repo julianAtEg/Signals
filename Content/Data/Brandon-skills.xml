@@ -1,0 +1,7 @@
+<skilltree>
+	<level value="1">
+		<ability name="Throw" maxSkill="100"/>
+		<ability name="Bombard" maxSkill="100"/>
+		<ability name="Heal" maxSkill="100"/>
+	</level>
+</skilltree>

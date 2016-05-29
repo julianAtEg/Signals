@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Signals.h"
+#include "XmlParser.h"
 #include "PlayerStats.generated.h"
 
 /**
@@ -21,15 +22,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	int MaxHitPoints;
 
-	// This is the currency of the game. Needs fleshing out.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	int Energy;
-
-	// Determines how frequently the agent gets a turn in battle. Max out at 99.
+	// Determines how frequently the agent gets a turn in battle. Max out at 100.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	int Speed;
 
-	// Modifier to give a random boost to battle stats. Max out at 10.
+	// How hard the agent hits, max out at 100.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	int Fortune;
+	int Strength;
+
+	// How resistant to physical hits, max out at 100
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	int Defence;
+
+	// Loads stats data from a file.
+	void Load( FString const & filePath );
+
+protected:
+	virtual void fromXml(FXmlNode * const node);
 };

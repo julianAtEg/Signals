@@ -26,9 +26,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data Model")
 	FBattleInfo BattleInfo;
 
-	UFUNCTION(BlueprintCallable, Category = "Update")
-	void UpdateStats( float dt );
-
 private:
 	TMap<FString, UHumanPlayerStats *> _stats;
 };

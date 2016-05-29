@@ -1,8 +1,8 @@
 {
 	"Changelist" : 2946394,
-	"BuildId" : "",
+	"BuildId" : "4f095828-f597-4bc4-86b2-7cadf7e1aa16",
 	"Modules" : 
 	{
-		"Signals" : "UE4Editor-Signals-9580.dll"
+		"Signals" : "UE4Editor-Signals-5933.dll"
 	}
 }

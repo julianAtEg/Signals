@@ -6,7 +6,9 @@
 #include "AssetHelper.h"
 #include "HumanPlayerStats.h"
 #include "CachedRandom.h"
-#include "SignalsAction.h"
+#include "Action.h"
+#include "UIEvent.h"
+#include "ActionMenuItem.h"
 
 //-----------------------------------------------------------------------------
 
@@ -16,6 +18,7 @@ static CachedRandom s_rng( 1134771U ); // FDateTime::GetTicks() );
 //-----------------------------------------------------------------------------
 
 static bool selectActionAI(Combatant * combatant);
+static bool compareItems(FActionMenuItem const & a1, FActionMenuItem const & a2);
 
 //-----------------------------------------------------------------------------
 
@@ -98,11 +101,12 @@ void ASignalsBattleMode::BeginPlay()
 	{
 		auto & comb = _combatants[i];
 		auto * stats = comb.Stats;
-		auto speed = (int)FMath::Clamp((int)(stats->Speed + stats->Fortune*s_rng.HalfGaussian01()), 1, 100);
+		auto speed = (int)FMath::Clamp((int)(stats->Speed * (1+s_rng.HalfGaussian01())), 1, 100);
 		comb.TurnDelay = 100.0f / speed;
 		_scheduler.Add(i, comb.TurnDelay);
 	}
 
+	_firstTurn = true;
 	nextTurn();
 }
 
@@ -117,7 +121,10 @@ void ASignalsBattleMode::SwitchToCamera(int camera)
 
 void ASignalsBattleMode::InitializeInput(UInputComponent * input)
 {
-
+	input->BindAction("MenuRight", IE_Pressed, this, &ASignalsBattleMode::OnMenuRight);
+	input->BindAction("MenuLeft", IE_Pressed, this, &ASignalsBattleMode::OnMenuLeft);
+	input->BindAction("MenuSelect", IE_Pressed, this, &ASignalsBattleMode::OnMenuSelect);
+	input->BindAction("MenuBack", IE_Pressed, this, &ASignalsBattleMode::OnMenuBack);
 }
 
 void ASignalsBattleMode::Tick(float dt)
@@ -178,12 +185,95 @@ void ASignalsBattleMode::OnActionComplete()
 	combatant->State = ActionState::Complete;
 }
 
+void ASignalsBattleMode::OnMenuLeft_Implementation()
+{
+}
+
+void ASignalsBattleMode::OnMenuRight_Implementation()
+{
+}
+
+void ASignalsBattleMode::OnMenuSelect_Implementation()
+{
+}
+
+void ASignalsBattleMode::OnMenuBack_Implementation()
+{
+}
+
+void ASignalsBattleMode::UpdateUI_Implementation()
+{
+}
+
 void ASignalsBattleMode::nextTurn()
 {
+	_selectedItem = nullptr;
 	_currentPlayerIndex = _scheduler.Next();
 	auto player = &_combatants[_currentPlayerIndex];
-	_commandsEnabled = false;
+	findAvailableActions(player);
+	EnablePlayerInput(false,_firstTurn);
+	_firstTurn = false;
 	OnTurnBeginning(player->Avatar, player->IsHuman);
+}
+
+void ASignalsBattleMode::findAvailableActions(Combatant * const combatant)
+{
+	_menuItems.Empty();
+
+	TMap<FString, int> categoryIDs;
+	auto instance = Cast<USignalsInstance>(GetWorld()->GetGameInstance());
+	auto stats = instance->GetHumanPlayerStats(combatant->Avatar->GetName());
+	auto actionNames = stats->GetAvailableActionNames();
+	int ID = 0;
+	for (auto & name : actionNames)
+	{
+		auto action = Action::FindAction(name);
+		if (action != nullptr)
+		{
+			FActionMenuItem ami;
+			ami.IconIndex = action->GetMenuIcon();
+			auto cat = action->GetCategory();
+			if (cat.IsEmpty())
+			{
+				// Bar menu item.
+				ami.Text = action->GetName();
+				ami.Description = action->GetDescription();
+				ami.IsLeaf = true;
+				ami.ID = ID++;
+				ami.Level = 0;
+				ami.ParentID = -1;
+				_menuItems.Add(ami);
+			}
+			else
+			{
+				// There's a category, add a menu item if we've not seen it before.
+				if (!categoryIDs.Contains(cat))
+				{
+					FActionMenuItem catAmi;
+					catAmi.Text = cat + TEXT(">");
+					catAmi.IsLeaf = false;
+					catAmi.ID = ID++;
+					catAmi.Level = 0;
+					catAmi.ParentID = -1;
+					_menuItems.Add(catAmi);
+					categoryIDs.Add(cat, catAmi.ID);
+				}
+
+				// Add an item for the action as well.
+				ami.Text = action->GetName();
+				ami.Description = action->GetDescription();
+				ami.IsLeaf = true;
+				ami.ID = ID++;
+				ami.Level = 1;
+				ami.ParentID = categoryIDs[cat];
+				_menuItems.Add(ami);
+			}
+		}
+		else
+		{
+			UE_LOG(SignalsLog, Error, TEXT("Could not find action '%s'"), *name);
+		}
+	}
 }
 
 void ASignalsBattleMode::SetCurrentCombatantAction(ActionInstance * action)
@@ -191,7 +281,7 @@ void ASignalsBattleMode::SetCurrentCombatantAction(ActionInstance * action)
 	auto combatant = &_combatants[_currentPlayerIndex];
 	if (combatant->IsHuman)
 	{
-		_commandsEnabled = false;
+		EnablePlayerInput(false);
 	}
 
 	combatant->Activity = action;
@@ -210,7 +300,7 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 				// Wait for input.
 				UE_LOG(SignalsLog, Log, TEXT("Waiting for input"));
 				combatant->State = ActionState::Waiting;
-				_commandsEnabled = true;
+				EnablePlayerInput(true);
 			}
 			else
 			{
@@ -234,8 +324,9 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 			break;
 
 		case ActionState::Start:
+			UE_LOG(SignalsLog, Log, TEXT("Player %s starting"), *combatant->Avatar->GetName());
 			combatant->State = ActionState::Warmup;
-			combatant->Activity->RunWarmup(world, combatant);
+			combatant->Activity->RunWarmup(world);
 			break;
 
 		case ActionState::Warmup:
@@ -243,14 +334,16 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 			{
 				// Warmup has finished, time to run the action.
 				checkf(combatant->Activity != nullptr, TEXT("Null action!"));
+				UE_LOG(SignalsLog, Log, TEXT("Player %s running action %s"), *combatant->Avatar->GetName(), *combatant->Activity->GetName());
 				combatant->State = ActionState::Running;
-				combatant->Activity->RunAction(world, combatant);
+				combatant->Activity->RunActivity(world);
 			}
 			else
 			{
 				// Still waiting so skip to the next player.
 				--combatant->TurnCounter;
 				advance = true;
+				UE_LOG(SignalsLog, Log, TEXT("Player %s still warming up"), *combatant->Avatar->GetName());
 			}
 			break;
 
@@ -259,9 +352,9 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 			break;
 
 		case ActionState::Complete:
-			UE_LOG(SignalsLog, Log, TEXT("% turn complete"), *combatant->Avatar->GetName());
+			UE_LOG(SignalsLog, Log, TEXT("%s turn complete"), *combatant->Avatar->GetName());
 			// Run the (instantaneous) payload.
-			combatant->Activity->RunPayload(world, combatant);
+			combatant->Activity->RunPayload(world);
 			delete combatant->Activity;
 			combatant->Activity = nullptr;
 			combatant->State = ActionState::Idle;
@@ -273,7 +366,60 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 	return advance;
 }
 
-//-----------------------------------------------------------------------------
+TArray<FActionMenuItem> ASignalsBattleMode::GetAvailableActions( int level ) const
+{
+	TArray<FActionMenuItem> actions;
+
+	for (auto & ami : _menuItems)
+	{
+		bool add = false;
+		if (level == 0)
+		{
+			add = (ami.Level == 0);
+		}
+		else
+		{
+			// Level is 1, so category must match selected.
+			add = ((ami.Level == 1) && (ami.ParentID == _selectedItem->ID));
+		}
+		if (add)
+		{ 
+			actions.Add(ami);
+		}
+	}
+
+	actions.Sort(compareItems);
+
+	return actions;
+}
+
+void ASignalsBattleMode::EnablePlayerInput(bool enable,bool force)
+{
+	if ((_commandsEnabled != enable) || force)
+	{
+		_commandsEnabled = enable;
+		UpdateUI();
+	}
+}
+
+void ASignalsBattleMode::HandleActionSelect(int actionID)
+{
+	// Locate the menu item with this ID.
+	_selectedItem = _menuItems.FindByPredicate([actionID](FActionMenuItem const & item)
+	{
+		return(item.ID == actionID);
+	});
+	if (_selectedItem->IsLeaf)
+	{
+		// TODO: This is an action, so let's invoke it.
+		UE_LOG(SignalsLog, Log, TEXT("Action %d selected"), actionID);
+	}
+	else
+	{
+		// Request for ring menu.
+		UE_LOG(SignalsLog, Log, TEXT("Selected category %s"), *_selectedItem->Text);
+	}
+}
 
 void ASignalsBattleMode::initCombatants(UWorld * world, APlayerStart * starts[], TArray<FString> const & combatants, bool human)
 {
@@ -331,6 +477,7 @@ void ASignalsBattleMode::initCombatant( UWorld * world, APlayerStart * start, FS
 		_enemies.Add(character);
 		// TODO: get enemy data.
 		stats = NewObject<UPlayerStats>();
+		stats->AddToRoot();
 	}
 
 	Combatant comb(human, character, stats);
@@ -342,4 +489,20 @@ void ASignalsBattleMode::initCombatant( UWorld * world, APlayerStart * start, FS
 static bool selectActionAI(Combatant * combatant)
 {
 	return false;
+}
+
+static bool compareItems(FActionMenuItem const & a1, FActionMenuItem const & a2)
+{
+	if (a1.IsLeaf == a2.IsLeaf)
+	{
+		return(a1.Text < a2.Text);
+	}
+	else if (a1.IsLeaf)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }

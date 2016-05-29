@@ -3,26 +3,39 @@
 #pragma once
 
 #include "PlayerStats.h"
+#include "Ability.h"
 #include "HumanPlayerStats.generated.h"
 
 /**
- * 
+ * Stats for a player character controlled agent.
  */
 UCLASS(BlueprintType)
 class SIGNALS_API UHumanPlayerStats : public UPlayerStats
 {
 	GENERATED_UCLASS_BODY()
 public:	
-	UFUNCTION(BlueprintPure, Category = "Stats")
-	int GetDisplayHitPoints() const;
-
-	// Call from tick.
-	void Update(float dt);
-
 	// Character development level. [0,99].
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	int Level;
+	int Level;	
+
+	// Experience measure.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	int EXP;
+
+	// Loads the ability table for the player.
+	void LoadAbilityMap(FString const & playerName);
+
+	// Called when the player level should increase.
+	UFUNCTION(BlueprintCallable,Category="Stats")
+	void NextLevel( TArray<FString> & newAbilities );
+
+	// Gets currently available actions for the player.
+	TArray<FString> GetAvailableActionNames() const;
+
+protected:
+	void fromXml(FXmlNode * const root) override;
 
 private:
-	int _displayHitPoints;	
+	TArray<Ability> _abilities;
+	TMap< int, TArray<Ability> > _abilityLevelMap;
 };

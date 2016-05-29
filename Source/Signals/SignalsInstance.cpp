@@ -3,6 +3,9 @@
 #include "Signals.h"
 #include "SignalsInstance.h"
 #include "HumanPlayerStats.h"
+#include "Action.h"
+
+static UHumanPlayerStats * loadStats(FString const & folder, FString const & name);
 
 USignalsInstance::USignalsInstance(FObjectInitializer const & init)
 	: Super(init)
@@ -13,32 +16,35 @@ void USignalsInstance::Init()
 {
 	UE_LOG(SignalsLog, Warning, TEXT("Manual Init()"));
 
+	Action::Initialize();
+
 	BattleInfo.OurCombatants.Add(TEXT("Alice"));
 	BattleInfo.OurCombatants.Add(TEXT("Brandon"));
 	BattleInfo.TheirCombatants.Add(TEXT("Maw"));
 
-	auto aliceStats = NewObject<UHumanPlayerStats>();
-	//FBattleStats aliceStats;
-	aliceStats->HitPoints = aliceStats->MaxHitPoints = 50;
-	//aliceStats.Energy = aliceStats.MaxEnergy = 100;
+	auto aliceStats = loadStats(TEXT("Data"), TEXT("Alice"));
 	_stats.Add(TEXT("Alice"), aliceStats);
 
-	auto brandonStats = NewObject<UHumanPlayerStats>();
-	brandonStats->HitPoints = brandonStats->MaxHitPoints = 60;
-	//////brandonStats.Energy = brandonStats.MaxEnergy = 120;
+	auto brandonStats = loadStats(TEXT("Data"), TEXT("Brandon"));
 	_stats.Add(TEXT("Brandon"), brandonStats);
 }
 
 UHumanPlayerStats * USignalsInstance::GetHumanPlayerStats(FString player)
 {
+	check(_stats.Contains(player));
 	return(_stats[player]);
 }
 
-void USignalsInstance::UpdateStats(float dt)
+//-----------------------------------------------------------------------------
+
+static UHumanPlayerStats * loadStats(FString const & folder, FString const & name)
 {
-	for (auto & entry : _stats)
-	{
-		auto & stats = entry.Value;
-		stats->Update(dt);
-	}
+	auto stats = NewObject<UHumanPlayerStats>();
+	stats->AddToRoot();
+	stats->LoadAbilityMap(name);
+	auto statsFile = name + ".xml";
+	auto gameFolder = FPaths::GameContentDir();
+	auto dataPath = FPaths::Combine(*gameFolder, *folder, *statsFile);
+	stats->Load(dataPath);
+	return stats;
 }

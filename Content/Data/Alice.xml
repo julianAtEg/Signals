@@ -1,0 +1,8 @@
+<character name="Alice" level="1" hp="50" maxHP="50" exp="0" strength="40"
+           defence="25">
+	<abilities>	
+		<ability name="Throw" ap="0" skill="0" maxSkill="80"/> 
+		<ability name="Bombard" ap="0" skill="0" maxSkill="80"/> 
+		<ability name="Burn" ap="0" skill="0" maxSkill="100"/> 
+	</abilities>
+</character>
