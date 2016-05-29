@@ -41,7 +41,7 @@ static UHumanPlayerStats * loadStats(FString const & folder, FString const & nam
 {
 	auto stats = NewObject<UHumanPlayerStats>();
 	stats->AddToRoot();
-	stats->LoadAbilityMap(name);
+	stats->LoadStaticData(name);
 	auto statsFile = name + ".xml";
 	auto gameFolder = FPaths::GameContentDir();
 	auto dataPath = FPaths::Combine(*gameFolder, *folder, *statsFile);

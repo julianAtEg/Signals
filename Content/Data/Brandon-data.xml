@@ -1,0 +1,11 @@
+<character name="Brandon">
+	<skilltree>
+		<level value="1">
+			<ability name="Throw" maxSkill="100"/>
+			<ability name="Bombard" maxSkill="100"/>
+			<ability name="Heal" maxSkill="100"/>
+		</level>
+	</skilltree>
+	<hpCurve scalar="60" exponent="1.1316207"/>
+	<levelCurve scalar="100" exponent="1.849485"/>
+</character>

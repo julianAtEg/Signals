@@ -4,6 +4,7 @@
 
 #include "PlayerStats.h"
 #include "Ability.h"
+#include "Curve.h"
 #include "HumanPlayerStats.generated.h"
 
 /**
@@ -22,8 +23,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	int EXP;
 
-	// Loads the ability table for the player.
-	void LoadAbilityMap(FString const & playerName);
+	UFUNCTION(BlueprintPure, Category = "Stats")
+	int GetExpToNextLevel() const;
+
+	// Loads the immuntable data for the player.
+	void LoadStaticData(FString const & playerName);
 
 	// Called when the player level should increase.
 	UFUNCTION(BlueprintCallable,Category="Stats")
@@ -38,4 +42,6 @@ protected:
 private:
 	TArray<Ability> _abilities;
 	TMap< int, TArray<Ability> > _abilityLevelMap;
+	Curve _levelCurve;
+	Curve _hpCurve;
 };

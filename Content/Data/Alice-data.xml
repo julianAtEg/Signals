@@ -1,0 +1,11 @@
+<character name="Alice">
+	<skilltree>
+		<level value="1">
+			<ability name="Throw" maxSkill="80"/>
+			<ability name="Bombard" maxSkill="80"/>
+			<ability name="Burn" maxSkill="100"/>
+		</level>
+	</skilltree>
+	<hpCurve scalar="50.0" exponent="1.150493"/>
+	<levelCurve scalar="100.0" exponent="1.849485"/>
+</character>

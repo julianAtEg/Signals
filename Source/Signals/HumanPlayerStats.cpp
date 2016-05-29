@@ -9,6 +9,8 @@ UHumanPlayerStats::UHumanPlayerStats(FObjectInitializer const & init)
 , Level(0)
 , _abilities()
 , _abilityLevelMap()
+, _levelCurve()
+, _hpCurve()
 {
 
 }
@@ -59,22 +61,23 @@ void UHumanPlayerStats::fromXml(FXmlNode * const root)
 	}
 }
 
-void UHumanPlayerStats::LoadAbilityMap(FString const & playerName)
+void UHumanPlayerStats::LoadStaticData(FString const & playerName)
 {
-	UE_LOG(SignalsLog, Log, TEXT("Loading abilities for %s"), *playerName);
+	UE_LOG(SignalsLog, Log, TEXT("Loading static data for %s"), *playerName);
 
-	auto fileName = playerName + TEXT("-skills.xml");
+	auto fileName = playerName + TEXT("-data.xml");
 	auto contentDir = FPaths::GameContentDir();
 	auto filePath = FPaths::Combine(*contentDir, TEXT("Data"), *fileName);
-	FXmlFile mapXml;
-	if (!mapXml.LoadFile(filePath, EConstructMethod::Type::ConstructFromFile))
+	FXmlFile dataXml;
+	if (!dataXml.LoadFile(filePath, EConstructMethod::Type::ConstructFromFile))
 	{
 		UE_LOG(SignalsLog, Error, TEXT("Error loading %s"),*fileName);
 		return;
 	}
 
-	auto root = mapXml.GetRootNode();
-	auto & kids = root->GetChildrenNodes();
+	auto root = dataXml.GetRootNode();
+	auto skillsNode = root->FindChildNode(TEXT("skilltree"))
+	auto & kids = skillsNode->GetChildrenNodes();
 	for (auto & levelNode : kids)
 	{
 		TArray<Ability> levelAbilities;
@@ -90,5 +93,13 @@ void UHumanPlayerStats::LoadAbilityMap(FString const & playerName)
 		}
 		_abilityLevelMap.Emplace(level, levelAbilities);
 	}
+
+	// Load curve that defines MaxHP as a function of Level.
+	auto hpNode = root->FindChildNode(TEXT("hpCurve"));
+	_hpCurve.FromXml(hpNode);
+
+	// Load curve that defines EXP values for levelling up.
+	auto levelNode = root->FindChildNode(TEXT("levelCurve"));
+	_levelCurve.FromXml(levelNode);
 }
 

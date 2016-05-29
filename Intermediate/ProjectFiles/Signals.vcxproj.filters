@@ -160,9 +160,15 @@
     <ClInclude Include="..\..\Source\Signals\Ability.h">
       <Filter>Source\Signals</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\Curve.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Signals\Ability.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Signals\Curve.cpp">
       <Filter>Source\Signals</Filter>
     </ClCompile>
   </ItemGroup>

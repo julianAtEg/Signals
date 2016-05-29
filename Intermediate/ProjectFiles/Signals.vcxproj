@@ -428,7 +428,9 @@
     <ClInclude Include="..\..\Source\Signals\CachedRandom.h" />
     <ClCompile Include="..\..\Source\Signals\Combatant.cpp" />
     <ClInclude Include="..\..\Source\Signals\Combatant.h" />
+    <ClCompile Include="..\..\Source\Signals\Curve.cpp" />
     <ClCompile Include="..\..\Source\Signals\DamageNode.cpp" />
+    <ClInclude Include="..\..\Source\Signals\Curve.h" />
     <ClInclude Include="..\..\Source\Signals\DamageNode.h" />
     <ClCompile Include="..\..\Source\Signals\EffectNode.cpp" />
     <ClInclude Include="..\..\Source\Signals\EffectNode.h" />
