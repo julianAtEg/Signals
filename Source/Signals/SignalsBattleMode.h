@@ -53,6 +53,9 @@ public:
 	bool CanSelectCommands() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Camera Control")
+	void CycleCameras();
+
+	UFUNCTION(BlueprintCallable, Category = "Camera Control")
 	void SwitchToCamera(int camera);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Battle State")
@@ -75,6 +78,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Battle State")
 	void OnActionComplete();
+
+	// Adds a floating text notification for (eg) HP loss.
+	UFUNCTION(BlueprintImplementableEvent, Category = "Battle State")
+	void AddFloatingNotification( ACharacter * who, FString const & text, FVector color );
 
 	void SetCurrentCombatantAction(ActionInstance * action);
 	

@@ -8,5 +8,7 @@ public class Signals : ModuleRules
 	{
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "XmlParser" });
         PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+        MinFilesUsingPrecompiledHeaderOverride = 1;
+        bFasterWithoutUnity = true;
     }
 }

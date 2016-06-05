@@ -1,5 +1,6 @@
 #include "Signals.h"
 #include "DamageNode.h"
+#include "SignalsBattleMode.h"
 
 //-----------------------------------------------------------------------------
 
@@ -70,4 +71,8 @@ void DamageNode::FromXml(FXmlNode * const node)
 void DamageNode::Execute(ASignalsBattleMode * const battle)
 {
 	UE_LOG(SignalsLog, Log, TEXT("DAMAGE!!!"));
+
+	FVector color(1, 1, 1);
+	auto & targets = battle->GetActionTargets();
+	battle->AddFloatingNotification(targets[0]->Avatar, TEXT("10HP"), color);
 }

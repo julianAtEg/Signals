@@ -179,6 +179,16 @@ void ASignalsBattleMode::BeginPlay()
 	nextTurn();
 }
 
+void ASignalsBattleMode::CycleCameras()
+{
+	int cam = _cameraIndex+1;
+	if (cam >= _cameras.Num())
+	{
+		cam = 0;
+	}
+	SwitchToCamera(cam);
+}
+
 void ASignalsBattleMode::SwitchToCamera(int camera)
 {
 	auto world = GetWorld();
@@ -195,6 +205,7 @@ void ASignalsBattleMode::InitializeInput(UInputComponent * input)
 	input->BindAction("MenuLeft", IE_Pressed, this, &ASignalsBattleMode::OnMenuLeft);
 	input->BindAction("MenuSelect", IE_Pressed, this, &ASignalsBattleMode::OnMenuSelect);
 	input->BindAction("MenuBack", IE_Pressed, this, &ASignalsBattleMode::OnMenuBack);
+	input->BindAction("CycleCameras", IE_Pressed, this, &ASignalsBattleMode::CycleCameras);
 }
 
 void ASignalsBattleMode::Tick(float dt)
@@ -205,17 +216,17 @@ void ASignalsBattleMode::Tick(float dt)
 		auto instance = Cast<USignalsInstance>(world->GetGameInstance());
 		if (instance != nullptr)
 		{
-			if (_cameras.Num() > 1)
-			{
-				// Temporary camera view switching code.
-				_cameraSwitchTimer += dt;
-				if (_cameraSwitchTimer >= 5.0f)
-				{
-					int nextCamera = (_cameraIndex + 1) % _cameras.Num();
-					SwitchToCamera(nextCamera);
-					_cameraSwitchTimer -= 5.0f;
-				}
-			}
+			//if (_cameras.Num() > 1)
+			//{
+			//	// Temporary camera view switching code.
+			//	_cameraSwitchTimer += dt;
+			//	if (_cameraSwitchTimer >= 5.0f)
+			//	{
+			//		int nextCamera = (_cameraIndex + 1) % _cameras.Num();
+			//		SwitchToCamera(nextCamera);
+			//		_cameraSwitchTimer -= 5.0f;
+			//	}
+			//}
 
 			// Main player loop
 			auto currentPlayer = &_combatants[_currentPlayerIndex];
