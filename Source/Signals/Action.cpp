@@ -1,79 +1,11 @@
 #include "Signals.h"
 #include "Action.h"
+#include "Combatant.h"
 #include "XmlParser.h"
 
 //-----------------------------------------------------------------------------
 
-static ActionNode * createNode(FString const & type);
 static TMap<FString, Action *> s_actions;
-
-//-----------------------------------------------------------------------------
-
-static TMap<FString, ActionNode::Ctor> & ctorTable()
-{
-	static TMap<FString, ActionNode::Ctor> table;
-	return table;
-}
-
-/*static*/
-ActionNode::Ctor ActionNode::RegisterCtor(FString const & name, Ctor ctor)
-{
-	UE_LOG(SignalsLog, Log, TEXT("Registering ActionNode ctor for type '%s'"), *name);
-
-	ctorTable().Add(name, ctor);
-	return ctor;
-}
-
-ActionNode::ActionNode(FString const & type)
-: _type(type)
-{
-
-}
-
-ActionNode::~ActionNode()
-{
-	for (auto & child : _children)
-	{
-		delete child;
-	}
-}
-
-void ActionNode::FromXml(FXmlNode const * node)
-{
-	for (auto child = node->GetFirstChildNode(); child != nullptr; child = child->GetNextNode())
-	{
-		auto type = child->GetTag();
-		auto childAction = createNode(type);
-		_children.Add(childAction);
-		childAction->FromXml(child);			
-	}
-}
-
-ActionNode * ActionNode::FindChildOfType(FString const & type)
-{
-	// SHALLOW search!
-	for( auto & child : _children)
-	{
-		if (child->GetType() == type)
-		{
-			return child;
-		}
-	}
-
-	return nullptr;
-}
-
-void ActionNode::Execute(UWorld * world, Combatant * source, TArray<Combatant *> const & targets)
-{
-	for (auto & child : _children)
-	{
-		child->Execute(world, source, targets);
-	}
-}
-
-void ActionNode::postInitialize(Action * action)
-{
-}
 
 //-----------------------------------------------------------------------------
 
@@ -117,6 +49,7 @@ Action::Action()
 , _warmup(0)
 , _affectsMultipleTargets(false)
 , _menuIcon(0)
+, _offensive(false)
 , _root(TEXT("action"))
 , _warmupNode(nullptr)
 , _activityNode(nullptr)
@@ -129,7 +62,7 @@ Action::~Action()
 {
 }
 
-void Action::FromXml(FXmlNode const * node)
+void Action::FromXml(FXmlNode * const node)
 {
 	// Read my attributes.
 	auto idStr = node->GetAttribute(TEXT("id"));
@@ -143,46 +76,27 @@ void Action::FromXml(FXmlNode const * node)
 	_description = node->GetAttribute(TEXT("description"));
 	auto iconStr = node->GetAttribute(TEXT("menuIcon"));
 	_menuIcon = FCString::Atoi(*iconStr);
+	auto offStr = node->GetAttribute(TEXT("offensive"));
+	offStr.ToLowerInline();
+	_offensive = (offStr == "true");
 
 	// Read child attributes.
 	_root.FromXml(node);
 
 	// Lashup of actions.
-	_warmupNode = _root.FindChildOfType(TEXT("warmup"));
+	_warmupNode = (ContainerNode *)_root.FindChildOfType(TEXT("warmup"));
 	if (_warmupNode != nullptr)
 	{
-		_warmupNode->postInitialize(this);
+		_warmupNode->PostInitialize(this);
 	}
 
-	_activityNode = _root.FindChildOfType(TEXT("activity"));
+	_activityNode = (ContainerNode *)_root.FindChildOfType(TEXT("activity"));
 	check(_activityNode != nullptr);
-	_activityNode->postInitialize(this);
+	_activityNode->PostInitialize(this);
 
-	_payloadNode = _root.FindChildOfType(TEXT("payload"));
+	_payloadNode = (ContainerNode  *)_root.FindChildOfType(TEXT("payload"));
 	check(_payloadNode != nullptr);
-	_payloadNode->postInitialize(this);
-}
-
-void Action::RunWarmup(UWorld * world, Combatant * source, TArray<Combatant *> const & targets)
-{
-	if (_warmupNode != nullptr)
-	{
-		_warmupNode->Execute(world, source, targets);
-	}
-}
-
-void Action::RunActivity(UWorld * world, Combatant * source, TArray<Combatant *> const & targets)
-{
-	check(_activityNode != nullptr);
-
-	_activityNode->Execute(world, source, targets);
-}
-
-void Action::RunPayload(UWorld * world, Combatant * source, TArray<Combatant *> const & targets)
-{
-	check(_payloadNode != nullptr);
-
-	_payloadNode->Execute(world, source, targets);	
+	_payloadNode->PostInitialize(this);
 }
 
 void Action::SetWarmupRounds(int rounds)
@@ -192,42 +106,3 @@ void Action::SetWarmupRounds(int rounds)
 	_warmup = rounds;
 }
 
-//-----------------------------------------------------------------------------
-
-ActionInstance::ActionInstance(Action * action, Combatant * source, TArray<Combatant *> const & targets)
-: _action( action )
-, _source( source )
-, _targets( targets )
-{
-}
-
-void ActionInstance::RunWarmup(UWorld * world)
-{
-	_action->RunWarmup(world, _source, _targets);
-}
-
-void ActionInstance::RunActivity(UWorld * world)
-{
-	_action->RunActivity(world, _source, _targets);
-}
-
-void ActionInstance::RunPayload(UWorld * world)
-{
-	_action->RunPayload(world, _source, _targets);
-}
-
-//-----------------------------------------------------------------------------
-
-static ActionNode * createNode(FString const & type)
-{
-	ActionNode::Ctor * pctor = ctorTable().Find(type);
-	if (pctor == nullptr)
-	{
-		return new ActionNode(type);
-	}
-	else
-	{
-		ActionNode::Ctor ctor = *pctor;
-		return ctor();
-	}
-}

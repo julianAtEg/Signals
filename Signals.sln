@@ -3,13 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine", "Engine", "{939E947E-9F11-47A0-9C77-10D0DCDE879A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine", "Engine", "{C9133589-9839-4306-A5B5-9EFFE721B3A9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Games", "Games", "{4742E825-59A5-433D-8C6A-FF8BFC0F9CA0}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Games", "Games", "{3D279851-8217-4E92-8426-CF9E159F2027}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UE4", "Intermediate\ProjectFiles\UE4.vcxproj", "{E777E766-E0BA-4006-90B8-54F228DED0E7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UE4", "Intermediate\ProjectFiles\UE4.vcxproj", "{6505B538-2BEA-4762-AF1E-84A4B77C389E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Signals", "Intermediate\ProjectFiles\Signals.vcxproj", "{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Signals", "Intermediate\ProjectFiles\Signals.vcxproj", "{44CC3915-E620-4D6C-89F0-7FDA98597193}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E} = {6505B538-2BEA-4762-AF1E-84A4B77C389E}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,68 +33,68 @@ Global
 		Shipping|Win64 = Shipping|Win64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.DebugGame Editor|HTML5.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.DebugGame Editor|HTML5.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.DebugGame Editor|Win32.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.DebugGame Editor|Win32.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.DebugGame Editor|Win64.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.DebugGame Editor|Win64.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.DebugGame|HTML5.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.DebugGame|HTML5.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.DebugGame|Win32.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.DebugGame|Win32.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.DebugGame|Win64.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.DebugGame|Win64.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Development Editor|HTML5.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Development Editor|HTML5.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Development Editor|Win32.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Development Editor|Win32.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Development Editor|Win64.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Development Editor|Win64.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Development|HTML5.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Development|HTML5.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Development|Win32.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Development|Win32.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Development|Win64.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Development|Win64.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Shipping|HTML5.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Shipping|HTML5.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Shipping|Win32.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Shipping|Win32.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Shipping|Win64.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{E777E766-E0BA-4006-90B8-54F228DED0E7}.Shipping|Win64.Build.0 = BuiltWithUnrealBuildTool|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.DebugGame Editor|HTML5.ActiveCfg = HTML5_DebugGame_Editor|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.DebugGame Editor|Win32.ActiveCfg = DebugGame_Editor|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.DebugGame Editor|Win64.ActiveCfg = DebugGame_Editor|x64
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.DebugGame Editor|Win64.Build.0 = DebugGame_Editor|x64
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.DebugGame|HTML5.ActiveCfg = HTML5_DebugGame_Game|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.DebugGame|HTML5.Build.0 = HTML5_DebugGame_Game|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.DebugGame|Win32.ActiveCfg = DebugGame_Game|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.DebugGame|Win32.Build.0 = DebugGame_Game|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.DebugGame|Win64.ActiveCfg = DebugGame_Game|x64
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.DebugGame|Win64.Build.0 = DebugGame_Game|x64
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Development Editor|HTML5.ActiveCfg = HTML5_Development_Editor|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Development Editor|Win32.ActiveCfg = Development_Editor|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Development Editor|Win64.ActiveCfg = Development_Editor|x64
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Development Editor|Win64.Build.0 = Development_Editor|x64
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Development|HTML5.ActiveCfg = HTML5_Development_Game|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Development|HTML5.Build.0 = HTML5_Development_Game|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Development|Win32.ActiveCfg = Development_Game|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Development|Win32.Build.0 = Development_Game|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Development|Win64.ActiveCfg = Development_Game|x64
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Development|Win64.Build.0 = Development_Game|x64
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Shipping|HTML5.ActiveCfg = HTML5_Shipping_Game|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Shipping|HTML5.Build.0 = HTML5_Shipping_Game|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Shipping|Win32.ActiveCfg = Shipping_Game|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Shipping|Win32.Build.0 = Shipping_Game|Win32
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Shipping|Win64.ActiveCfg = Shipping_Game|x64
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61}.Shipping|Win64.Build.0 = Shipping_Game|x64
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.DebugGame Editor|HTML5.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.DebugGame Editor|HTML5.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.DebugGame Editor|Win32.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.DebugGame Editor|Win32.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.DebugGame Editor|Win64.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.DebugGame Editor|Win64.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.DebugGame|HTML5.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.DebugGame|HTML5.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.DebugGame|Win32.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.DebugGame|Win32.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.DebugGame|Win64.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.DebugGame|Win64.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Development Editor|HTML5.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Development Editor|HTML5.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Development Editor|Win32.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Development Editor|Win32.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Development Editor|Win64.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Development Editor|Win64.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Development|HTML5.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Development|HTML5.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Development|Win32.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Development|Win32.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Development|Win64.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Development|Win64.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Shipping|HTML5.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Shipping|HTML5.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Shipping|Win32.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Shipping|Win32.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Shipping|Win64.ActiveCfg = BuiltWithUnrealBuildTool|Win32
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E}.Shipping|Win64.Build.0 = BuiltWithUnrealBuildTool|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.DebugGame Editor|HTML5.ActiveCfg = HTML5_DebugGame_Editor|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.DebugGame Editor|Win32.ActiveCfg = DebugGame_Editor|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.DebugGame Editor|Win64.ActiveCfg = DebugGame_Editor|x64
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.DebugGame Editor|Win64.Build.0 = DebugGame_Editor|x64
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.DebugGame|HTML5.ActiveCfg = HTML5_DebugGame_Game|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.DebugGame|HTML5.Build.0 = HTML5_DebugGame_Game|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.DebugGame|Win32.ActiveCfg = DebugGame_Game|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.DebugGame|Win32.Build.0 = DebugGame_Game|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.DebugGame|Win64.ActiveCfg = DebugGame_Game|x64
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.DebugGame|Win64.Build.0 = DebugGame_Game|x64
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Development Editor|HTML5.ActiveCfg = HTML5_Development_Editor|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Development Editor|Win32.ActiveCfg = Development_Editor|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Development Editor|Win64.ActiveCfg = Development_Editor|x64
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Development Editor|Win64.Build.0 = Development_Editor|x64
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Development|HTML5.ActiveCfg = HTML5_Development_Game|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Development|HTML5.Build.0 = HTML5_Development_Game|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Development|Win32.ActiveCfg = Development_Game|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Development|Win32.Build.0 = Development_Game|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Development|Win64.ActiveCfg = Development_Game|x64
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Development|Win64.Build.0 = Development_Game|x64
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Shipping|HTML5.ActiveCfg = HTML5_Shipping_Game|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Shipping|HTML5.Build.0 = HTML5_Shipping_Game|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Shipping|Win32.ActiveCfg = Shipping_Game|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Shipping|Win32.Build.0 = Shipping_Game|Win32
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Shipping|Win64.ActiveCfg = Shipping_Game|x64
+		{44CC3915-E620-4D6C-89F0-7FDA98597193}.Shipping|Win64.Build.0 = Shipping_Game|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{E777E766-E0BA-4006-90B8-54F228DED0E7} = {939E947E-9F11-47A0-9C77-10D0DCDE879A}
-		{3C12F969-8FC2-4D55-8EAE-E879DD8A0F61} = {4742E825-59A5-433D-8C6A-FF8BFC0F9CA0}
+		{6505B538-2BEA-4762-AF1E-84A4B77C389E} = {C9133589-9839-4306-A5B5-9EFFE721B3A9}
+		{44CC3915-E620-4D6C-89F0-7FDA98597193} = {3D279851-8217-4E92-8426-CF9E159F2027}
 	EndGlobalSection
 EndGlobal

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Action.h"
+#include "ActionNode.h"
 
 enum class DamageType
 {
@@ -28,8 +28,8 @@ class DamageNode : public ActionNode
 public:
 	DamageNode();
 
-	void FromXml(FXmlNode const * node) override;
-	void Execute(UWorld * world, Combatant * source, TArray<Combatant *> const & targets) override;
+	void FromXml(FXmlNode * const node) override;
+	void Execute(ASignalsBattleMode * const battle) override;
 
 private:
 	// The type of damage delivered.

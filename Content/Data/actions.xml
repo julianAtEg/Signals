@@ -1,58 +1,54 @@
 <actions>
 	<!--TODO: preconditions for actions-->
-	<action id="1" name="Throw" target="single" category="mecha" cost="1"
-	        description="Throws a small object at the enemy" menuIcon="0">
+	<action id="1" name="Throw" target="single" category="mecha" cost="0"
+	        description="Throws a small object at the enemy" menuIcon="0"
+			offensive="true">
 		<warmup/>
 		<activity>
-			<anim playOn="source" name="throw-anim"/>
-			<audio file="throw.wav"/>
+			<anim destination="source" name="Cast1" audio="throw"/>
 		</activity>
 		<payload>
-			<anim target="target" name="recoil-anim"/>
-			<audio file="hit.wav"/>
-			<effect name="smoke" sourceSocket="hand01" targetSocket="spine01"/>
-			<damage type="hitpoints" base="1" levelScale="3" min="0" max="100"/>
+			<anim destination="targets" name="Recoil1"/>
+			<audio cue="hit" destination="targets"/>
+			<effect name="P_DustPuff" destination="targets" targetSocket="TargetSocket"/>
+			<damage type="hitpoints" base="1" levelScale="3" min="0" max="100" destination="targets"/>
 		</payload>
 	</action>
-	<action id="2" name="Bombard" target="multiple" category="mecha" cost="2"
-	        description="Throws a small object at all enemies" menuIcon="1">
+	<action id="2" name="Bombard" target="multiple" category="mecha" cost="0"
+	        description="Throws a small object at all enemies" menuIcon="1"
+			offensive="true">
 		<warmup/>
 		<activity>
-			<anim target="source" name="throw-anim"/>
-			<audio file="throw.wav"/>
+			<anim destination="source" name="Cast1" audio="throw"/>
 		</activity>
 		<payload>
-			<anim target="target" name="recoil-anim"/>
-			<audio file="hit.wav"/>
-			<effect name="smoke" sourceSocket="hand01" targetSocket="spine01"/>
-			<damage type="hitpoints" base="1" levelScale="2" min="0" max="100"/>
+			<anim destination="targets" name="Recoil1" audio="hit"/>
+			<effect name="P_DustPuff" targetSocket="TargetSocket" destination="targets"/>
+			<damage type="hitpoints" base="1" levelScale="2" min="0" max="100" destination="targets" class="physical"/>
 		</payload>
 	</action>
 	<action id="3" name="Heal" target="single" category="medica" cost="1"
             description="Recover some health" menuIcon="2">
 			<warmup/>
 			<activity>
-				<anim target="source" name="heal-anim"/>
-				<audio file="heal.wav"/>
-				<effect name="heal-ps" sourceSocket="hand01"/>
+				<anim destination="source" name="Heal" audio="heal"/>
+				<!--effect name="heal-ps" sourceSocket="hand01"/-->
 			</activity>
 			<payload>
-				<restore type="hitpoints" base="1" levelScale="2" min="1" max="100"/>
+				<restore type="hitpoints" base="1" levelScale="2" min="1" max="100" destination="targets"/>
 			</payload>				
 	</action>
 	<action id="4" name="Burn" target="single" category="therma" cost="3"
-	        description="Damage an enemy with fire" menuIcon="3">
+	        description="Damage an enemy with fire" menuIcon="3" offensive="true">
 		<warmup/>
 		<activity>
-			<anim target="source" name="cast-anim"/>
-			<audio file="heal.wav"/>
-			<effect name="heal-ps" sourceSocket="hand01"/>
+			<anim destination="source" name="Cast2" audio="burn"/>
+			<!--effect name="burn-ps" sourceSocket="hand01"/-->
 		</activity>
 		<payload>
-			<anim target="target" name="recoil-anim"/>
-			<audio file="fire.wav"/>
-			<effect name="fire-ps" sourceSocket="spine01"/>
-			<damage type="hitpoints" base="3" levelScale="3" min="1" max="100"/>
+			<anim destination="targets" name="Recoil1" audio="fire"/>
+			<!--effect name="fire-ps" sourceSocket="spine01"/-->
+			<damage type="hitpoints" base="3" levelScale="3" min="1" max="100" destination="targets" class="chemical|fire"/>
 		</payload>				
 	</action>
 </actions>

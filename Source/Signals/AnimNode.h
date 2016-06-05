@@ -1,27 +1,19 @@
 #pragma once
 
-#include "Action.h"
-
-enum class AnimDestination
-{
-	DontPlay,
-	PlayOnSource,
-	PlayOnTargets
-};
+#include "ActionNode.h"
 
 class AnimNode : public ActionNode
 {
 public:
 	AnimNode();
+	~AnimNode();
 
-	void FromXml(FXmlNode const * node) override;
-	void Execute(UWorld * world, Combatant * source, TArray<Combatant *> const & targets) override;
-
-	// Gets where an animation is to be played - on the source or the targets.
-	AnimDestination GetDestination() const;
+	void FromXml(FXmlNode * const node) override;
+	void Execute(ASignalsBattleMode * const battle) override;
 
 private:
 	FString _anim;
-	AnimDestination _destination;
+	USoundWave * _sound;
 };
+
 

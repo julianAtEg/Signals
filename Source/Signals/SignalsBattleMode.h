@@ -8,7 +8,15 @@
 #include "ActionMenuItem.h"
 #include "SignalsBattleMode.generated.h"
 
+class Action;
 class ActionInstance;
+
+UENUM(BlueprintType)
+enum class MenuState
+{
+	SelectAction,
+	SelectTarget,
+};
 
 /**
 * Battle mode of the game. Turn-based fighting action.
@@ -47,29 +55,23 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Camera Control")
 	void SwitchToCamera(int camera);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Battle State")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Battle State")
 	void OnTurnBeginning(ACharacter * character, bool isHuman);
-	void OnTurnBeginning_Implementation(ACharacter * character, bool isHuman);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "UI")
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void UpdateUI();
-	void UpdateUI_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, Category = "UI")
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void OnMenuLeft();
-	void OnMenuLeft_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, Category = "UI")
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void OnMenuRight();
-	void OnMenuRight_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, Category = "UI")
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void OnMenuSelect();
-	void OnMenuSelect_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, Category = "UI")
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void OnMenuBack();
-	void OnMenuBack_Implementation();
 
 	UFUNCTION(BlueprintCallable, Category = "Battle State")
 	void OnActionComplete();
@@ -80,7 +82,50 @@ public:
 	TArray<FActionMenuItem> GetAvailableActions( int level ) const;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	void HandleActionSelect(int actionID);
+	void HandleMenuSelect(int itemID);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Battle State")
+	void PlayAnimation(ACharacter * character, FString const & animation, USoundWave * sound);
+
+	UFUNCTION(BlueprintPure, Category = "UI")
+	MenuState GetMenuState() const;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+	void ShowActiveMarker();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+	void HideActiveMarker();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+	void ShowTargetMarker(ACharacter * target);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+	void HideTargetMarker();
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void PreviousTarget();
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void NextTarget();
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void CancelTarget();
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void SelectTarget();
+
+	UFUNCTION(BlueprintPure, Category = "UI")
+	FString GetInfoText() const;
+
+	UFUNCTION(BlueprintPure, Category = "UI")
+	int GetInfoIcon() const;
+
+	// Called when the action system requires payload delivery.
+	void RunActionPayload();
+
+	// Gets the source and target(s) of an action.
+	Combatant const * GetActionSource() const;
+	TArray<Combatant *> const & GetActionTargets() const;
 
 private:
 	bool updateCombatant(UWorld * world, Combatant * combatant,float dt);
@@ -104,4 +149,20 @@ private:
 	bool _firstTurn;
 	TArray<FActionMenuItem> _menuItems;
 	FActionMenuItem * _selectedItem;
+	MenuState _menuState;
+	Action * _selectedAction;
+	TArray<Combatant *> _targets;
+	int _currentTarget;
+	FString _infoText;
+	int _infoIcon;
 };
+
+inline Combatant const * ASignalsBattleMode::GetActionSource() const
+{
+	return(&_combatants[_currentPlayerIndex]);
+}
+
+inline TArray<Combatant *> const & ASignalsBattleMode::GetActionTargets() const
+{
+	return(_targets);
+}

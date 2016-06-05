@@ -1,5 +1,6 @@
 #include "Signals.h"
 #include "EffectNode.h"
+#include "SignalsBattleMode.h"
 
 //-----------------------------------------------------------------------------
 
@@ -18,11 +19,24 @@ EffectNode::EffectNode()
 , _effect(TEXT("???"))
 , _sourceSocket(TEXT(""))
 , _targetSocket(TEXT(""))
+, _particles(nullptr)
 {
 
 }
 
-void EffectNode::FromXml(FXmlNode const * node)
+EffectNode::~EffectNode()
+{
+	if (_particles != nullptr)
+	{
+		if (_particles->IsValidLowLevel())
+		{
+			_particles->ConditionalBeginDestroy();
+			_particles = nullptr;
+		}
+	}
+}
+
+void EffectNode::FromXml(FXmlNode * const node)
 {
 	_effect = node->GetAttribute(TEXT("name"));
 	_sourceSocket = node->GetAttribute(TEXT("sourceSocket"));
@@ -30,7 +44,39 @@ void EffectNode::FromXml(FXmlNode const * node)
 	ActionNode::FromXml(node);
 }
 
-void EffectNode::Execute(UWorld * world, Combatant * source, TArray<Combatant *> const & targets)
+void EffectNode::PostInitialize(Action * const)
+{
+	auto name = FString::Printf(TEXT("ParticleSystem'/Game/Particles/%s.%s'"), *_effect, *_effect);
+	_particles = (UParticleSystem *)LoadObject<UParticleSystem>(nullptr, *name, nullptr, LOAD_None, nullptr);
+	check(_particles != nullptr);
+	_particles->AddToRoot();
+}
+
+void EffectNode::Execute(ASignalsBattleMode * const battle)
 {
 	UE_LOG(SignalsLog, Log, TEXT("Trigger effect '%s'"), *_effect);
+
+	FName socketName(*_targetSocket);
+
+	switch (GetDestination())
+	{
+		case Destination::Source:
+		{
+			auto source = battle->GetActionSource();
+			auto position = source->Avatar->GetMesh()->GetSocketTransform(socketName);
+			UGameplayStatics::SpawnEmitterAtLocation(battle->GetWorld(), _particles, position, true);
+			break;
+		}
+
+		case Destination::Targets:
+		{
+			auto & targets = battle->GetActionTargets();
+			for (auto target : targets)
+			{
+				auto position = target->Avatar->GetMesh()->GetSocketTransform(socketName);
+				UGameplayStatics::SpawnEmitterAtLocation(battle->GetWorld(), _particles, position, true);
+			}
+			break;
+		}
+	}
 }

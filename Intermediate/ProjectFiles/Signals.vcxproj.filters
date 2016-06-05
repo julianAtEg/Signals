@@ -1,175 +1,208 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
-    <None Include="..\..\Signals.uproject" />
-    <Filter Include="Source">
-      <UniqueIdentifier>{DD4D69E1-6472-44E8-86B7-D529A6920DD7}</UniqueIdentifier>
-    </Filter>
-    <None Include="..\..\Source\Signals.Target.cs">
-      <Filter>Source</Filter>
-    </None>
-    <None Include="..\..\Source\SignalsEditor.Target.cs">
-      <Filter>Source</Filter>
-    </None>
-    <Filter Include="Config">
-      <UniqueIdentifier>{3A9B66E1-976B-4A36-8F7F-0AD86B60EDE2}</UniqueIdentifier>
-    </Filter>
-    <None Include="..\..\Config\DefaultEditor.ini">
-      <Filter>Config</Filter>
-    </None>
-    <None Include="..\..\Config\DefaultEngine.ini">
-      <Filter>Config</Filter>
-    </None>
-    <None Include="..\..\Config\DefaultGame.ini">
-      <Filter>Config</Filter>
-    </None>
-    <None Include="..\..\Config\DefaultInput.ini">
-      <Filter>Config</Filter>
-    </None>
-    <Filter Include="Source\Signals">
-      <UniqueIdentifier>{17CAD162-F8CF-4B04-8A11-D3BCF6609C4A}</UniqueIdentifier>
-    </Filter>
-    <ClCompile Include="..\..\Source\Signals\Action.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\Action.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\AnimNode.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\AnimNode.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\AssetHelper.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\AssetHelper.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\BattleInfo.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\BattleInfo.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\CachedRandom.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\CachedRandom.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\Combatant.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\Combatant.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\DamageNode.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\DamageNode.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\EffectNode.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\EffectNode.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\HumanPlayerStats.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\HumanPlayerStats.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\PlayAudioNode.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\PlayAudioNode.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\PlayerStats.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\PlayerStats.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Signals\PriorityQueue.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\Random.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\Random.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\Scheduler.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\Scheduler.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <None Include="..\..\Source\Signals\Signals.Build.cs">
-      <Filter>Source\Signals</Filter>
-    </None>
-    <ClCompile Include="..\..\Source\Signals\Signals.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\Signals.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\SignalsBattleMode.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\SignalsBattleMode.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\SignalsGameMode.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\SignalsGameMode.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\SignalsInstance.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\SignalsInstance.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\SignalsPlayerController.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\SignalsPlayerController.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Signals\UIEvent.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\Signals\WarmupNode.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\Signals\WarmupNode.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\Source\Signals\ActionMenuItem.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Signals\Ability.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Signals\Curve.h">
-      <Filter>Source\Signals</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\Source\Signals\Ability.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Signals\Curve.cpp">
-      <Filter>Source\Signals</Filter>
-    </ClCompile>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\Signals.uproject" />
+		<Filter Include="Source">
+			<UniqueIdentifier>{FA9FAD3A-D36B-4831-AEE6-658578F490EB}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Source\Signals.Target.cs">
+			<Filter>Source</Filter>
+		</None >
+		<None Include="..\..\Source\SignalsEditor.Target.cs">
+			<Filter>Source</Filter>
+		</None >
+		<Filter Include="Config">
+			<UniqueIdentifier>{86414B80-EE53-4509-8CE0-F1A2AD3D9F4D}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Config\DefaultEditor.ini">
+			<Filter>Config</Filter>
+		</None >
+		<None Include="..\..\Config\DefaultEngine.ini">
+			<Filter>Config</Filter>
+		</None >
+		<None Include="..\..\Config\DefaultGame.ini">
+			<Filter>Config</Filter>
+		</None >
+		<None Include="..\..\Config\DefaultInput.ini">
+			<Filter>Config</Filter>
+		</None >
+		<Filter Include="Source\Signals">
+			<UniqueIdentifier>{DBB4F812-F0DE-4490-9556-F4436D694FA5}</UniqueIdentifier>
+		</Filter>
+		<ClCompile Include="..\..\Source\Signals\Ability.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\Ability.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\Action.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\Action.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\ActionInstance.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\ActionInstance.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Signals\ActionMenuItem.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\ActionNode.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\ActionNode.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\ActionNodeFactory.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\Signals\ActionRunner.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\ActionRunner.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\AnimNode.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\AnimNode.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\AssetHelper.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\AssetHelper.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\BattleInfo.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\BattleInfo.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\CachedRandom.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\CachedRandom.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\Combatant.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\Combatant.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\ContainerNode.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\ContainerNode.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\Curve.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\Curve.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\DamageNode.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\DamageNode.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\EffectNode.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\EffectNode.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\HumanPlayerStats.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\HumanPlayerStats.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\PlayAudioNode.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\PlayAudioNode.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\PlayerStats.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\PlayerStats.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Signals\PriorityQueue.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\Random.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\Random.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\Scheduler.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\Scheduler.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<None Include="..\..\Source\Signals\Signals.Build.cs">
+			<Filter>Source\Signals</Filter>
+		</None >
+		<ClCompile Include="..\..\Source\Signals\Signals.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\Signals.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\SignalsAnimInstance.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\SignalsAnimInstance.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\SignalsBattleMode.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\SignalsBattleMode.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\SignalsGameMode.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\SignalsGameMode.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\SignalsInstance.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\SignalsInstance.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\SignalsPlayerController.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\SignalsPlayerController.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Signals\TStack.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Signals\UIEvent.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\Signals\WarmupNode.cpp">
+			<Filter>Source\Signals</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\Signals\WarmupNode.h">
+			<Filter>Source\Signals</Filter>
+		</ClInclude >
+	</ItemGroup>
 </Project>

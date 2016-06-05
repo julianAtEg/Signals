@@ -7,12 +7,29 @@
 UHumanPlayerStats::UHumanPlayerStats(FObjectInitializer const & init)
 : Super(init)
 , Level(0)
+, EXP(0)
 , _abilities()
 , _abilityLevelMap()
 , _levelCurve()
 , _hpCurve()
+, _nextExpLevel(0)
 {
 
+}
+
+void UHumanPlayerStats::SetInitialValues()
+{
+	Level = 1;
+	HitPoints = MaxHitPoints = _hpCurve.GetValue(1);
+	// TODO: speed, strength.
+
+	EXP = 0;
+	_nextExpLevel = _levelCurve.GetValue(2);
+}
+
+int UHumanPlayerStats::GetExpToNextLevel() const
+{
+	return(_nextExpLevel - EXP);
 }
 
 TArray<FString> UHumanPlayerStats::GetAvailableActionNames() const
@@ -76,7 +93,7 @@ void UHumanPlayerStats::LoadStaticData(FString const & playerName)
 	}
 
 	auto root = dataXml.GetRootNode();
-	auto skillsNode = root->FindChildNode(TEXT("skilltree"))
+	auto skillsNode = root->FindChildNode(TEXT("skilltree"));
 	auto & kids = skillsNode->GetChildrenNodes();
 	for (auto & levelNode : kids)
 	{

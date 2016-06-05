@@ -46,5 +46,6 @@ static UHumanPlayerStats * loadStats(FString const & folder, FString const & nam
 	auto gameFolder = FPaths::GameContentDir();
 	auto dataPath = FPaths::Combine(*gameFolder, *folder, *statsFile);
 	stats->Load(dataPath);
+	stats->SetInitialValues();
 	return stats;
 }

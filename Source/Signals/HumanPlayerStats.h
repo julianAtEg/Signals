@@ -36,6 +36,9 @@ public:
 	// Gets currently available actions for the player.
 	TArray<FString> GetAvailableActionNames() const;
 
+	// Sets the initial values of all fields.
+	void SetInitialValues();
+
 protected:
 	void fromXml(FXmlNode * const root) override;
 
@@ -44,4 +47,5 @@ private:
 	TMap< int, TArray<Ability> > _abilityLevelMap;
 	Curve _levelCurve;
 	Curve _hpCurve;
+	int _nextExpLevel;
 };

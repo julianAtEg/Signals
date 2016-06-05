@@ -24,7 +24,7 @@ DamageNode::DamageNode()
 {
 }
 
-void DamageNode::FromXml(FXmlNode const * node)
+void DamageNode::FromXml(FXmlNode * const node)
 {
 	auto typeStr = node->GetAttribute(TEXT("type")).ToLower();
 	if (typeStr == TEXT("hitpoints"))
@@ -39,11 +39,11 @@ void DamageNode::FromXml(FXmlNode const * node)
 	{
 		_type = DamageType::Energy;
 	}
-	else if (typeStr == TEXT("Strength"))
+	else if (typeStr == TEXT("strength"))
 	{
 		_type = DamageType::Strength;
 	}
-	else if (typeStr == TEXT("Defence"))
+	else if (typeStr == TEXT("defence"))
 	{
 		_type = DamageType::Defence;
 	}
@@ -67,7 +67,7 @@ void DamageNode::FromXml(FXmlNode const * node)
 	ActionNode::FromXml(node);
 }
 
-void DamageNode::Execute(UWorld * world, Combatant * source, TArray<Combatant *> const & targets)
+void DamageNode::Execute(ASignalsBattleMode * const battle)
 {
 	UE_LOG(SignalsLog, Log, TEXT("DAMAGE!!!"));
 }

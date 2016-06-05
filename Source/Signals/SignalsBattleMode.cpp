@@ -7,6 +7,7 @@
 #include "HumanPlayerStats.h"
 #include "CachedRandom.h"
 #include "Action.h"
+#include "ActionInstance.h"
 #include "UIEvent.h"
 #include "ActionMenuItem.h"
 
@@ -19,8 +20,71 @@ static CachedRandom s_rng( 1134771U ); // FDateTime::GetTicks() );
 
 static bool selectActionAI(Combatant * combatant);
 static bool compareItems(FActionMenuItem const & a1, FActionMenuItem const & a2);
+static void getEnemies(TArray<Combatant *> & enemies, TArray<Combatant> & all);
+static void getFriends(TArray<Combatant *> & friends, TArray<Combatant> & all, Combatant * me);
 
 //-----------------------------------------------------------------------------
+
+FString ASignalsBattleMode::GetInfoText() const
+{
+	return _infoText;
+}
+
+int ASignalsBattleMode::GetInfoIcon() const
+{
+	return _infoIcon;
+}
+
+void ASignalsBattleMode::SelectTarget()
+{
+	Combatant * target = _targets[_currentTarget];
+	UE_LOG(SignalsLog, Log, TEXT("Target '%s' selected"), *target->Avatar->GetName());
+
+	// Replace the potential targets with the actual one.
+	_targets.Empty();
+	_targets.Add(target);
+
+	HideTargetMarker();
+	check(_selectedAction != nullptr);
+	auto actionInst = new ActionInstance(_selectedAction);
+	SetCurrentCombatantAction(actionInst);
+	_selectedAction = nullptr;
+}
+
+void ASignalsBattleMode::NextTarget()
+{
+	++_currentTarget;
+	if (_currentTarget == _targets.Num())
+	{
+		_currentTarget = 0;
+	}
+
+	ShowTargetMarker(_targets[_currentTarget]->Avatar);	
+}
+
+void ASignalsBattleMode::PreviousTarget()
+{
+	--_currentTarget;
+	if (_currentTarget < 0)
+	{
+		_currentTarget = _targets.Num() - 1;
+	}
+	ShowTargetMarker(_targets[_currentTarget]->Avatar);
+}
+
+void ASignalsBattleMode::CancelTarget()
+{
+	_menuState = MenuState::SelectAction;
+	_selectedAction = nullptr;
+	_targets.Empty();
+	HideTargetMarker();
+	ShowActiveMarker();
+}
+
+MenuState ASignalsBattleMode::GetMenuState() const
+{
+	return _menuState;
+}
 
 bool ASignalsBattleMode::CanSelectCommands() const
 {
@@ -106,7 +170,12 @@ void ASignalsBattleMode::BeginPlay()
 		_scheduler.Add(i, comb.TurnDelay);
 	}
 
+	HideTargetMarker();
+	_menuState = MenuState::SelectAction;
+	_selectedAction = nullptr;
 	_firstTurn = true;
+	_infoIcon = -1;
+	_infoText = TEXT("");
 	nextTurn();
 }
 
@@ -121,6 +190,7 @@ void ASignalsBattleMode::SwitchToCamera(int camera)
 
 void ASignalsBattleMode::InitializeInput(UInputComponent * input)
 {
+	UE_LOG(SignalsLog, Log, TEXT("Setting BATTLE controls"));
 	input->BindAction("MenuRight", IE_Pressed, this, &ASignalsBattleMode::OnMenuRight);
 	input->BindAction("MenuLeft", IE_Pressed, this, &ASignalsBattleMode::OnMenuLeft);
 	input->BindAction("MenuSelect", IE_Pressed, this, &ASignalsBattleMode::OnMenuSelect);
@@ -165,7 +235,6 @@ bool ASignalsBattleMode::IsActiveCombatantHuman() const
 
 FString ASignalsBattleMode::GetHumanPlayer(int index) const
 {
-	UE_LOG(SignalsLog, Log, TEXT("Getting human player %d"), index);
 	return _players[index]->GetName();
 }
 
@@ -174,9 +243,10 @@ FString ASignalsBattleMode::GetActiveCombatant() const
 	return _combatants[_currentPlayerIndex].Avatar->GetName();
 }
 
-void ASignalsBattleMode::OnTurnBeginning_Implementation(ACharacter * character, bool isHuman)
+void ASignalsBattleMode::RunActionPayload()
 {
-
+	auto combatant = &_combatants[_currentPlayerIndex];
+	combatant->Activity->RunPayload(this);
 }
 
 void ASignalsBattleMode::OnActionComplete()
@@ -185,32 +255,23 @@ void ASignalsBattleMode::OnActionComplete()
 	combatant->State = ActionState::Complete;
 }
 
-void ASignalsBattleMode::OnMenuLeft_Implementation()
-{
-}
-
-void ASignalsBattleMode::OnMenuRight_Implementation()
-{
-}
-
-void ASignalsBattleMode::OnMenuSelect_Implementation()
-{
-}
-
-void ASignalsBattleMode::OnMenuBack_Implementation()
-{
-}
-
-void ASignalsBattleMode::UpdateUI_Implementation()
-{
-}
-
 void ASignalsBattleMode::nextTurn()
 {
+	_menuItems.Empty();
 	_selectedItem = nullptr;
 	_currentPlayerIndex = _scheduler.Next();
 	auto player = &_combatants[_currentPlayerIndex];
-	findAvailableActions(player);
+	_infoIcon = -1;
+	if (player->IsHuman)
+	{
+		findAvailableActions(player);
+		_menuState = MenuState::SelectAction;
+		_infoText = FString::Printf(TEXT("%s: select an action"), *player->Avatar->GetName());
+	}
+	else
+	{
+		_infoText = FString::Printf(TEXT("%s..."), *player->Avatar->GetName());
+	}
 	EnablePlayerInput(false,_firstTurn);
 	_firstTurn = false;
 	OnTurnBeginning(player->Avatar, player->IsHuman);
@@ -218,8 +279,6 @@ void ASignalsBattleMode::nextTurn()
 
 void ASignalsBattleMode::findAvailableActions(Combatant * const combatant)
 {
-	_menuItems.Empty();
-
 	TMap<FString, int> categoryIDs;
 	auto instance = Cast<USignalsInstance>(GetWorld()->GetGameInstance());
 	auto stats = instance->GetHumanPlayerStats(combatant->Avatar->GetName());
@@ -326,7 +385,7 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 		case ActionState::Start:
 			UE_LOG(SignalsLog, Log, TEXT("Player %s starting"), *combatant->Avatar->GetName());
 			combatant->State = ActionState::Warmup;
-			combatant->Activity->RunWarmup(world);
+			combatant->Activity->RunWarmup(this);
 			break;
 
 		case ActionState::Warmup:
@@ -336,7 +395,7 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 				checkf(combatant->Activity != nullptr, TEXT("Null action!"));
 				UE_LOG(SignalsLog, Log, TEXT("Player %s running action %s"), *combatant->Avatar->GetName(), *combatant->Activity->GetName());
 				combatant->State = ActionState::Running;
-				combatant->Activity->RunActivity(world);
+				combatant->Activity->RunActivity(this);
 			}
 			else
 			{
@@ -349,12 +408,11 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 
 		case ActionState::Running:
 			// Waiting for the action to complete.
+			combatant->Activity->Update(this, dt);
 			break;
 
 		case ActionState::Complete:
 			UE_LOG(SignalsLog, Log, TEXT("%s turn complete"), *combatant->Avatar->GetName());
-			// Run the (instantaneous) payload.
-			combatant->Activity->RunPayload(world);
 			delete combatant->Activity;
 			combatant->Activity = nullptr;
 			combatant->State = ActionState::Idle;
@@ -402,22 +460,60 @@ void ASignalsBattleMode::EnablePlayerInput(bool enable,bool force)
 	}
 }
 
-void ASignalsBattleMode::HandleActionSelect(int actionID)
+void ASignalsBattleMode::HandleMenuSelect(int itemID)
 {
-	// Locate the menu item with this ID.
-	_selectedItem = _menuItems.FindByPredicate([actionID](FActionMenuItem const & item)
+	_selectedItem = _menuItems.FindByPredicate([itemID](FActionMenuItem const & item)
 	{
-		return(item.ID == actionID);
+		return(item.ID == itemID);
 	});
 	if (_selectedItem->IsLeaf)
 	{
 		// TODO: This is an action, so let's invoke it.
-		UE_LOG(SignalsLog, Log, TEXT("Action %d selected"), actionID);
-	}
-	else
-	{
-		// Request for ring menu.
-		UE_LOG(SignalsLog, Log, TEXT("Selected category %s"), *_selectedItem->Text);
+		auto actionName = _selectedItem->Text;
+		UE_LOG(SignalsLog, Log, TEXT("Action %s selected"), *actionName);
+		auto action = Action::FindAction(actionName);
+		checkf(action != nullptr, TEXT("No such action: %s"), *action);
+		_targets.Empty();
+		auto player = &_combatants[_currentPlayerIndex];
+		if (action->AffectsMultipleTargets())
+		{
+			// TODO: consider manual selection of either side rather than auto-targetting.
+			if (action->IsOffensive())
+			{
+				getEnemies(_targets, _combatants);
+			}
+			else
+			{
+				getFriends(_targets, _combatants, player);
+			}
+			auto actionInst = new ActionInstance(action);
+			SetCurrentCombatantAction(actionInst);
+		}
+		else
+		{
+			_selectedAction = action;
+			_currentTarget = 0;
+			_menuState = MenuState::SelectTarget;
+			// Offensive actions should select the enemies first; otherwise Our Side.
+			TArray<Combatant *> friends;
+			TArray<Combatant *> enemies;
+			if (action->IsOffensive())
+			{
+				getEnemies(_targets, _combatants);
+				getFriends(_targets, _combatants, player);
+			}
+			else
+			{
+				getFriends(_targets, _combatants, player);
+				getEnemies(_targets, _combatants);
+			}
+			HideActiveMarker();
+			ShowTargetMarker(_targets[0]->Avatar);
+			_infoIcon = action->GetMenuIcon();
+			_infoText = FString::Printf(TEXT("Target: %s"), *_targets[0]->Avatar->GetName());
+			UpdateUI();
+		}
+
 	}
 }
 
@@ -506,3 +602,30 @@ static bool compareItems(FActionMenuItem const & a1, FActionMenuItem const & a2)
 		return true;
 	}
 }
+
+static void getEnemies(TArray<Combatant *> & enemies, TArray<Combatant> & all)
+{
+	for(auto & combatant : all)
+	{
+		// ToDO: only consider living ones.
+		if (!combatant.IsHuman)
+		{
+			enemies.Add(&combatant);
+		}
+	}
+}
+
+static void getFriends(TArray<Combatant *> & friends, TArray<Combatant> & all, Combatant * me)
+{
+	// Make sure the instigator is first in the list.
+	friends.Add(me);
+	for (auto & combatant : all)
+	{
+		// ToDO: only consider living ones.
+		if (combatant.IsHuman && (&combatant != me))
+		{
+			friends.Add(&combatant);
+		}
+	}
+}
+
