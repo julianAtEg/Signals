@@ -22,6 +22,9 @@ public:
 	// Finds a child node of the given type (shallow).
 	ActionNode * FindChildOfType(FString const & name);
 
+	virtual void OnEnter(ASignalsBattleMode * battle);
+	virtual void OnLeave(ASignalsBattleMode * battle);
+
 private:
 	TArray<ActionNode *> _children;
 };

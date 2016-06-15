@@ -47,3 +47,15 @@ void ActionInstance::Update(ASignalsBattleMode * const battle, float dt)
 	}
 }
 
+void ActionInstance::NotifyActionComplete(ASignalsBattleMode * const battle)
+{
+	if (_currentNode != nullptr)
+	{
+		_runner.Advance(battle);
+		if (_runner.IsFinished())
+		{
+			_currentNode = nullptr;
+		}
+	}
+}
+

@@ -8,8 +8,10 @@ public:
 	PlayAudioNode();
 
 	void FromXml(FXmlNode * const node) override;
-	void Execute(ASignalsBattleMode * const battle) override;
 	void PostInitialize(Action * const) override;
+
+protected:
+	void executeInner(ASignalsBattleMode * const battle, Combatant * combatant) override;
 
 private:
 	FString _audioFile;

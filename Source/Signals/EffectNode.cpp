@@ -52,31 +52,11 @@ void EffectNode::PostInitialize(Action * const)
 	_particles->AddToRoot();
 }
 
-void EffectNode::Execute(ASignalsBattleMode * const battle)
+void EffectNode::executeInner(ASignalsBattleMode * const battle, Combatant * target)
 {
 	UE_LOG(SignalsLog, Log, TEXT("Trigger effect '%s'"), *_effect);
 
 	FName socketName(*_targetSocket);
-
-	switch (GetDestination())
-	{
-		case Destination::Source:
-		{
-			auto source = battle->GetActionSource();
-			auto position = source->Avatar->GetMesh()->GetSocketTransform(socketName);
-			UGameplayStatics::SpawnEmitterAtLocation(battle->GetWorld(), _particles, position, true);
-			break;
-		}
-
-		case Destination::Targets:
-		{
-			auto & targets = battle->GetActionTargets();
-			for (auto target : targets)
-			{
-				auto position = target->Avatar->GetMesh()->GetSocketTransform(socketName);
-				UGameplayStatics::SpawnEmitterAtLocation(battle->GetWorld(), _particles, position, true);
-			}
-			break;
-		}
-	}
+	auto position = target->Avatar->GetMesh()->GetSocketTransform(socketName);
+	UGameplayStatics::SpawnEmitterAtLocation(battle->GetWorld(), _particles, position, true);
 }

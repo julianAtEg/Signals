@@ -10,6 +10,7 @@
 #include "ActionInstance.h"
 #include "UIEvent.h"
 #include "ActionMenuItem.h"
+#include "Combat.h"
 
 //-----------------------------------------------------------------------------
 
@@ -22,8 +23,14 @@ static bool selectActionAI(Combatant * combatant);
 static bool compareItems(FActionMenuItem const & a1, FActionMenuItem const & a2);
 static void getEnemies(TArray<Combatant *> & enemies, TArray<Combatant> & all);
 static void getFriends(TArray<Combatant *> & friends, TArray<Combatant> & all, Combatant * me);
+static bool checkForWin(TArray<Combatant> const & players, bool human);
 
 //-----------------------------------------------------------------------------
+
+Random * ASignalsBattleMode::GetRandom() const
+{
+	return &s_rng;
+}
 
 FString ASignalsBattleMode::GetInfoText() const
 {
@@ -33,6 +40,16 @@ FString ASignalsBattleMode::GetInfoText() const
 int ASignalsBattleMode::GetInfoIcon() const
 {
 	return _infoIcon;
+}
+
+bool ASignalsBattleMode::IsBoostActive() const
+{
+	return _boostGaugeActive;
+}
+
+float ASignalsBattleMode::GetBoostFraction() const
+{
+	return _boostTime / _boostMaxTime;
 }
 
 void ASignalsBattleMode::SelectTarget()
@@ -59,7 +76,14 @@ void ASignalsBattleMode::NextTarget()
 		_currentTarget = 0;
 	}
 
-	ShowTargetMarker(_targets[_currentTarget]->Avatar);	
+	refreshTargetInfo();
+}
+
+void ASignalsBattleMode::refreshTargetInfo()
+{
+	_infoText = FString::Printf(TEXT("Target: %s"), *_targets[_currentTarget]->Avatar->GetName());
+	ShowTargetMarker(_targets[_currentTarget]->Avatar);
+	UpdateUI();
 }
 
 void ASignalsBattleMode::PreviousTarget()
@@ -69,7 +93,7 @@ void ASignalsBattleMode::PreviousTarget()
 	{
 		_currentTarget = _targets.Num() - 1;
 	}
-	ShowTargetMarker(_targets[_currentTarget]->Avatar);
+	refreshTargetInfo();
 }
 
 void ASignalsBattleMode::CancelTarget()
@@ -163,20 +187,24 @@ void ASignalsBattleMode::BeginPlay()
 	// Initialize the play schedule.
 	for (int i = 0; i < _combatants.Num(); ++i)
 	{
-		auto & comb = _combatants[i];
-		auto * stats = comb.Stats;
-		auto speed = (int)FMath::Clamp((int)(stats->Speed * (1+s_rng.HalfGaussian01())), 1, 100);
-		comb.TurnDelay = 100.0f / speed;
-		_scheduler.Add(i, comb.TurnDelay);
+		scheduleTurn(i);
 	}
 
 	HideTargetMarker();
 	_menuState = MenuState::SelectAction;
 	_selectedAction = nullptr;
-	_firstTurn = true;
 	_infoIcon = -1;
 	_infoText = TEXT("");
-	nextTurn();
+	nextTurn( true );
+}
+
+void ASignalsBattleMode::scheduleTurn(int playerIndex)
+{
+	auto * comb = &_combatants[playerIndex];
+	auto * stats = comb->Stats;
+	auto speed = (int)FMath::Clamp((int)(stats->Speed * (1 + s_rng.HalfGaussian01())), 1, 100);
+	comb->TurnDelay = 100.0f / speed;
+	_scheduler.Add(playerIndex, comb->TurnDelay);
 }
 
 void ASignalsBattleMode::CycleCameras()
@@ -232,7 +260,7 @@ void ASignalsBattleMode::Tick(float dt)
 			auto currentPlayer = &_combatants[_currentPlayerIndex];
 			if (updateCombatant(world, currentPlayer, dt))
 			{
-				nextTurn();
+				nextTurn( false );
 			}
 		}
 	}
@@ -261,20 +289,100 @@ void ASignalsBattleMode::RunActionPayload()
 }
 
 void ASignalsBattleMode::OnActionComplete()
-{
+{	
+	UE_LOG(SignalsLog, Log, TEXT("ASignalsBattleMode::OnActionComplete()"));
+
 	auto combatant = &_combatants[_currentPlayerIndex];
-	combatant->State = ActionState::Complete;
+	auto currentAction = combatant->Activity;
+	currentAction->NotifyActionComplete(this);
+	if (currentAction->IsFinished())
+	{
+		combatant->State = ActionState::Complete;
+	}
+	//combatant->State = ActionState::Complete;
 }
 
-void ASignalsBattleMode::nextTurn()
+void ASignalsBattleMode::ApplyDamage()
 {
+	for( int i = 0; i < _combatants.Num(); ++i )
+	{
+		auto & combatant = _combatants[i];
+		FString indicator;
+		FVector color(1, 1, 1);
+		if (combatant.HPDamageThisTurn > 0)
+		{
+			UE_LOG(SignalsLog, Warning, TEXT("Damaging %s"), *combatant.Avatar->GetName());
+			FString text = FString::Printf(TEXT("-%dHP"), combatant.HPDamageThisTurn);
+			AddFloatingNotification(combatant.Avatar, text, color);
+
+			auto stats = combatant.Stats;
+			stats->HitPoints -= combatant.HPDamageThisTurn;
+			if (stats->HitPoints <= 0)
+			{
+				// Remove player from schedule.
+				_scheduler.Cancel(i);
+
+				combatant.IsAlive = false;
+				PlayAnimation(combatant.Avatar, TEXT("Death"), nullptr);
+
+				// Check for win / lose.
+				if (combatant.IsHuman)
+				{
+					// Check all human players to see if they're alive.
+					if (checkForWin(_combatants,false))
+					{
+						// Win!
+					}
+				}
+				else
+				{
+					// Check all non-human players.
+					if (checkForWin(_combatants,true))
+					{
+						// Lose!.
+					}
+				}
+			}
+		}
+		else if (combatant.ActionMissed)
+		{
+			AddFloatingNotification(combatant.Avatar, TEXT("Miss"), color);
+		}
+
+		combatant.HPDamageThisTurn = 0;
+		combatant.ActionMissed = false;
+	}
+}
+
+void ASignalsBattleMode::nextTurn( bool firstTurn )
+{
+	// Add the current player back to the schedule.
+	if (!firstTurn)
+	{
+		scheduleTurn(_currentPlayerIndex);
+	}
+
+	// Reset the state, and the UI too.
 	_menuItems.Empty();
 	_selectedItem = nullptr;
 	_currentPlayerIndex = _scheduler.Next();
 	auto player = &_combatants[_currentPlayerIndex];
+	player->OnTurnBeginning();
 	_infoIcon = -1;
+	_boostGaugeActive = false;
+	_boostTime = 0.0f;
+	_boostMaxTime = 1.0f;
 	if (player->IsHuman)
 	{
+		// Boost gauge.
+		auto stats = Cast<UHumanPlayerStats>(player->Stats);
+		_boostGaugeActive = stats->HasSkill(BattleSkill::BoostSkill);
+		if (_boostGaugeActive)
+		{
+			_boostMaxTime = Combat::GetBoostTime(stats->Level);
+			_boostTime = _boostMaxTime;
+		}
+
 		findAvailableActions(player);
 		_menuState = MenuState::SelectAction;
 		_infoText = FString::Printf(TEXT("%s: select an action"), *player->Avatar->GetName());
@@ -283,8 +391,7 @@ void ASignalsBattleMode::nextTurn()
 	{
 		_infoText = FString::Printf(TEXT("%s..."), *player->Avatar->GetName());
 	}
-	EnablePlayerInput(false,_firstTurn);
-	_firstTurn = false;
+	EnablePlayerInput(false,firstTurn);
 	OnTurnBeginning(player->Avatar, player->IsHuman);
 }
 
@@ -390,7 +497,15 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 			break;
 
 		case ActionState::Waiting:
-			// Nothing to do but wait till user selects a command.
+			if (combatant->IsHuman && _boostGaugeActive)
+			{
+				_boostTime -= dt;
+				if (_boostTime <= 0.0)
+				{
+					_boostGaugeActive = false;
+					_boostTime = 0;
+				}
+			}
 			break;
 
 		case ActionState::Start:
@@ -479,7 +594,7 @@ void ASignalsBattleMode::HandleMenuSelect(int itemID)
 	});
 	if (_selectedItem->IsLeaf)
 	{
-		// TODO: This is an action, so let's invoke it.
+		// This is an action, so let's invoke it.
 		auto actionName = _selectedItem->Text;
 		UE_LOG(SignalsLog, Log, TEXT("Action %s selected"), *actionName);
 		auto action = Action::FindAction(actionName);
@@ -638,5 +753,18 @@ static void getFriends(TArray<Combatant *> & friends, TArray<Combatant> & all, C
 			friends.Add(&combatant);
 		}
 	}
+}
+
+static bool checkForWin(TArray<Combatant> const & players, bool human)
+{
+	for (int i = 0; i < players.Num(); ++i)
+	{
+		if ((players[i].IsHuman == human) && players[i].IsAlive)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 

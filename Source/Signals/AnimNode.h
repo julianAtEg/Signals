@@ -9,11 +9,15 @@ public:
 	~AnimNode();
 
 	void FromXml(FXmlNode * const node) override;
-	void Execute(ASignalsBattleMode * const battle) override;
+	bool Update(ASignalsBattleMode * const battle, float dt) override;
+
+protected:
+	void executeInner(ASignalsBattleMode * const battle, Combatant * combatant) override;
 
 private:
 	FString _anim;
 	USoundWave * _sound;
+	bool _block;
 };
 
 

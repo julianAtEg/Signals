@@ -26,6 +26,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data Model")
 	FBattleInfo BattleInfo;
 
+	// The monetary unit of the game, used to drive almost all the mechanics.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data Model")
+	int Ergs;
+
 private:
 	TMap<FString, UHumanPlayerStats *> _stats;
 };

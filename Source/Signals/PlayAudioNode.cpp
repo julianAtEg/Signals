@@ -47,40 +47,17 @@ void PlayAudioNode::PostInitialize(Action * const)
 	}
 }
 
-void PlayAudioNode::Execute(ASignalsBattleMode * const battle)
+void PlayAudioNode::executeInner(ASignalsBattleMode * const battle, Combatant * combatant)
 {
 	UE_LOG(SignalsLog, Log, TEXT("Playing audio '%s'"), *_audioFile);
 
-	auto world = battle->GetWorld();
-	switch (GetDestination())
+	if (_sound != nullptr)
 	{
-		case Destination::Source:
-		{
-			auto source = battle->GetActionSource();
-			playSound(world, source->Avatar, _sound);
-			break;
-		}
-
-		case Destination::Targets:
-		{
-			auto & targets = battle->GetActionTargets();
-			for (auto target : targets)
-			{
-				playSound(world, target->Avatar, _sound);
-			}
-			break;
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-
-static void playSound(UWorld * world, AActor * object, USoundWave * sound)
-{
-	if (sound != nullptr)
-	{
+		auto world = battle->GetWorld();
+		auto object = combatant->Avatar;
 		auto position = object->GetActorLocation();
 		auto rotation = object->GetActorRotation();
-		UGameplayStatics::PlaySoundAtLocation(world, sound, position, rotation);
+		UGameplayStatics::PlaySoundAtLocation(world, _sound, position, rotation);
 	}
 }
+

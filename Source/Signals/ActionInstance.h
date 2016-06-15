@@ -21,11 +21,22 @@ public:
 	// Update the current activity wrt time.
 	void Update(ASignalsBattleMode * const battle, float dt);
 
+	// Called when an async action has completed.
+	void NotifyActionComplete(ASignalsBattleMode * const battle);
+
+	// Has the action completed?
+	bool IsFinished() const;
+
 private:
 	Action * const _action;
 	ContainerNode * _currentNode;
 	ActionRunner _runner;
 };
+
+inline bool ActionInstance::IsFinished() const
+{
+	return(_currentNode == nullptr);
+}
 
 inline FString const & ActionInstance::GetName() const
 {

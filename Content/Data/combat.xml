@@ -1,0 +1,6 @@
+<combat>
+	<luck lo1="0.5" lo2="0.9" hi1="1.1" hi2="1.5" size="10"/>
+	<hit hit1v1="80" hit100v1="99" hit1v100="20" hit100v100="96"/>
+	<boost max1="0.5" max100="1.5" time1="10.0" time100="3.5"/>
+</combat>
+	

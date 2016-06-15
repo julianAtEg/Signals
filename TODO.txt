@@ -1,0 +1,12 @@
+o Refactor Ability to HumanAbility / NPCAbility.
+o Add "walk to actor" and "walk to home" commands
+o Add "punch" commands
+o Implement AI for NPCs
+o Item class / inventory
+o Status icons in HUD?
+o Merge of Anim blueprints to save hassle of per-character rigging
+o More actions
+o More fx
+o Better music track
+o Projected textures for cloud shadows
+

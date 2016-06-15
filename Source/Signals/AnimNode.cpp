@@ -16,6 +16,7 @@ AnimNode::AnimNode()
 : ActionNode(s_type)
 , _anim(TEXT(""))
 , _sound(nullptr)
+, _block(false)
 {
 }
 
@@ -49,30 +50,21 @@ void AnimNode::FromXml(FXmlNode * const node)
 		}
 	}
 
+	// A blocking animation will pause script execution until it completes.
+	auto blockStr = node->GetAttribute(TEXT("block")).ToLower();
+	_block = (blockStr == TEXT("true"));
+
 	ActionNode::FromXml(node);
 }
 
-void AnimNode::Execute(ASignalsBattleMode * const battle)
+bool AnimNode::Update(ASignalsBattleMode * const, float)
+{
+	return !_block;
+}
+
+void AnimNode::executeInner( ASignalsBattleMode * const battle, Combatant * combatant )
 {
 	UE_LOG(SignalsLog, Log, TEXT("Trigger anim '%s'"), *_anim);
 
-	switch (GetDestination())
-	{
-		case Destination::Source:
-		{
-			auto source = battle->GetActionSource();
-			battle->PlayAnimation(source->Avatar, _anim, _sound);
-			break;
-		}
-
-		case Destination::Targets:
-		{
-			auto & targets = battle->GetActionTargets();
-			for (auto & target : targets)
-			{
-				battle->PlayAnimation(target->Avatar, _anim, _sound);
-			}
-			break;
-		}
-	}
+	battle->PlayAnimation(combatant->Avatar, _anim, _sound);
 }

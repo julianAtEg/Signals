@@ -3,43 +3,63 @@
 #include "Signals.h"
 #include "HumanPlayerStats.h"
 #include "XmlParser.h"
+#include "Random.h"
+#include "Combat.h"
 
 UHumanPlayerStats::UHumanPlayerStats(FObjectInitializer const & init)
 : Super(init)
-, Level(0)
 , EXP(0)
 , _abilities()
 , _abilityLevelMap()
 , _levelCurve()
 , _hpCurve()
 , _nextExpLevel(0)
+, _skills()
 {
+	// TODO: remove this hack.
+	_skills.Add(BattleSkill::BoostSkill);
+}
 
+int UHumanPlayerStats::ComputeAttack( Random * rng, int base, int levelScale, FString const & action ) const
+{
+	auto ability = FindAbility(action);
+	float luckScalar = Combat::ComputeLuck(rng, ability->Skill);
+	auto multiplier = ((1.0f + Level / 100.0f)*ability->Skill);
+	auto attack = (int)(luckScalar*(float(base) + levelScale*multiplier));
+	return attack;
+}
+
+int UHumanPlayerStats::ComputeRegain(Random * rng, int base, int levelScale, FString const & action) const
+{
+	auto ability = FindAbility(action);
+	float luckScalar = Combat::ComputeLuck(rng, ability->Skill);
+	auto multiplier = ((1.0f + Level / 100.0f)*ability->Skill);
+	auto regain = (int)(luckScalar*(float(base) + levelScale*multiplier));
+	return regain;
 }
 
 void UHumanPlayerStats::SetInitialValues()
 {
-	Level = 1;
 	HitPoints = MaxHitPoints = _hpCurve.GetValue(1);
-	// TODO: speed, strength.
+	// TODO: speed, strength...
 
 	EXP = 0;
 	_nextExpLevel = _levelCurve.GetValue(2);
 }
 
+void UHumanPlayerStats::AddSkill(BattleSkill skill)
+{
+	_skills.Add(skill);
+}
+
+bool UHumanPlayerStats::HasSkill(BattleSkill skill)
+{
+	return _skills.Contains(skill);
+}
+
 int UHumanPlayerStats::GetExpToNextLevel() const
 {
 	return(_nextExpLevel - EXP);
-}
-
-TArray<FString> UHumanPlayerStats::GetAvailableActionNames() const
-{
-	TArray<FString> result;
-	for (auto & ab : _abilities)
-	{
-		result.Add(ab.Name);
-	}
-	return result;
 }
 
 void UHumanPlayerStats::NextLevel(TArray<FString> & newAbilities)
@@ -53,17 +73,24 @@ void UHumanPlayerStats::NextLevel(TArray<FString> & newAbilities)
 		for (auto & ab : *result)
 		{
 			newAbilities.Add(ab.Name);
-			_abilities.Add(ab);
+			AddAbility(ab);
 		}
 	}
+}
+
+TArray<FString> UHumanPlayerStats::GetAvailableActionNames() const
+{
+	TArray<FString> result;
+	for (auto & ab : _abilities)
+	{
+		result.Add(ab.Name);
+	}
+	return result;
 }
 
 void UHumanPlayerStats::fromXml(FXmlNode * const root)
 {
 	Super::fromXml(root);
-
-	auto levelStr = root->GetAttribute(TEXT("level"));
-	Level = FCString::Atoi(*levelStr);
 
 	auto expStr = root->GetAttribute(TEXT("exp"));
 	EXP = FCString::Atoi(*expStr);
@@ -76,6 +103,32 @@ void UHumanPlayerStats::fromXml(FXmlNode * const root)
 		ability.FromXml(abNode, true);
 		_abilities.Add(ability);
 	}
+}
+
+void UHumanPlayerStats::AddAbility(Ability const & ability)
+{
+	auto existing = FindAbility(ability.Name);
+	if (existing != nullptr)
+	{
+		UE_LOG(SignalsLog, Warning, TEXT("Duplicated ability '%s'"), *ability.Name);
+		return;
+	}
+
+	_abilities.Add(ability);
+}
+
+Ability const * UHumanPlayerStats::FindAbility(FString const & name) const
+{
+	for (int i = 0; i < _abilities.Num(); ++i)
+	{
+		auto ability = &_abilities[i];
+		if (ability->Name == name)
+		{
+			return ability;
+		}
+	}
+
+	return nullptr;
 }
 
 void UHumanPlayerStats::LoadStaticData(FString const & playerName)

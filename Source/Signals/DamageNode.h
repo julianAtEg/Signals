@@ -1,46 +1,39 @@
 #pragma once
 
 #include "ActionNode.h"
+#include "ContainerNode.h"
+#include "AttackClass.h"
+#include "StatNode.h"
 
-enum class DamageType
+// Contains a bunch of damage nodes, the effects of which are globbed together
+// before issuing notifications.
+class DamageContainer : public ContainerNode
 {
-	// ???
-	Undefined,
+public:
+	DamageContainer();
 
-	// Damages HP
-	HitPoints,
-
-	// Damages morale / speed
-	Morale,
-
-	// Affects energy level
-	Energy,
-
-	// Affects strength
-	Strength,
-
-	// Affects defence
-	Defence,
+	void OnLeave(ASignalsBattleMode * const battle) override;
 };
 
-class DamageNode : public ActionNode
+//-----------------------------------------------------------------------------
+
+class DamageNode : public StatNode
 {
 public:
 	DamageNode();
 
 	void FromXml(FXmlNode * const node) override;
-	void Execute(ASignalsBattleMode * const battle) override;
+
+protected:
+	void executeInner(ASignalsBattleMode * const battle, Combatant * combatant) override;
 
 private:
 	// The type of damage delivered.
-	DamageType _type;
-
-	// Damage formulae parameters.
-	int _base;
-	int _levelScale;
-	int _min;
-	int _max;
+	EAttackClass _class;
 
 	// If true, the damage persists after a battle.
 	bool _persistent;
+
+	// If true, damage can be avoided by a suitably agile player
+	bool _isAvoidable;
 };

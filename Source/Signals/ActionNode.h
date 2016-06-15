@@ -6,6 +6,7 @@
 class ASignalsBattleMode;
 class ActionNode;
 class Action;
+struct Combatant;
 
 enum class Destination
 {
@@ -29,7 +30,7 @@ public:
 	FString const & GetType() const;
 
 	// Performs some action.
-	virtual void Execute(ASignalsBattleMode * const battle);
+	void Execute(ASignalsBattleMode * battle);
 
 	// Update the action wrt time.
 	virtual bool Update(ASignalsBattleMode * const battle, float dt);
@@ -50,6 +51,10 @@ public:
 
 	// Factory method for node creation.
 	static ActionNode * Create(FString const & type);
+
+protected:
+	virtual void executeInner(ASignalsBattleMode * battle, Combatant * target);
+	virtual void executeCustom(ASignalsBattleMode * battle);
 
 private:
 	FString _type;

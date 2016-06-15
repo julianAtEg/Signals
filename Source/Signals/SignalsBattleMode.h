@@ -10,6 +10,7 @@
 
 class Action;
 class ActionInstance;
+class Random;
 
 UENUM(BlueprintType)
 enum class MenuState
@@ -127,19 +128,36 @@ public:
 	UFUNCTION(BlueprintPure, Category = "UI")
 	int GetInfoIcon() const;
 
+	// Is the boost control active for the current player?
+	UFUNCTION(BlueprintPure, Category = "UI")
+	bool IsBoostActive() const;
+
+	// Gets the fraction of boost left.
+	UFUNCTION(BlueprintPure, Category = "UI")
+	float GetBoostFraction() const;
+
 	// Called when the action system requires payload delivery.
 	void RunActionPayload();
 
+	// Call to apply damage to targets.
+	void ApplyDamage();
+
 	// Gets the source and target(s) of an action.
+	Combatant * GetActionSource();
 	Combatant const * GetActionSource() const;
 	TArray<Combatant *> const & GetActionTargets() const;
 
+	// Gets the random number generator for the battle.
+	Random * GetRandom() const;
+
 private:
 	bool updateCombatant(UWorld * world, Combatant * combatant,float dt);
-	void nextTurn();
+	void nextTurn( bool firstTurn );
 	void initCombatant(UWorld * world, APlayerStart * start, FString actorId, bool human);
 	void initCombatants(UWorld * world, APlayerStart * starts[], TArray<FString> const & combatants, bool human);
 	void findAvailableActions(Combatant * const combatant);
+	void scheduleTurn(int playerIndex);
+	void refreshTargetInfo();
 
 	enum { MAX_PLAYER_STARTS = 3 };
 	APlayerStart * _playerStarts[MAX_PLAYER_STARTS];
@@ -153,7 +171,6 @@ private:
 	int _cameraIndex;
 	Scheduler _scheduler;
 	bool _commandsEnabled;
-	bool _firstTurn;
 	TArray<FActionMenuItem> _menuItems;
 	FActionMenuItem * _selectedItem;
 	MenuState _menuState;
@@ -162,9 +179,17 @@ private:
 	int _currentTarget;
 	FString _infoText;
 	int _infoIcon;
+	bool _boostGaugeActive;
+	float _boostMaxTime;
+	float _boostTime;
 };
 
 inline Combatant const * ASignalsBattleMode::GetActionSource() const
+{
+	return(&_combatants[_currentPlayerIndex]);
+}
+
+inline Combatant * ASignalsBattleMode::GetActionSource()
 {
 	return(&_combatants[_currentPlayerIndex]);
 }

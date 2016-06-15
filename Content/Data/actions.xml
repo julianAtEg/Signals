@@ -5,13 +5,15 @@
 			offensive="true">
 		<warmup/>
 		<activity>
-			<anim destination="source" name="Cast1" audio="throw"/>
+			<anim destination="source" name="Cast1" audio="throw" block="true"/>
 		</activity>
 		<payload>
 			<anim destination="targets" name="Recoil1"/>
-			<audio cue="hit" destination="targets"/>
+			<audio cue="ugh" destination="targets"/>
 			<effect name="P_DustPuff" destination="targets" targetSocket="TargetSocket"/>
-			<damage type="hitpoints" base="1" levelScale="3" min="0" max="100" destination="targets"/>
+			<damages>
+				<damage type="hitpoints" base="1" levelScale="3" min="0" max="50" destination="targets" class="physical"/>
+			</damages>
 		</payload>
 	</action>
 	<action id="2" name="Bombard" target="multiple" category="mecha" cost="0"
@@ -19,22 +21,25 @@
 			offensive="true">
 		<warmup/>
 		<activity>
-			<anim destination="source" name="Cast1" audio="throw"/>
+			<anim destination="source" name="Cast1" audio="throw" block="true"/>
 		</activity>
 		<payload>
 			<anim destination="targets" name="Recoil1" audio="hit"/>
 			<effect name="P_DustPuff" targetSocket="TargetSocket" destination="targets"/>
-			<damage type="hitpoints" base="1" levelScale="2" min="0" max="100" destination="targets" class="physical"/>
+			<damages>
+				<damage type="hitpoints" base="1" levelScale="2" min="0" max="50" destination="targets" class="physical"/>
+			</damages>
 		</payload>
 	</action>
 	<action id="3" name="Heal" target="single" category="medica" cost="1"
             description="Recover some health" menuIcon="2">
 			<warmup/>
 			<activity>
-				<anim destination="source" name="Heal" audio="heal"/>
-				<!--effect name="heal-ps" sourceSocket="hand01"/-->
+				<effect name="P_magicCircle1" destination="source"/>
+				<anim destination="source" name="Heal" audio="twinkle" block="true"/>
 			</activity>
 			<payload>
+				<effect name="P_magicCircle1" destination="targets"/>
 				<restore type="hitpoints" base="1" levelScale="2" min="1" max="100" destination="targets"/>
 			</payload>				
 	</action>
@@ -42,13 +47,17 @@
 	        description="Damage an enemy with fire" menuIcon="3" offensive="true">
 		<warmup/>
 		<activity>
-			<anim destination="source" name="Cast2" audio="burn"/>
-			<!--effect name="burn-ps" sourceSocket="hand01"/-->
+			<audio cue="twinkle" destination="source"/>
+			<effect name="P_positiveCircle" destination="source"/>
+			<anim destination="source" name="Cast2" audio="catapult" block="true"/>
 		</activity>
 		<payload>
-			<anim destination="targets" name="Recoil1" audio="fire"/>
-			<!--effect name="fire-ps" sourceSocket="spine01"/-->
-			<damage type="hitpoints" base="3" levelScale="3" min="1" max="100" destination="targets" class="chemical|fire"/>
+			<audio cue="ugh" destination="targets"/>
+			<anim destination="targets" name="Recoil1" audio="fireball"/>
+			<effect name="P_fire" destination="targets" targetSocket="TargetSocket"/>
+			<damages>
+				<damage type="hitpoints" base="3" levelScale="3" min="1" max="100" destination="targets" class="fire"/>
+			</damages>
 		</payload>				
 	</action>
 </actions>

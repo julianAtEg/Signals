@@ -49,6 +49,39 @@ float Random::HalfGaussian01()
 	return Abs( boxMuller(this, 0.0f, 1.0f) );
 }
 
+int Random::NextInt(int min, int max)
+{
+	float range = float(max-min);
+	float selected = float(min) + Next01()*range;
+	return int(selected);
+}
+
+//-----------------------------------------------------------------------------
+
+WeightedSampler::WeightedSampler(Random * const rng, TArray<int> const & weights)
+: _rng( rng )
+{
+	SetWeights(weights);
+}
+
+void WeightedSampler::SetWeights(TArray<int> const & weights)
+{
+	_lut.Empty();
+	for (int i = 0; i < weights.Num(); ++i)
+	{
+		for (int j = 0; j < weights[i]; ++j)
+		{
+			_lut.Add(i);
+		}
+	}
+}
+
+int WeightedSampler::Next()
+{
+	int index = _rng->NextInt(0, _lut.Num() - 1);
+	return _lut[index];
+}
+
 //-----------------------------------------------------------------------------
 
 static unsigned lcgParkMiller(unsigned seed)

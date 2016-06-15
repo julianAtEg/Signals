@@ -41,6 +41,11 @@ struct SIGNALS_API Combatant
 		, Stats( stats )
 		, TurnDelay( 0 )
 		, State( ActionState::Idle )
+		, TurnCounter(0)
+		, Activity(nullptr)
+		, HPDamageThisTurn( 0 )
+		, ActionMissed( false )
+		, IsAlive( true )
 	{
 
 	}
@@ -65,4 +70,13 @@ struct SIGNALS_API Combatant
 
 	// The action (if any) the combatant is performing.
 	ActionInstance * Activity;
+
+	// Any damage accrued this turn.
+	int HPDamageThisTurn;
+	bool ActionMissed;
+
+	// If true, the player is alive.
+	bool IsAlive;
+
+	void OnTurnBeginning();
 };

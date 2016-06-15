@@ -32,11 +32,12 @@ bool ActionRunner::Update( ASignalsBattleMode * const battle, float dt )
 			{
 				// It contains things to do, so let's go look.
 				descendInto(container);
+				container->OnEnter(battle);
 			}
 			else
 			{
 				// Nothing to do in the empty container, so just move on.
-				advance();
+				Advance(battle);
 			}
 		}
 		else
@@ -51,7 +52,7 @@ bool ActionRunner::Update( ASignalsBattleMode * const battle, float dt )
 			if (action->Update(battle, dt))
 			{
 				// Return of 'true' means it'a completed, so move on.
-				advance();
+				Advance(battle);
 			}
 			else
 			{
@@ -72,7 +73,7 @@ void ActionRunner::descendInto(ContainerNode * container)
 	_newAction = true;
 }
 
-void ActionRunner::advance()
+void ActionRunner::Advance(ASignalsBattleMode * const battle)
 {
 	// Move to the next command.
 	++_state.childIndex;
@@ -80,12 +81,15 @@ void ActionRunner::advance()
 	if (_state.childIndex >= _state.container->GetChildCount())
 	{
 		// There is no next command in this container, so try to ascend.
+		_state.container->OnLeave(battle);
 		if (!_stack.IsEmpty())
 		{
 			_state = _stack.Pop();
-
-			// Skip past the container.
-			++_state.childIndex;
+			if (_state.container != nullptr)
+			{
+				// Skip past the container.
+				Advance(battle);
+			}
 		}
 	}
 }

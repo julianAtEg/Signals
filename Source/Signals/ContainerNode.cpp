@@ -54,3 +54,12 @@ ActionNode * ContainerNode::FindChildOfType(FString const & type)
 	return nullptr;
 }
 
+void ContainerNode::OnEnter(ASignalsBattleMode * const battle)
+{
+
+}
+
+void ContainerNode::OnLeave(ASignalsBattleMode * const battle)
+{
+
+}

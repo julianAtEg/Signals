@@ -1,5 +1,6 @@
 #include "Signals.h"
 #include "ActionNode.h"
+#include "SignalsBattleMode.h"
 
 ActionNode::ActionNode(FString const & type, bool isContainer /*=false*/)
 : IsContainer(isContainer)
@@ -37,8 +38,33 @@ void ActionNode::FromXml(FXmlNode * const node)
 	}
 }
 
-void ActionNode::Execute(ASignalsBattleMode * const)
+void ActionNode::Execute(ASignalsBattleMode * battle)
 {
+	switch (_destination)
+	{
+		case Destination::Source:
+		{
+			auto target = battle->GetActionSource();
+			executeInner(battle, target);
+			break;
+		}
+
+		case Destination::Targets:
+		{
+			auto & targets = battle->GetActionTargets();
+			for (auto target : targets)
+			{
+				executeInner(battle, target);
+			}
+		}
+
+		case Destination::Custom:
+			executeCustom(battle);
+			break;
+
+		case Destination::None:
+			break;
+	}
 }
 
 bool ActionNode::Update(ASignalsBattleMode * const, float)
@@ -48,4 +74,13 @@ bool ActionNode::Update(ASignalsBattleMode * const, float)
 
 void ActionNode::PostInitialize(Action * const)
 {
+}
+
+void ActionNode::executeInner(ASignalsBattleMode *, Combatant *)
+{
+
+}
+void ActionNode::executeCustom(ASignalsBattleMode *)
+{
+
 }

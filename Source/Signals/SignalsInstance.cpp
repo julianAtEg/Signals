@@ -9,6 +9,8 @@ static UHumanPlayerStats * loadStats(FString const & folder, FString const & nam
 
 USignalsInstance::USignalsInstance(FObjectInitializer const & init)
 	: Super(init)
+	, BattleInfo()
+	, Ergs(0)
 {
 }
 
@@ -27,6 +29,8 @@ void USignalsInstance::Init()
 
 	auto brandonStats = loadStats(TEXT("Data"), TEXT("Brandon"));
 	_stats.Add(TEXT("Brandon"), brandonStats);
+
+	Ergs = 100;
 }
 
 UHumanPlayerStats * USignalsInstance::GetHumanPlayerStats(FString player)

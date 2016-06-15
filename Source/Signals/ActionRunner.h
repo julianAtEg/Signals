@@ -44,9 +44,11 @@ public:
 	// Is the runner finished?
 	bool IsFinished() const;
 
+	// Called when an async action completes to move the execution on.
+	void Advance(ASignalsBattleMode * const battle);
+
 private:
 	void descendInto(ContainerNode * container);
-	void advance();
 
 	// Current execution state.
 	State _state;
