@@ -5,5 +5,6 @@
 		<ability name="Throw" ap="0" skill="1" maxSkill="100"/> 
 		<ability name="Bombard" ap="0" skill="1" maxSkill="100"/> 
 		<ability name="Heal" ap="0" skill="1" maxSkill="100"/> 
+		<ability name="Punch" ap="0" skill="1" maxSkill="100"/> 
 	</abilities>
 </character>

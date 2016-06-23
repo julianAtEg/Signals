@@ -1,6 +1,7 @@
 #include "Signals.h"
 #include "PlayAudioNode.h"
 #include "SignalsBattleMode.h"
+#include "ResourceManager.h"
 
 //-----------------------------------------------------------------------------
 
@@ -11,10 +12,6 @@ static ActionNode * ctor()
 
 static const FString s_type(TEXT("audio"));
 static ActionNode::Ctor s_ctor = ActionNode::RegisterCtor(s_type, ctor);
-
-//-----------------------------------------------------------------------------
-
-static void playSound(UWorld * world, AActor * object, USoundWave * sound);
 
 //-----------------------------------------------------------------------------
 
@@ -32,19 +29,10 @@ void PlayAudioNode::FromXml(FXmlNode * const node)
 	ActionNode::FromXml(node);
 }
 
-void PlayAudioNode::PostInitialize(Action * const)
+void PlayAudioNode::LoadResources(ASignalsBattleMode * const battle)
 {
-	// TODO: volume.
-	auto name = FString::Printf(TEXT("SoundWave'/Game/Audio/%s.%s'"), *_audioFile, *_audioFile);
-	_sound = LoadObject<USoundWave>(nullptr, *name, nullptr, LOAD_None, nullptr);
-	if (_sound != nullptr)
-	{
-		_sound->AddToRoot();
-	}
-	else
-	{
-		UE_LOG(SignalsLog, Warning, TEXT("Could not locate sound resource '%s'"), *_audioFile);
-	}
+	auto resMgr = battle->GetResourceManager();
+	_sound = resMgr->LoadAudioResource(_audioFile);
 }
 
 void PlayAudioNode::executeInner(ASignalsBattleMode * const battle, Combatant * combatant)

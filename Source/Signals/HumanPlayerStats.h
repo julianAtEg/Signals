@@ -54,6 +54,8 @@ public:
 	int ComputeAttack(Random * rng, int base, int levelScale, FString const & action) const override;
 	int ComputeRegain(Random * rng, int base, int levelScale, FString const & action) const override;
 
+	TArray<FString> GetActions() const override;
+
 protected:
 	void fromXml(FXmlNode * const root) override;
 

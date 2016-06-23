@@ -10,14 +10,16 @@ public:
 
 	void FromXml(FXmlNode * const node) override;
 	bool Update(ASignalsBattleMode * const battle, float dt) override;
+	void LoadResources(ASignalsBattleMode * const battle);
 
 protected:
 	void executeInner(ASignalsBattleMode * const battle, Combatant * combatant) override;
 
 private:
 	FString _anim;
-	USoundWave * _sound;
+	FString _soundName;
 	bool _block;
+	TMap<FString, USoundWave *> _soundMap;
 };
 
 

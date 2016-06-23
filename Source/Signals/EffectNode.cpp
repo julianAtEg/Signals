@@ -1,6 +1,7 @@
 #include "Signals.h"
 #include "EffectNode.h"
 #include "SignalsBattleMode.h"
+#include "ResourceManager.h"
 
 //-----------------------------------------------------------------------------
 
@@ -44,12 +45,10 @@ void EffectNode::FromXml(FXmlNode * const node)
 	ActionNode::FromXml(node);
 }
 
-void EffectNode::PostInitialize(Action * const)
+void EffectNode::LoadResources(ASignalsBattleMode * const battle)
 {
-	auto name = FString::Printf(TEXT("ParticleSystem'/Game/Particles/%s.%s'"), *_effect, *_effect);
-	_particles = (UParticleSystem *)LoadObject<UParticleSystem>(nullptr, *name, nullptr, LOAD_None, nullptr);
-	check(_particles != nullptr);
-	_particles->AddToRoot();
+	auto resMgr = battle->GetResourceManager();
+	_particles = resMgr->LoadParticleSystem(_effect);
 }
 
 void EffectNode::executeInner(ASignalsBattleMode * const battle, Combatant * target)

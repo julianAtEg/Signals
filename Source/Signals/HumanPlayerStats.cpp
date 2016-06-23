@@ -2,9 +2,9 @@
 
 #include "Signals.h"
 #include "HumanPlayerStats.h"
-#include "XmlParser.h"
 #include "Random.h"
 #include "Combat.h"
+#include "Action.h"
 
 UHumanPlayerStats::UHumanPlayerStats(FObjectInitializer const & init)
 : Super(init)
@@ -171,5 +171,15 @@ void UHumanPlayerStats::LoadStaticData(FString const & playerName)
 	// Load curve that defines EXP values for levelling up.
 	auto levelNode = root->FindChildNode(TEXT("levelCurve"));
 	_levelCurve.FromXml(levelNode);
+}
+
+TArray<FString> UHumanPlayerStats::GetActions() const
+{
+	TArray<FString> result;
+	for (auto & ab : _abilities)
+	{
+		result.Add(ab.Name);
+	}
+	return result;
 }
 

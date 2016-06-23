@@ -9,7 +9,7 @@ public:
 	~EffectNode();
 
 	void FromXml(FXmlNode * const node) override;
-	void PostInitialize(Action * const action) override;
+	void LoadResources(ASignalsBattleMode * const battle);
 
 protected:
 	void executeInner(ASignalsBattleMode * const battle, Combatant * combatant) override;

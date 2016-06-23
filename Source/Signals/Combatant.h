@@ -6,6 +6,7 @@
 
 class UPlayerStats;
 class ActionInstance;
+class Action;
 
 // What a character is currently doing.
 enum class ActionState
@@ -25,6 +26,9 @@ enum class ActionState
 	// Running an action.
 	Running,
 
+	// Returning to start pos.
+	ReturnToStart,
+
 	// Action complete.
 	Complete,
 };
@@ -35,8 +39,9 @@ enum class ActionState
  */
 struct SIGNALS_API Combatant
 {
-	inline Combatant(bool human, ACharacter * avatar, UPlayerStats * stats)
-		: IsHuman( human )
+	inline Combatant(APlayerStart * start, bool human, ACharacter * avatar, UPlayerStats * stats)
+		: Start( start )
+		, IsHuman( human )
 		, Avatar( avatar )
 		, Stats( stats )
 		, TurnDelay( 0 )
@@ -50,6 +55,9 @@ struct SIGNALS_API Combatant
 
 	}
 
+	// The start point for the character.
+	APlayerStart * const Start;
+
 	// Is the combatant human?
 	bool IsHuman;
 
@@ -57,7 +65,7 @@ struct SIGNALS_API Combatant
 	ACharacter * Avatar;
 
 	// Stats for the combatant.
-	UPlayerStats * Stats;
+	UPlayerStats * const Stats;
 
 	// Notional delay between turns for scheduler.
 	int TurnDelay;
@@ -77,6 +85,13 @@ struct SIGNALS_API Combatant
 
 	// If true, the player is alive.
 	bool IsAlive;
+
+	// If true, player has moved during the turn and needs returning
+	// to home.
+	bool HasMoved;
+
+	// Can the player perform the supplied action?
+	bool CanPerformAction(Action * const action) const;
 
 	void OnTurnBeginning();
 };

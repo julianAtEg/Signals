@@ -1,9 +1,11 @@
 #include "Signals.h"
 #include "StatNode.h"
+#include "StatType.h"
+#include "Action.h"
 
 StatNode::StatNode(FString const & type)
 : ActionNode(type)
-, _type(StatType::Undefined)
+, _type(EStatClass::Undefined)
 , _base(0)
 , _levelScale(1)
 , _min(0)
@@ -15,31 +17,8 @@ void StatNode::FromXml(FXmlNode * const node)
 {
 	ActionNode::FromXml(node);
 
-	auto typeStr = node->GetAttribute(TEXT("type")).ToLower();
-	if (typeStr == TEXT("hitpoints"))
-	{
-		_type = StatType::HitPoints;
-	}
-	else if (typeStr == TEXT("morale"))
-	{
-		_type = StatType::Morale;
-	}
-	else if (typeStr == TEXT("energy"))
-	{
-		_type = StatType::Energy;
-	}
-	else if (typeStr == TEXT("strength"))
-	{
-		_type = StatType::Strength;
-	}
-	else if (typeStr == TEXT("defence"))
-	{
-		_type = StatType::Defence;
-	}
-	else
-	{
-		checkf(false, TEXT("Undefined damage type '%s'"), *typeStr);
-	}
+	auto typeStr = node->GetAttribute(TEXT("type"));
+	_type = StatType::FromString(typeStr);
 
 	auto baseStr = node->GetAttribute(TEXT("base"));
 	_base = FCString::Atoi(*baseStr);
@@ -52,4 +31,10 @@ void StatNode::FromXml(FXmlNode * const node)
 
 	auto maxStr = node->GetAttribute(TEXT("max"));
 	_max = FCString::Atoi(*maxStr);
+}
+
+void StatNode::PostInitialize(Action * const action)
+{
+	action->AddTarget(_type);
+	ActionNode::PostInitialize(action);
 }

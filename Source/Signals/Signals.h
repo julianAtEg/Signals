@@ -3,5 +3,7 @@
 #pragma once
 
 #include "Engine.h"
+#include "AIController.h"
+#include "XmlParser.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(SignalsLog, Log, All);

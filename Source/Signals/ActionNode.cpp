@@ -76,6 +76,16 @@ void ActionNode::PostInitialize(Action * const)
 {
 }
 
+void ActionNode::LoadResources(ASignalsBattleMode * const battle)
+{
+
+}
+
+void ActionNode::UnloadResources(ASignalsBattleMode * const battle)
+{
+
+}
+
 void ActionNode::executeInner(ASignalsBattleMode *, Combatant *)
 {
 

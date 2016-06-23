@@ -12,6 +12,7 @@ class DamageContainer : public ContainerNode
 public:
 	DamageContainer();
 
+	void PostInitialize(Action * const action) override;
 	void OnLeave(ASignalsBattleMode * const battle) override;
 };
 

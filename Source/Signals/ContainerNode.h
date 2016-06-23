@@ -25,6 +25,9 @@ public:
 	virtual void OnEnter(ASignalsBattleMode * battle);
 	virtual void OnLeave(ASignalsBattleMode * battle);
 
+	void LoadResources(ASignalsBattleMode * const battle) override;
+	void UnloadResources(ASignalsBattleMode * const battle) override;
+
 private:
 	TArray<ActionNode *> _children;
 };

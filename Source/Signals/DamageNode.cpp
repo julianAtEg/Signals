@@ -5,6 +5,7 @@
 #include "Random.h"
 #include "ActionInstance.h"
 #include "Combat.h"
+#include "Action.h"
 
 //-----------------------------------------------------------------------------
 
@@ -37,11 +38,32 @@ void DamageContainer::OnLeave(ASignalsBattleMode * const battle)
 	battle->ApplyDamage();
 }
 
+void DamageContainer::PostInitialize(Action * const action)
+{
+	action->SetClass(EActionClass::Offensive);
+
+	int averageDamage = 0;
+	int numKids = GetChildCount();
+	if (numKids > 0)
+	{
+		for (int i = 0; i < GetChildCount(); ++i)
+		{
+			auto damageNode = (DamageNode *)GetChild(i);
+			averageDamage += damageNode->GetMax();
+		}
+
+		averageDamage /= numKids;
+	}
+	action->SetScore(averageDamage);
+
+	ContainerNode::PostInitialize(action);
+}
+
 //-----------------------------------------------------------------------------
 
 DamageNode::DamageNode()
 : StatNode(s_type)
-, _class(EAttackClass::NumClasses)
+, _class(EAttackClass::NumAttackClasses)
 , _persistent(true)
 , _isAvoidable(false)
 {
@@ -50,7 +72,7 @@ DamageNode::DamageNode()
 void DamageNode::FromXml(FXmlNode * const node)
 {
 	StatNode::FromXml(node);
-
+	
 	auto classStr = node->GetAttribute(TEXT("class"));
 	_class = AttackClass::FromString(classStr);
 

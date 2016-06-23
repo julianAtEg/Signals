@@ -46,10 +46,12 @@ Action::Action()
 , _name(TEXT("???"))
 , _category(TEXT("???"))
 , _cost(0)
+, _score(0)
 , _warmup(0)
 , _affectsMultipleTargets(false)
 , _menuIcon(0)
-, _offensive(false)
+, _class(EActionClass::Neutral)
+, _targets(EStatClass::Undefined)
 , _root(TEXT("action"))
 , _warmupNode(nullptr)
 , _activityNode(nullptr)
@@ -60,6 +62,16 @@ Action::Action()
 
 Action::~Action()
 {
+}
+
+void Action::SetScore(int score)
+{
+	_score = score;
+}
+
+void Action::LoadResources(ASignalsBattleMode * const battle)
+{
+	_root.LoadResources(battle);
 }
 
 void Action::FromXml(FXmlNode * const node)
@@ -76,9 +88,6 @@ void Action::FromXml(FXmlNode * const node)
 	_description = node->GetAttribute(TEXT("description"));
 	auto iconStr = node->GetAttribute(TEXT("menuIcon"));
 	_menuIcon = FCString::Atoi(*iconStr);
-	auto offStr = node->GetAttribute(TEXT("offensive"));
-	offStr.ToLowerInline();
-	_offensive = (offStr == "true");
 
 	// Read child attributes.
 	_root.FromXml(node);
@@ -106,3 +115,12 @@ void Action::SetWarmupRounds(int rounds)
 	_warmup = rounds;
 }
 
+void Action::SetClass(EActionClass actionClass)
+{
+	_class = actionClass;
+}
+
+void Action::AddTarget(EStatClass target)
+{
+	_targets = (EStatClass)(_targets | target);
+}

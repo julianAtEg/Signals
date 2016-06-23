@@ -11,6 +11,7 @@
 class Action;
 class ActionInstance;
 class Random;
+class ResourceManager;
 
 UENUM(BlueprintType)
 enum class MenuState
@@ -29,6 +30,7 @@ class SIGNALS_API ASignalsBattleMode : public ASignalsGameMode
 public:
 	void InitializeInput(UInputComponent * input) override;
 	void BeginPlay() override;
+	void EndPlay(EEndPlayReason::Type reason) override;
 	void Tick(float dt) override;
 
 	// Enables or disables player control.
@@ -48,6 +50,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Battle State")
 	TArray<ACharacter *> & GetHumanPlayers();
+
+	TArray<Combatant> & GetAllCombatants();
+	TArray<Combatant> const & GetAllCombatants() const;
 
 	// If true, commands can be selected from the UI.
 	UFUNCTION(BlueprintPure, Category = "Battle State")
@@ -146,9 +151,15 @@ public:
 	Combatant * GetActionSource();
 	Combatant const * GetActionSource() const;
 	TArray<Combatant *> const & GetActionTargets() const;
+	void SetActionTargets(TArray<Combatant *> const & targets);
+	TArray<Combatant *> GetActiveHumans() const;
+	TArray<Combatant *> GetActiveNPCs() const;
 
 	// Gets the random number generator for the battle.
 	Random * GetRandom() const;
+
+	// Gets the resource manager.
+	ResourceManager * GetResourceManager();
 
 private:
 	bool updateCombatant(UWorld * world, Combatant * combatant,float dt);
@@ -182,6 +193,7 @@ private:
 	bool _boostGaugeActive;
 	float _boostMaxTime;
 	float _boostTime;
+	ResourceManager * _resMgr;
 };
 
 inline Combatant const * ASignalsBattleMode::GetActionSource() const
@@ -197,4 +209,19 @@ inline Combatant * ASignalsBattleMode::GetActionSource()
 inline TArray<Combatant *> const & ASignalsBattleMode::GetActionTargets() const
 {
 	return(_targets);
+}
+
+inline ResourceManager * ASignalsBattleMode::GetResourceManager()
+{
+	return _resMgr;
+}
+
+inline TArray<Combatant> & ASignalsBattleMode::GetAllCombatants()
+{
+	return _combatants;
+}
+
+inline TArray<Combatant> const & ASignalsBattleMode::GetAllCombatants() const
+{
+	return _combatants;
 }

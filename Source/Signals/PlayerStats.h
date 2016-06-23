@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include "Signals.h"
-#include "XmlParser.h"
 #include "Ability.h"
 #include "AttackClass.h"
+#include "ResourceManager.h"
 #include "PlayerStats.generated.h"
 
 class Random;
+class ASignalsBattleMode;
 
 /**
  * Base class for human and enemy stat APIs.
@@ -57,6 +57,9 @@ public:
 	virtual int ComputeAttack(Random * rng, int base, int levelScale, FString const & action) const;
 	virtual int ComputeDefence(Random * rng, int levelScale, EAttackClass actionClass) const;
 	virtual int ComputeRegain(Random * rng, int base, int levelScale, FString const & action) const;
+
+	// Gets all the known actions for the player
+	virtual TArray<FString> GetActions() const;
 
 protected:
 	virtual void fromXml(FXmlNode * const node);

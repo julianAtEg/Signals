@@ -1,8 +1,7 @@
 <actions>
 	<!--TODO: preconditions for actions-->
 	<action id="1" name="Throw" target="single" category="mecha" cost="0"
-	        description="Throws a small object at the enemy" menuIcon="0"
-			offensive="true">
+	        description="Throws a small object at the enemy" menuIcon="0">
 		<warmup/>
 		<activity>
 			<anim destination="source" name="Cast1" audio="throw" block="true"/>
@@ -17,14 +16,13 @@
 		</payload>
 	</action>
 	<action id="2" name="Bombard" target="multiple" category="mecha" cost="0"
-	        description="Throws a small object at all enemies" menuIcon="1"
-			offensive="true">
+	        description="Throws a small object at all enemies" menuIcon="1">
 		<warmup/>
 		<activity>
 			<anim destination="source" name="Cast1" audio="throw" block="true"/>
 		</activity>
 		<payload>
-			<anim destination="targets" name="Recoil1" audio="hit"/>
+			<anim destination="targets" name="Recoil1" audio="ugh"/>
 			<effect name="P_DustPuff" targetSocket="TargetSocket" destination="targets"/>
 			<damages>
 				<damage type="hitpoints" base="1" levelScale="2" min="0" max="50" destination="targets" class="physical"/>
@@ -44,7 +42,7 @@
 			</payload>				
 	</action>
 	<action id="4" name="Burn" target="single" category="therma" cost="3"
-	        description="Damage an enemy with fire" menuIcon="3" offensive="true">
+	        description="Damage an enemy with fire" menuIcon="3">
 		<warmup/>
 		<activity>
 			<audio cue="twinkle" destination="source"/>
@@ -57,6 +55,22 @@
 			<effect name="P_fire" destination="targets" targetSocket="TargetSocket"/>
 			<damages>
 				<damage type="hitpoints" base="3" levelScale="3" min="1" max="100" destination="targets" class="fire"/>
+			</damages>
+		</payload>				
+	</action>
+	<action id="5" name="Punch" target="single" category="mecha" cost="1"
+	        description="Hit an enemy with bare hands" menuIcon="3">
+		<warmup/>
+		<activity>
+			<walk destination="source" proximity="150"/>
+			<anim destination="source" name="Punch" audio="punch" block="true"/>
+		</activity>
+		<payload>
+			<audio cue="ugh" destination="targets"/>
+			<anim destination="targets" name="Recoil1" audio="fireball"/>
+			<effect name="P_DustPuff" destination="targets" targetSocket="TargetSocket"/>
+			<damages>
+				<damage type="hitpoints" base="2" levelScale="2" min="1" max="50" destination="targets" class="physical"/>
 			</damages>
 		</payload>				
 	</action>

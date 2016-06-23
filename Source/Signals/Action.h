@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Engine.h"
 #include "ContainerNode.h"
-#include "XmlParser.h"
+#include "ActionClass.h"
+#include "StatType.h"
 
 class Action
 {
@@ -38,13 +38,25 @@ public:
 	// Gets the index of the icon to show in menus.
 	int GetMenuIcon() const;
 
-	// Returns true if the action is offensive.
-	bool IsOffensive() const;
+	// Get / set the class of the action.
+	EActionClass GetClass() const;
+	void SetClass(EActionClass actionClass);
+
+	// Get / set what the action is directed at.
+	EStatClass GetTargets() const;
+	void AddTarget(EStatClass target);
+
+	// For the AI, the score measures some kind of expected payoff value - action dependent.
+	int GetScore() const;
+	void SetScore( int score );
 
 	// Gets the warmup / action / payload nodes.
 	ContainerNode * GetWarmupNode() const;
 	ContainerNode * GetActivityNode() const;
 	ContainerNode * GetPayloadNode() const;
+
+	// Loads resources for the action.
+	void LoadResources(ASignalsBattleMode * const battle);
 
 	// Initialize the action system (one-time at startup)
 	static void Initialize();
@@ -68,6 +80,9 @@ private:
 	// The cost in erg of the action.
 	int _cost;
 
+	// The expected payoff value of the action.
+	int _score;
+
 	// The number of rounds of warmup the action takes in battle.
 	int _warmup;
 
@@ -77,8 +92,9 @@ private:
 	// Index of the action's menu icon (see the UI Blueprint).
 	int _menuIcon;
 
-	// Is this an offensive or defensive/neutral action?
-	bool _offensive;
+	// The type of the action, and what traits it's directed at.
+	EActionClass _class;
+	EStatClass _targets;
 
 	// Main action nodes.
 	ContainerNode _root;
@@ -87,9 +103,14 @@ private:
 	ContainerNode * _payloadNode;
 };
 
-inline bool Action::IsOffensive() const
+inline EActionClass Action::GetClass() const
 {
-	return _offensive;
+	return _class;
+}
+
+inline EStatClass Action::GetTargets() const
+{
+	return _targets;
 }
 
 inline int Action::GetMenuIcon() const
@@ -120,6 +141,11 @@ inline FString const & Action::GetDescription() const
 inline int Action::GetCost() const
 {
 	return _cost;
+}
+
+inline int Action::GetScore() const
+{
+	return _score;
 }
 
 inline int Action::GetWarmupRounds() const

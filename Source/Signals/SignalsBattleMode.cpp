@@ -5,12 +5,15 @@
 #include "SignalsInstance.h"
 #include "AssetHelper.h"
 #include "HumanPlayerStats.h"
+#include "NpcPlayerStats.h"
 #include "CachedRandom.h"
 #include "Action.h"
 #include "ActionInstance.h"
 #include "UIEvent.h"
 #include "ActionMenuItem.h"
 #include "Combat.h"
+#include "ActionClass.h"
+#include "Strategy.h"
 
 //-----------------------------------------------------------------------------
 
@@ -19,13 +22,41 @@ static CachedRandom s_rng( 1134771U ); // FDateTime::GetTicks() );
 
 //-----------------------------------------------------------------------------
 
-static bool selectActionAI(Combatant * combatant);
+static bool selectActionAI(ASignalsBattleMode * battle,Combatant * combatant);
 static bool compareItems(FActionMenuItem const & a1, FActionMenuItem const & a2);
 static void getEnemies(TArray<Combatant *> & enemies, TArray<Combatant> & all);
 static void getFriends(TArray<Combatant *> & friends, TArray<Combatant> & all, Combatant * me);
 static bool checkForWin(TArray<Combatant> const & players, bool human);
 
 //-----------------------------------------------------------------------------
+
+TArray<Combatant *> ASignalsBattleMode::GetActiveHumans() const
+{
+	TArray<Combatant *> result;
+	for (auto & player : _combatants)
+	{
+		if (player.IsAlive && player.IsHuman)
+		{
+			result.Add(const_cast<Combatant *>(&player));
+		}
+	}
+
+	return result;
+}
+
+TArray<Combatant *> ASignalsBattleMode::GetActiveNPCs() const
+{
+	TArray<Combatant *> result;
+	for (auto & player : _combatants)
+	{
+		if (player.IsAlive && !player.IsHuman)
+		{
+			result.Add(const_cast<Combatant *>(&player));
+		}
+	}
+
+	return result;
+}
 
 Random * ASignalsBattleMode::GetRandom() const
 {
@@ -120,6 +151,14 @@ TArray<ACharacter *> & ASignalsBattleMode::GetHumanPlayers()
 	return _players;
 }
 
+void ASignalsBattleMode::EndPlay(EEndPlayReason::Type reason)
+{
+	Super::EndPlay(reason);
+
+	delete _resMgr;
+	_resMgr = nullptr;
+}
+
 void ASignalsBattleMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -130,6 +169,8 @@ void ASignalsBattleMode::BeginPlay()
 		UE_LOG(SignalsLog, Error, TEXT("world is null"));
 		return;
 	}
+
+	_resMgr = new ResourceManager();
 
 	// Find all the player starts in the scene.
 	TSubclassOf<AActor> targetClass = APlayerStart::StaticClass();
@@ -176,6 +217,20 @@ void ASignalsBattleMode::BeginPlay()
 	auto & info = instance->BattleInfo;
 	initCombatants(world, _playerStarts, info.OurCombatants,  true);
 	initCombatants(world, _enemyStarts, info.TheirCombatants, false);
+
+	// Load resources, avoiding duplication.
+	TSet<FString> actionNames;
+	for (auto & combatant : _combatants)
+	{
+		auto stats = combatant.Stats;
+		auto playerActions = stats->GetActions();
+		actionNames.Append(playerActions);
+	}
+	for (auto actionName : actionNames)
+	{
+		auto action = Action::FindAction(actionName);
+		action->LoadResources(this);
+	}
 
 	// Set up camera switching.
 	_cameraSwitchTimer = 0.0f;
@@ -293,13 +348,36 @@ void ASignalsBattleMode::OnActionComplete()
 	UE_LOG(SignalsLog, Log, TEXT("ASignalsBattleMode::OnActionComplete()"));
 
 	auto combatant = &_combatants[_currentPlayerIndex];
-	auto currentAction = combatant->Activity;
-	currentAction->NotifyActionComplete(this);
-	if (currentAction->IsFinished())
+	switch (combatant->State)
 	{
-		combatant->State = ActionState::Complete;
+		case ActionState::ReturnToStart:
+		{
+			// Rotate to original orientation.
+			auto rot = combatant->Start->GetActorRotation();
+			combatant->Avatar->SetActorRotation(rot);
+			combatant->State = ActionState::Complete;
+			break;
+		}
+
+		default:
+		{
+			auto currentAction = combatant->Activity;
+			currentAction->NotifyActionComplete(this);
+			if (currentAction->IsFinished())
+			{
+				if (combatant->HasMoved)
+				{
+					auto ai = Cast<AAIController>(combatant->Avatar->GetController());
+					ai->MoveToActor(combatant->Start, 1.0f, false, false, false);
+					combatant->State = ActionState::ReturnToStart;
+				}
+				else
+				{
+					combatant->State = ActionState::Complete;
+				}
+			}
+		}
 	}
-	//combatant->State = ActionState::Complete;
 }
 
 void ASignalsBattleMode::ApplyDamage()
@@ -453,6 +531,11 @@ void ASignalsBattleMode::findAvailableActions(Combatant * const combatant)
 	}
 }
 
+void ASignalsBattleMode::SetActionTargets(TArray<Combatant *> const & targets)
+{
+	_targets.Append(targets);
+}
+
 void ASignalsBattleMode::SetCurrentCombatantAction(ActionInstance * action)
 {
 	auto combatant = &_combatants[_currentPlayerIndex];
@@ -482,7 +565,7 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 			else
 			{
 				// Let the AI choose a command.
-				if (selectActionAI(combatant))
+				if (selectActionAI(this,combatant))
 				{
 					combatant->State = ActionState::Start;
 				}
@@ -521,6 +604,7 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 				checkf(combatant->Activity != nullptr, TEXT("Null action!"));
 				UE_LOG(SignalsLog, Log, TEXT("Player %s running action %s"), *combatant->Avatar->GetName(), *combatant->Activity->GetName());
 				combatant->State = ActionState::Running;
+
 				combatant->Activity->RunActivity(this);
 			}
 			else
@@ -544,7 +628,6 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 			combatant->State = ActionState::Idle;
 			advance = true;
 			break;
-
 	}
 
 	return advance;
@@ -604,7 +687,7 @@ void ASignalsBattleMode::HandleMenuSelect(int itemID)
 		if (action->AffectsMultipleTargets())
 		{
 			// TODO: consider manual selection of either side rather than auto-targetting.
-			if (action->IsOffensive())
+			if (action->GetClass() == EActionClass::Offensive)
 			{
 				getEnemies(_targets, _combatants);
 			}
@@ -623,7 +706,7 @@ void ASignalsBattleMode::HandleMenuSelect(int itemID)
 			// Offensive actions should select the enemies first; otherwise Our Side.
 			TArray<Combatant *> friends;
 			TArray<Combatant *> enemies;
-			if (action->IsOffensive())
+			if (action->GetClass() == EActionClass::Offensive)
 			{
 				getEnemies(_targets, _combatants);
 				getFriends(_targets, _combatants, player);
@@ -687,6 +770,8 @@ void ASignalsBattleMode::initCombatant( UWorld * world, APlayerStart * start, FS
 		UE_LOG(SignalsLog, Error, TEXT("Not a character"));
 	}
 
+	character->SpawnDefaultController();
+
 	UPlayerStats * stats;
 	if (human)
 	{
@@ -697,20 +782,30 @@ void ASignalsBattleMode::initCombatant( UWorld * world, APlayerStart * start, FS
 	else
 	{
 		_enemies.Add(character);
-		// TODO: get enemy data.
-		stats = NewObject<UPlayerStats>();
-		stats->AddToRoot();
+		stats = _resMgr->LoadNPCStats(actorId);
 	}
 
-	Combatant comb(human, character, stats);
+	Combatant comb(start, human, character, stats);
 	_combatants.Add(comb);
 }
 
 //-----------------------------------------------------------------------------
 
-static bool selectActionAI(Combatant * combatant)
+static bool selectActionAI( ASignalsBattleMode * battle, Combatant * combatant )
 {
-	return false;
+	auto stats = Cast<UNpcPlayerStats>(combatant->Stats);
+	if (stats == nullptr)
+	{
+		return false;
+	}
+
+	auto strategy = stats->GetStrategy();
+	if (strategy == nullptr)
+	{
+		return false;
+	}
+
+	return strategy->Run(battle, combatant);
 }
 
 static bool compareItems(FActionMenuItem const & a1, FActionMenuItem const & a2)

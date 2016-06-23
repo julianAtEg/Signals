@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "AIController.h"
 #include "BattleAIController.generated.h"
 
 /**

@@ -8,7 +8,7 @@ public:
 	PlayAudioNode();
 
 	void FromXml(FXmlNode * const node) override;
-	void PostInitialize(Action * const) override;
+	void LoadResources(ASignalsBattleMode* const battle) override;
 
 protected:
 	void executeInner(ASignalsBattleMode * const battle, Combatant * combatant) override;

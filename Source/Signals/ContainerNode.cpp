@@ -63,3 +63,19 @@ void ContainerNode::OnLeave(ASignalsBattleMode * const battle)
 {
 
 }
+
+void ContainerNode::LoadResources(ASignalsBattleMode * const battle)
+{
+	for (auto & child : _children)
+	{
+		child->LoadResources(battle);
+	}
+}
+
+void ContainerNode::UnloadResources(ASignalsBattleMode * const battle)
+{
+	for (auto & child : _children)
+	{
+		child->UnloadResources(battle);
+	}
+}

@@ -18,6 +18,13 @@ RestoreNode::RestoreNode()
 {
 }
 
+void RestoreNode::PostInitialize(Action * const action)
+{
+	action->SetClass(EActionClass::Restorative);
+	action->SetScore(GetMax());
+	StatNode::PostInitialize(action);
+}
+
 void RestoreNode::executeInner(ASignalsBattleMode * battle, Combatant * target)
 {
 	UE_LOG(SignalsLog, Log, TEXT("RestoreNode::executeInner()"));

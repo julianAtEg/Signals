@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Signals.h"
-
 UENUM(BlueprintType)
 enum EAttackClass
 {
@@ -17,7 +15,7 @@ enum EAttackClass
 	Viral,
 
 	// New values above here.
-	NumClasses
+	NumAttackClasses
 };
 
 namespace AttackClass

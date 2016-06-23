@@ -22,11 +22,11 @@ namespace AttackClass
 {
 	EAttackClass FromString(FString const & str)
 	{
-		checkf(sizeof(s_names) / sizeof(s_names[0]) == (int)EAttackClass::NumClasses, 
+		checkf(sizeof(s_names) / sizeof(s_names[0]) == (int)EAttackClass::NumAttackClasses, 
 			   TEXT("Mismatch between enum EAttackClass and string reps"));
 
 		auto lcName = str.ToLower();
-		for (int i = 0; i < EAttackClass::NumClasses; ++i)
+		for (int i = 0; i < EAttackClass::NumAttackClasses; ++i)
 		{
 			if (lcName == s_names[i])
 			{
@@ -36,12 +36,12 @@ namespace AttackClass
 
 		checkf(false, TEXT("Invalid class name '%s'"), *str);
 
-		return EAttackClass::NumClasses;
+		return EAttackClass::NumAttackClasses;
 	}
 
 	FString ToString(EAttackClass attackClass)
 	{
-		checkf(sizeof(s_names) / sizeof(s_names[0]) == (int)EAttackClass::NumClasses,
+		checkf(sizeof(s_names) / sizeof(s_names[0]) == (int)EAttackClass::NumAttackClasses,
 			TEXT("Mismatch between enum EAttackClass and string reps"));
 
 		return s_names[attackClass];

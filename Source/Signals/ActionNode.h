@@ -42,6 +42,10 @@ public:
 	// Called after node creation to modify the action appropriately.
 	virtual void PostInitialize(Action * const action);
 
+	// Load / unload the node's resources.
+	virtual void LoadResources( ASignalsBattleMode * const battle ); // TODO: don't re-load a loaded action!
+	virtual void UnloadResources( ASignalsBattleMode * const battle ); // TODO: unless it's been unloaded, of course.
+
 	// Is this a container node?
 	const bool IsContainer;
 

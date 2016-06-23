@@ -15,7 +15,7 @@ UPlayerStats::UPlayerStats(FObjectInitializer const & init)
 , Defence()
 , Level( 1 )
 {
-	Defence.SetNum(EAttackClass::NumClasses, true);
+	Defence.SetNum(EAttackClass::NumAttackClasses, true);
 }
 
 void UPlayerStats::Load(FString const & filePath)
@@ -31,6 +31,11 @@ void UPlayerStats::Load(FString const & filePath)
 
 	auto rootNode = dataXml.GetRootNode();
 	fromXml(rootNode);
+}
+
+TArray<FString> UPlayerStats::GetActions() const
+{
+	return TArray<FString>();
 }
 
 int UPlayerStats::ComputeAttack(Random * rng, int base, int levelScale, FString const & action) const

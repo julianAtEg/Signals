@@ -1,0 +1,11 @@
+<npc name="Maw" level="1" hp="20" maxHP="20" strength="60" 
+     aggression="100" callousness="100" altruism="1">
+	<defence physical="6" fire="5" ice="5" electro="5" light="5" plasma="5" sound="5"
+	         poison="5" bacterial="5" viral="5"/>
+	<strategy type="basic"/>
+	<actions>
+		<action name="Throw" weight="2"/>
+		<action name="Bombard" weight="1"/>
+		<action name="Punch" weight="1"/>
+	</actions>
+</npc>
