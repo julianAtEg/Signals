@@ -101,6 +101,9 @@ private:
 	ContainerNode * _warmupNode;
 	ContainerNode * _activityNode;
 	ContainerNode * _payloadNode;
+
+	// Resources loaded?
+	bool _loaded;
 };
 
 inline EActionClass Action::GetClass() const

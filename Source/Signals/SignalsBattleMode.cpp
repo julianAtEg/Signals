@@ -348,36 +348,12 @@ void ASignalsBattleMode::OnActionComplete()
 	UE_LOG(SignalsLog, Log, TEXT("ASignalsBattleMode::OnActionComplete()"));
 
 	auto combatant = &_combatants[_currentPlayerIndex];
-	switch (combatant->State)
-	{
-		case ActionState::ReturnToStart:
-		{
-			// Rotate to original orientation.
-			auto rot = combatant->Start->GetActorRotation();
-			combatant->Avatar->SetActorRotation(rot);
-			combatant->State = ActionState::Complete;
-			break;
-		}
-
-		default:
-		{
-			auto currentAction = combatant->Activity;
-			currentAction->NotifyActionComplete(this);
-			if (currentAction->IsFinished())
-			{
-				if (combatant->HasMoved)
-				{
-					auto ai = Cast<AAIController>(combatant->Avatar->GetController());
-					ai->MoveToActor(combatant->Start, 1.0f, false, false, false);
-					combatant->State = ActionState::ReturnToStart;
-				}
-				else
-				{
-					combatant->State = ActionState::Complete;
-				}
-			}
-		}
-	}
+	auto currentAction = combatant->Activity;
+	currentAction->NotifyActionComplete(this);
+	//if (currentAction->IsFinished())
+	//{
+	//	combatant->State = ActionState::Complete;
+	//}
 }
 
 void ASignalsBattleMode::ApplyDamage()
@@ -387,10 +363,19 @@ void ASignalsBattleMode::ApplyDamage()
 		auto & combatant = _combatants[i];
 		FString indicator;
 		FVector color(1, 1, 1);
-		if (combatant.HPDamageThisTurn > 0)
+		if (combatant.TookDamage)
 		{
 			UE_LOG(SignalsLog, Warning, TEXT("Damaging %s"), *combatant.Avatar->GetName());
-			FString text = FString::Printf(TEXT("-%dHP"), combatant.HPDamageThisTurn);
+			FString text;
+			if (combatant.HPDamageThisTurn > 0)
+			{
+				text = FString::Printf(TEXT("-%dHP"), combatant.HPDamageThisTurn);
+			}
+			else
+			{
+				text = TEXT("0HP");
+			}
+
 			AddFloatingNotification(combatant.Avatar, text, color);
 
 			auto stats = combatant.Stats;
@@ -401,7 +386,7 @@ void ASignalsBattleMode::ApplyDamage()
 				_scheduler.Cancel(i);
 
 				combatant.IsAlive = false;
-				PlayAnimation(combatant.Avatar, TEXT("Death"), nullptr);
+				PlayAnimation(combatant.Avatar, TEXT("Death"), nullptr, false);
 
 				// Check for win / lose.
 				if (combatant.IsHuman)
@@ -429,6 +414,7 @@ void ASignalsBattleMode::ApplyDamage()
 
 		combatant.HPDamageThisTurn = 0;
 		combatant.ActionMissed = false;
+		combatant.TookDamage = false;
 	}
 }
 
@@ -442,6 +428,7 @@ void ASignalsBattleMode::nextTurn( bool firstTurn )
 
 	// Reset the state, and the UI too.
 	_menuItems.Empty();
+	_targets.Empty();
 	_selectedItem = nullptr;
 	_currentPlayerIndex = _scheduler.Next();
 	auto player = &_combatants[_currentPlayerIndex];
@@ -542,6 +529,22 @@ void ASignalsBattleMode::SetCurrentCombatantAction(ActionInstance * action)
 	if (combatant->IsHuman)
 	{
 		EnablePlayerInput(false);
+		auto game = Cast<USignalsInstance>(GetWorld()->GetGameInstance());
+		game->Ergs -= action->GetAction()->GetCost();
+		if (game->Ergs < 0)
+		{
+			game->Ergs = 0;
+		}
+		UpdateUI();
+	}
+	else
+	{
+		auto stats = Cast<UNpcPlayerStats>(combatant->Stats);
+		stats->Ergs -= action->GetAction()->GetCost();
+		if (stats->Ergs < 0)
+		{
+			stats->Ergs = 0;
+		}
 	}
 
 	combatant->Activity = action;
@@ -549,7 +552,7 @@ void ASignalsBattleMode::SetCurrentCombatantAction(ActionInstance * action)
 	combatant->State = ActionState::Start;
 }
 
-bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,float dt)
+bool ASignalsBattleMode::updateCombatant( UWorld * world, Combatant * combatant, float dt )
 {
 	bool advance = false;
 	switch (combatant->State)
@@ -567,7 +570,14 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 				// Let the AI choose a command.
 				if (selectActionAI(this,combatant))
 				{
-					combatant->State = ActionState::Start;
+					auto action = combatant->Activity->GetAction();
+					combatant->State = ActionState::Paused;
+					_nextState = ActionState::Start;
+					_pauseTimer = 3.0f; // TODO: make variable, pass as parameter.
+					_infoIcon = action->GetMenuIcon();
+					_infoText = FString::Printf(TEXT("%s: %s"), *combatant->Avatar->GetName(), *action->GetName());
+					UpdateUI();
+					AddSpeechBubble(combatant->Avatar, action->GetName(),2.0);
 				}
 				else
 				{
@@ -576,6 +586,14 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 					advance = true;
 					break;
 				}
+			}
+			break;
+
+		case ActionState::Paused:
+			_pauseTimer -= dt;
+			if (_pauseTimer <= 0)
+			{
+				combatant->State = _nextState;
 			}
 			break;
 
@@ -619,6 +637,10 @@ bool ASignalsBattleMode::updateCombatant(UWorld * world, Combatant * combatant,f
 		case ActionState::Running:
 			// Waiting for the action to complete.
 			combatant->Activity->Update(this, dt);
+			if (combatant->Activity->IsFinished())
+			{
+				combatant->State = ActionState::Complete;
+			}
 			break;
 
 		case ActionState::Complete:

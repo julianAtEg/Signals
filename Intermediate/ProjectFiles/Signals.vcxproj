@@ -406,7 +406,13 @@
     <NMakeOutput>..\..\Binaries\HTML5\Signals-HTML5-Shipping.exe</NMakeOutput>
   </PropertyGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Signals\AudioNode.cpp" />
+    <ClCompile Include="..\..\Source\Signals\FaceNode.cpp" />
+    <ClCompile Include="..\..\Source\Signals\ResetNode.cpp" />
     <ClCompile Include="..\..\Source\Signals\ResourceManager.cpp" />
+    <ClInclude Include="..\..\Source\Signals\AudioNode.h" />
+    <ClInclude Include="..\..\Source\Signals\FaceNode.h" />
+    <ClInclude Include="..\..\Source\Signals\ResetNode.h" />
     <ClInclude Include="..\..\Source\Signals\ResourceManager.h" />
     <None Include="..\..\Signals.uproject" />
     <None Include="..\..\Source\Signals.Target.cs" />

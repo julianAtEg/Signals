@@ -51,6 +51,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Battle State")
 	TArray<ACharacter *> & GetHumanPlayers();
 
+	// Gets all the combatants in the battle.
+	// TODO: make them pointers.
 	TArray<Combatant> & GetAllCombatants();
 	TArray<Combatant> const & GetAllCombatants() const;
 
@@ -58,30 +60,37 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Battle State")
 	bool CanSelectCommands() const;
 
+	// Cycles through the battle cameras.
 	UFUNCTION(BlueprintCallable, Category = "Camera Control")
 	void CycleCameras();
 
+	// Switches to the given camera by index.
 	UFUNCTION(BlueprintCallable, Category = "Camera Control")
 	void SwitchToCamera(int camera);
 
+	// Called when a character's turn begins.
 	UFUNCTION(BlueprintImplementableEvent, Category = "Battle State")
 	void OnTurnBeginning(ACharacter * character, bool isHuman);
 
+	// Adds a speech bubble that fades over the specified time.
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+	void AddSpeechBubble(ACharacter * character, FString const & text, float time);
+
+	// Refresh the HUD.
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void UpdateUI();
 
+	// Menu events.
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void OnMenuLeft();
-
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void OnMenuRight();
-
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void OnMenuSelect();
-
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void OnMenuBack();
 
+	// Called by animation / motion code when a command completes.
 	UFUNCTION(BlueprintCallable, Category = "Battle State")
 	void OnActionComplete();
 
@@ -89,47 +98,48 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Battle State")
 	void AddFloatingNotification( ACharacter * who, FString const & text, FVector color );
 
+	// Sets the action for the current player.
 	void SetCurrentCombatantAction(ActionInstance * action);
 	
+	// Gets the available actions for the current player.
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	TArray<FActionMenuItem> GetAvailableActions( int level ) const;
 
+	// Callback for menu selection.
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void HandleMenuSelect(int itemID);
 
+	// Plays a named animation on the character, and optional sound.
 	UFUNCTION(BlueprintImplementableEvent, Category = "Battle State")
-	void PlayAnimation(ACharacter * character, FString const & animation, USoundWave * sound);
+	void PlayAnimation(ACharacter * character, FString const & animation, USoundWave * sound, bool notify);
 
+	// Picking actions or sub-actions?
 	UFUNCTION(BlueprintPure, Category = "UI")
 	MenuState GetMenuState() const;
 
+	// Marker API - hovering arrows to show current player / target.
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void ShowActiveMarker();
-
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void HideActiveMarker();
-
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void ShowTargetMarker(ACharacter * target);
-
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void HideTargetMarker();
-
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void PreviousTarget();
-
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void NextTarget();
-
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void CancelTarget();
-
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void SelectTarget();
 
+	// Gets the text for the info bar.
 	UFUNCTION(BlueprintPure, Category = "UI")
 	FString GetInfoText() const;
 
+	// Gets the icon index for the info bar.
 	UFUNCTION(BlueprintPure, Category = "UI")
 	int GetInfoIcon() const;
 
@@ -194,6 +204,8 @@ private:
 	float _boostMaxTime;
 	float _boostTime;
 	ResourceManager * _resMgr;
+	ActionState _nextState;
+	float _pauseTimer;
 };
 
 inline Combatant const * ASignalsBattleMode::GetActionSource() const

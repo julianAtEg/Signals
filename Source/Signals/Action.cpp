@@ -56,6 +56,7 @@ Action::Action()
 , _warmupNode(nullptr)
 , _activityNode(nullptr)
 , _payloadNode(nullptr)
+, _loaded(false)
 {
 
 }
@@ -71,7 +72,11 @@ void Action::SetScore(int score)
 
 void Action::LoadResources(ASignalsBattleMode * const battle)
 {
-	_root.LoadResources(battle);
+	if (!_loaded)
+	{
+		_root.LoadResources(battle);
+		_loaded = true;
+	}
 }
 
 void Action::FromXml(FXmlNode * const node)

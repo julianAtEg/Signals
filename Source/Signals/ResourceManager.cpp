@@ -91,10 +91,6 @@ USoundWave * ResourceManager::LoadAudioResource(FString const & name)
 			sound->AddToRoot();
 			_audioResources.Add(name, sound);
 		}
-		else
-		{
-			UE_LOG(SignalsLog, Warning, TEXT("Could not locate sound resource '%s'"), *name);
-		}
 	}
 	else
 	{

@@ -322,9 +322,23 @@
     <ClCompile Include="..\..\Source\Signals\ResourceManager.cpp">
       <Filter>Source\Signals</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Signals\ResetNode.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Signals\FaceNode.cpp" />
+    <ClCompile Include="..\..\Source\Signals\AudioNode.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Signals\ResourceManager.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\ResetNode.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\FaceNode.h" />
+    <ClInclude Include="..\..\Source\Signals\AudioNode.h">
       <Filter>Source\Signals</Filter>
     </ClInclude>
   </ItemGroup>

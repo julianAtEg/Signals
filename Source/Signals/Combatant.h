@@ -26,11 +26,11 @@ enum class ActionState
 	// Running an action.
 	Running,
 
-	// Returning to start pos.
-	ReturnToStart,
-
 	// Action complete.
 	Complete,
+
+	// Paused
+	Paused,
 };
 
 
@@ -40,16 +40,17 @@ enum class ActionState
 struct SIGNALS_API Combatant
 {
 	inline Combatant(APlayerStart * start, bool human, ACharacter * avatar, UPlayerStats * stats)
-		: Start( start )
-		, IsHuman( human )
-		, Avatar( avatar )
-		, Stats( stats )
-		, TurnDelay( 0 )
-		, State( ActionState::Idle )
+		: Start(start)
+		, IsHuman(human)
+		, Avatar(avatar)
+		, Stats(stats)
+		, TurnDelay(0)
+		, State(ActionState::Idle)
 		, TurnCounter(0)
 		, Activity(nullptr)
-		, HPDamageThisTurn( 0 )
-		, ActionMissed( false )
+		, HPDamageThisTurn(0)
+		, ActionMissed(false)
+		, TookDamage(false)
 		, IsAlive( true )
 	{
 
@@ -82,13 +83,10 @@ struct SIGNALS_API Combatant
 	// Any damage accrued this turn.
 	int HPDamageThisTurn;
 	bool ActionMissed;
+	bool TookDamage;
 
 	// If true, the player is alive.
 	bool IsAlive;
-
-	// If true, player has moved during the turn and needs returning
-	// to home.
-	bool HasMoved;
 
 	// Can the player perform the supplied action?
 	bool CanPerformAction(Action * const action) const;

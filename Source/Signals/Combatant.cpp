@@ -8,7 +8,7 @@ void Combatant::OnTurnBeginning()
 {
 	HPDamageThisTurn = 0;
 	ActionMissed = false;
-	HasMoved = false;
+	TookDamage = false;
 }
 
 bool Combatant::CanPerformAction(Action * const action) const

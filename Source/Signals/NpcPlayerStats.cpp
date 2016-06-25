@@ -43,6 +43,7 @@ void UNpcPlayerStats::fromXml(FXmlNode * const node)
 		auto typeStr = strategyNode->GetAttribute(TEXT("type"));
 		_strategy = Strategy::Create(typeStr);
 		check(_strategy != nullptr);
+		_strategy->FromXml(strategyNode);
 	}
 	else
 	{

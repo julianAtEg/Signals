@@ -2,12 +2,12 @@
 <FGenericCrashContext>
 <RuntimeProperties>
 <CrashVersion>3</CrashVersion>
-<CrashGUID>UE4CC-Windows-006CEA9F4873A0E4DD984999B47512F8</CrashGUID>
-<ProcessId>1816</ProcessId>
+<CrashGUID>UE4CC-Windows-AAE9102A45F913AC26F42786ADD44FEC</CrashGUID>
+<ProcessId>6216</ProcessId>
 <IsInternalBuild>0</IsInternalBuild>
 <IsPerforceBuild>0</IsPerforceBuild>
 <IsSourceDistribution>0</IsSourceDistribution>
-<SecondsSinceStart>301</SecondsSinceStart>
+<SecondsSinceStart>70365</SecondsSinceStart>
 <GameName>UE4-Signals</GameName>
 <ExecutableName>UE4Editor</ExecutableName>
 <BuildConfiguration>Development</BuildConfiguration>

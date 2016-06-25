@@ -17,6 +17,7 @@ public:
 	void RunActivity(ASignalsBattleMode * const battle);
 	void RunPayload(ASignalsBattleMode * const battle);
 	FString const & GetName() const;
+	Action * GetAction() const;
 
 	// Update the current activity wrt time.
 	void Update(ASignalsBattleMode * const battle, float dt);
@@ -32,6 +33,11 @@ private:
 	ContainerNode * _currentNode;
 	ActionRunner _runner;
 };
+
+inline Action * ActionInstance::GetAction() const
+{
+	return _action;
+}
 
 inline bool ActionInstance::IsFinished() const
 {

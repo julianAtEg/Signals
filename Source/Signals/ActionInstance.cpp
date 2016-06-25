@@ -29,11 +29,18 @@ void ActionInstance::RunActivity(ASignalsBattleMode * const battle)
 
 void ActionInstance::RunPayload(ASignalsBattleMode * const battle)
 {
-	_currentNode = _action->GetPayloadNode();
-	if (_currentNode != nullptr)
+	// Payload runs in a single atomic, non-blocking block.
+	ActionRunner payloadRunner;
+	payloadRunner.Start(_action->GetPayloadNode());
+	while (!payloadRunner.Update(battle, 0.0f))
 	{
-		_runner.Start(_currentNode);
+
 	}
+	//_currentNode = _action->GetPayloadNode();
+	//if (_currentNode != nullptr)
+	//{
+	//	_runner.Start(_currentNode);
+	//}
 }
 
 void ActionInstance::Update(ASignalsBattleMode * const battle, float dt)

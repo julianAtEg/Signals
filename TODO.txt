@@ -1,9 +1,7 @@
-o Add "walk to actor" and "walk to home" commands
-o Rotate characters to face target.
-o Add "punch" command.
-o Character-specific audio variants
-o Implement AI for NPCs
+o Use up energy
+o Check action availability
 o Item class / inventory
+o Status
 o Status icons in HUD?
 o Merge of Anim blueprints to save hassle of per-character rigging
 o More actions

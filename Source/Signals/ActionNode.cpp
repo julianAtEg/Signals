@@ -90,6 +90,7 @@ void ActionNode::executeInner(ASignalsBattleMode *, Combatant *)
 {
 
 }
+
 void ActionNode::executeCustom(ASignalsBattleMode *)
 {
 

@@ -100,8 +100,6 @@ void DamageNode::executeInner( ASignalsBattleMode * const battle, Combatant * ta
 		}
 	}
 
-	UE_LOG(SignalsLog, Log, TEXT("DAMAGE!!!"));
-
 	// Do the sums.
 	auto actionName = source->Activity->GetName();
 	int attack = attackStats->ComputeAttack(rng, GetBase(), GetLevelScale(), actionName);
@@ -116,6 +114,9 @@ void DamageNode::executeInner( ASignalsBattleMode * const battle, Combatant * ta
 	// TODO: shields, etc, reduce the size of damage.
 
 	// TODO: add in the type of damage done.
+	UE_LOG(SignalsLog, Log, TEXT("DAMAGE = %d"), amount);
 	target->HPDamageThisTurn += amount;
+	target->ActionMissed = false;
+	target->TookDamage = true;
 }
 

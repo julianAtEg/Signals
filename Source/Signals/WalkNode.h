@@ -2,6 +2,13 @@
 
 #include "ActionNode.h"
 
+enum WalkCommand
+{
+	StayPut,
+	WalkToTarget,
+	WalkToHome
+};
+
 class WalkNode : public ActionNode
 {
 public:
@@ -15,5 +22,6 @@ protected:
 
 private:
 	float _tolerance;
+	WalkCommand _command;
 };
 
