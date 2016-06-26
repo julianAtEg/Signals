@@ -1,5 +1,3 @@
-o Use up energy
-o Check action availability
 o Item class / inventory
 o Status
 o Status icons in HUD?
