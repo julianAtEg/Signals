@@ -7,5 +7,6 @@ o More fx
 o Better music track
 o Resource management
 o Improve ring menu gfx
+o Analog control to move selectors
 o Projected textures for cloud shadows
 

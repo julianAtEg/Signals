@@ -11,6 +11,15 @@ ActionRunner::ActionRunner()
 
 }
 
+void ActionRunner::RunAtomic(ASignalsBattleMode * battle, ContainerNode * root)
+{
+	Start(root);
+	while (!Update(battle, 0.0f))
+	{
+
+	}
+}
+
 void ActionRunner::Start(ContainerNode * root)
 {
 	_stack.Clear();

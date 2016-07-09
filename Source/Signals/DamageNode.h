@@ -32,9 +32,6 @@ private:
 	// The type of damage delivered.
 	EAttackClass _class;
 
-	// If true, the damage persists after a battle.
-	bool _persistent;
-
 	// If true, damage can be avoided by a suitably agile player
 	bool _isAvoidable;
 };

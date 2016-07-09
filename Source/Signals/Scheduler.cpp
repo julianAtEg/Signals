@@ -43,3 +43,13 @@ void Scheduler::Cancel(int playerIndex)
 {
 	_queue.Erase(playerIndex);
 }
+
+void Scheduler::Clear()
+{
+	_queue.Clear();
+}
+
+int Scheduler::Peek(int n) const
+{
+	return _queue.Peek(n);
+}

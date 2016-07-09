@@ -2,12 +2,13 @@
 #include "ResourceManager.h"
 #include "NpcPlayerStats.h"
 
-ResourceManager::~ResourceManager()
+UResourceManager::UResourceManager(const FObjectInitializer& init)
+: Super(init)
 {
-	Clear();
+
 }
 
-void ResourceManager::Clear()
+void UResourceManager::Clear()
 {
 	//for (auto & kv : _audioResources)
 	//{
@@ -25,15 +26,16 @@ void ResourceManager::Clear()
 	//	auto particles = kv.Value;
 	//	if (particles->IsValidLowLevel())
 	//	{
-	//		particles->ConditionalBeginDestroy();
+	//		particles->RemoveFromRoot();
+	//		//particles->ConditionalBeginDestroy();
 	//	}
 	//}
 
-	_psResources.Empty();
+	//_psResources.Empty();
 
 }
 
-UNpcPlayerStats * ResourceManager::LoadNPCStats(FString const & name)
+UNpcPlayerStats * UResourceManager::LoadNPCStats(FString const & name)
 {
 	auto contentFolder = FPaths::GameContentDir();
 	auto dataFolder = FPaths::Combine(*contentFolder, TEXT("Data"));
@@ -48,35 +50,45 @@ UNpcPlayerStats * ResourceManager::LoadNPCStats(FString const & name)
 	return stats;
 }
 
-UParticleSystem * ResourceManager::LoadParticleSystem(FString const & name)
+UParticleSystem * UResourceManager::LoadParticleSystem(FString const & name)
 {
 	UE_LOG(SignalsLog, Log, TEXT("Loading particle resource '%s'"), *name);
 
-	UParticleSystem * particles;
-	auto pRes = _psResources.Find(name);
-	if (pRes == nullptr)
-	{
-		auto path = FString::Printf(TEXT("ParticleSystem'/Game/Particles/%s.%s'"), *name, *name);
-		particles = LoadObject<UParticleSystem>(nullptr, *path, nullptr, LOAD_None, nullptr);
-		if (particles != nullptr)
-		{
-			particles->AddToRoot();
-			_psResources.Add(name, particles);
-		}
-		else
-		{
-			UE_LOG(SignalsLog, Warning, TEXT("Could not locate particle resource '%s'"), *name);
-		}
-	}
-	else
-	{
-		particles = *pRes;
-	}
+	auto path = FString::Printf(TEXT("ParticleSystem'/Game/Particles/%s.%s'"), *name, *name);
 
-	return particles;
+	FStringAssetReference psRef(path);
+	return Cast<UParticleSystem>(_stream.SynchronousLoad(psRef));
 }
 
-USoundWave * ResourceManager::LoadAudioResource(FString const & name)
+//UParticleSystem * UResourceManager::LoadParticleSystem(FString const & name)
+//{
+//	UE_LOG(SignalsLog, Log, TEXT("Loading particle resource '%s'"), *name);
+//
+//	UParticleSystem * particles;
+//	auto pRes = _psResources.Find(name);
+//	if (pRes == nullptr)
+//	{
+//		auto path = FString::Printf(TEXT("ParticleSystem'/Game/Particles/%s.%s'"), *name, *name);
+//		particles = LoadObject<UParticleSystem>(nullptr, *path, nullptr, LOAD_None, nullptr);
+//		if (particles != nullptr)
+//		{
+//			//particles->AddToRoot();
+//			_psResources.Add(name, particles);
+//		}
+//		else
+//		{
+//			UE_LOG(SignalsLog, Warning, TEXT("Could not locate particle resource '%s'"), *name);
+//		}
+//	}
+//	else
+//	{
+//		particles = *pRes;
+//	}
+//
+//	return particles;
+//}
+
+USoundWave * UResourceManager::LoadAudioResource(FString const & name)
 {
 	UE_LOG(SignalsLog, Log, TEXT("Loading audio resource '%s'"), *name);
 
@@ -88,8 +100,12 @@ USoundWave * ResourceManager::LoadAudioResource(FString const & name)
 		sound = LoadObject<USoundWave>(nullptr, *path, nullptr, LOAD_None, nullptr);
 		if (sound != nullptr)
 		{
-			sound->AddToRoot();
+			//sound->AddToRoot();
 			_audioResources.Add(name, sound);
+		}
+		else
+		{
+			UE_LOG(SignalsLog, Warning, TEXT("Could not locate audio resource '%s'"), *name);
 		}
 	}
 	else

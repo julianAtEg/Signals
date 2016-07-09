@@ -49,6 +49,8 @@ public:
 
 protected:
 	void fromXml(FXmlNode * const node) override;
+	int getEnergy() const override;
+	void setEnergy(int value) override;
 
 private:
 	// Weighted Actions

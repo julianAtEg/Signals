@@ -1,5 +1,6 @@
 <npc name="Maw" level="1" hp="20" maxHP="20" strength="60" erg="10"
-	 speed="2" evasion="2" aggression="100" callousness="100" altruism="1">
+	 speed="2" evasion="2" aggression="100" callousness="100" altruism="1" 
+	 icon="2">
 	<defence physical="3" fire="3" ice="3" electro="3" light="3" plasma="3" sound="3"
 	         poison="3" bacterial="3" viral="3"/>
 	<strategy type="basic">

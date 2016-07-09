@@ -24,7 +24,21 @@ public:
 	// Removes the player index entirely from the schedule.
 	void Cancel(int playerIndex);
 
+	// Removes all entries.
+	void Clear();
+
+	// Number of elements in the schedule.
+	int Size() const;
+
+	// What's in the schedule at the given index?
+	int Peek(int index) const;
+
 private:
 	PriorityQueue<int> _queue;
 
 };
+
+inline int Scheduler::Size() const
+{
+	return _queue.Length();
+}

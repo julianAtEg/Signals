@@ -2,27 +2,30 @@
 
 enum EStatClass
 {
-	// ???
-	Undefined = 0,
-
-	// Damages HP
-	HitPoints = 1,
-
-	// Damages morale / speed
-	Morale = 2,
-
-	// Affects energy level
-	Energy = 4,
-
-	// Affects strength
-	Strength = 8,
-
-	// Affects defence
-	Defence = 16,
+	Undefined,
+	HitPoints,
+	Speed,
+	Dexterity,
+	Evasion,
+	Strength,
+	PhysicalDefence,
+	FireDefence,
+	IceDefence,
+	ElectricalDefence,
+	LightDefence,
+	PlasmaDefence,
+	SoundDefence,
+	PoisonDefence,
+	BacterialDefence,
+	ViralDefence,
+	Energy,
+	MaxHitPoints,
 };
 
 namespace StatType
 {
 	EStatClass FromString(FString const & text);
 	FString ToString(EStatClass state);
+	FString ToAbbreviatedString(EStatClass stat);
+	bool AffectsSchedule(EStatClass stat);
 }

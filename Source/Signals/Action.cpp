@@ -35,6 +35,16 @@ void Action::Initialize()
 }
 
 /*static*/
+void Action::Terminate()
+{
+	for (auto & kv : s_actions)
+	{
+		delete kv.Value;
+	}
+	s_actions.Empty();
+}
+
+/*static*/
 Action * Action::FindAction(FString const & name)
 {
 	auto ret = s_actions.Find(name);
@@ -93,6 +103,8 @@ void Action::FromXml(FXmlNode * const node)
 	_description = node->GetAttribute(TEXT("description"));
 	auto iconStr = node->GetAttribute(TEXT("menuIcon"));
 	_menuIcon = FCString::Atoi(*iconStr);
+	auto classStr = node->GetAttribute(TEXT("class"));
+	_class = ActionClass::FromString(classStr);
 
 	// Read child attributes.
 	_root.FromXml(node);
@@ -129,3 +141,4 @@ void Action::AddTarget(EStatClass target)
 {
 	_targets = (EStatClass)(_targets | target);
 }
+

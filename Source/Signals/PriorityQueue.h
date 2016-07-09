@@ -97,6 +97,16 @@ public:
 		});
 	}
 
+	void Clear()
+	{
+		_queue.Empty();
+	}
+
+	T Peek(int n) const
+	{
+		return _queue[n].item;
+	}
+
 private:
 	TArray<Entry> _queue;
 };

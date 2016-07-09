@@ -61,5 +61,12 @@ TArray<FString> UNpcPlayerStats::GetActions() const
 	return result;
 }
 
+int UNpcPlayerStats::getEnergy() const
+{
+	return Ergs;
+}
 
-
+void UNpcPlayerStats::setEnergy(int value)
+{
+	Ergs = FMath::Clamp(value, 0, MaxErgs);
+}

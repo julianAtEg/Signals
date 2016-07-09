@@ -17,10 +17,10 @@ static float s_luckHiCoefficients[2] =
 static int s_luckSize = 10;
 
 // Hit / miss parameters.
-static float s_hit1v1 = 80.0f;		// Percent chance of a player of agility 1 hitting a player of agility 1
-static float s_hit100v1 = 99.0f;	// Percent chance of a player of agility 100 hitting a player of agility 1
-static float s_hit1v100 = 20.0f;	// Percent chance of a player of agility 1 hitting a player of agility 100
-static float s_hit100v100 = 94.0f;	// Percent chance of a player of agility 100 hitting a player of agility 100
+static float s_hit1v1 = 80.0f;		// Percent chance of a player of agility 1 hitting a player of evasion 1
+static float s_hit100v1 = 99.0f;	// Percent chance of a player of agility 100 hitting a player of evasion 1
+static float s_hit1v100 = 20.0f;	// Percent chance of a player of agility 1 hitting a player of evasion 100
+static float s_hit100v100 = 94.0f;	// Percent chance of a player of agility 100 hitting a player of evasion 100
 
 // Boost parameters.
 static float s_boostMax1 = 0.5f;

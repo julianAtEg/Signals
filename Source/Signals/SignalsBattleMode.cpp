@@ -14,8 +14,13 @@
 #include "Combat.h"
 #include "ActionClass.h"
 #include "Strategy.h"
+#include "ResourceManager.h"
+#include "Item.h"
 
 //-----------------------------------------------------------------------------
+
+// Number of items in the turn schedule.
+static const int SCHEDULE_SIZE = 6;
 
 // Random number generator with look-ahead.
 static CachedRandom s_rng( 1134771U ); // FDateTime::GetTicks() );
@@ -29,6 +34,36 @@ static void getFriends(TArray<Combatant *> & friends, TArray<Combatant> & all, C
 static bool checkForWin(TArray<Combatant> const & players, bool human);
 
 //-----------------------------------------------------------------------------
+
+TArray<int> ASignalsBattleMode::GetSchedule() const
+{
+	TArray<int> result;
+	if (_currentPlayerIndex >= 0 && (_scheduler.Size() > 0))
+	{
+		result.Add(_combatants[_currentPlayerIndex].Stats->IconIndex);
+		for (int i = 0; i < _scheduler.Size(); ++i)
+		{
+			auto index = _scheduler.Peek(i);
+			auto icon = _combatants[index].Stats->IconIndex;
+			result.Add(icon);
+		}
+	}
+	return result;
+}
+
+void ASignalsBattleMode::ReschedulePlayer( Combatant * player )
+{
+	UE_LOG(SignalsLog, Log, TEXT("ASignalsBattleMode::ReschedulePlayer()"));
+
+	int index = player-&_combatants[0];
+	_scheduler.Cancel(index);
+	player->TurnDelay = 0;
+	while (_scheduler.Size() < SCHEDULE_SIZE)
+	{
+		scheduleTurn(index);
+	}
+	dumpSchedule();
+}
 
 TArray<Combatant *> ASignalsBattleMode::GetActiveHumans() const
 {
@@ -129,14 +164,14 @@ void ASignalsBattleMode::PreviousTarget()
 
 void ASignalsBattleMode::CancelTarget()
 {
-	_menuState = MenuState::SelectAction;
+	_menuState = EMenuState::SelectAction;
 	_selectedAction = nullptr;
 	_targets.Empty();
 	HideTargetMarker();
 	ShowActiveMarker();
 }
 
-MenuState ASignalsBattleMode::GetMenuState() const
+EMenuState ASignalsBattleMode::GetMenuState() const
 {
 	return _menuState;
 }
@@ -155,8 +190,15 @@ void ASignalsBattleMode::EndPlay(EEndPlayReason::Type reason)
 {
 	Super::EndPlay(reason);
 
-	delete _resMgr;
-	_resMgr = nullptr;
+	if (_resMgr != nullptr)
+	{
+		if (_resMgr->IsValidLowLevel())
+		{
+			_resMgr->RemoveFromRoot();
+			_resMgr->ConditionalBeginDestroy();
+			_resMgr = nullptr;
+		}
+	}
 }
 
 void ASignalsBattleMode::BeginPlay()
@@ -170,7 +212,8 @@ void ASignalsBattleMode::BeginPlay()
 		return;
 	}
 
-	_resMgr = new ResourceManager();
+	_resMgr = NewObject<UResourceManager>();
+	_resMgr->AddToRoot();
 
 	// Find all the player starts in the scene.
 	TSubclassOf<AActor> targetClass = APlayerStart::StaticClass();
@@ -242,15 +285,34 @@ void ASignalsBattleMode::BeginPlay()
 	// Initialize the play schedule.
 	for (int i = 0; i < _combatants.Num(); ++i)
 	{
-		scheduleTurn(i);
+		_combatants[i].TurnDelay = 0;
 	}
+	for (int i = 0; _scheduler.Size() < SCHEDULE_SIZE; ++i )
+	{
+		int playerIndex = i % _combatants.Num();
+		scheduleTurn(playerIndex);
+	}
+	dumpSchedule();
 
 	HideTargetMarker();
-	_menuState = MenuState::SelectAction;
+	_menuState = EMenuState::SelectAction;
 	_selectedAction = nullptr;
 	_infoIcon = -1;
 	_infoText = TEXT("");
+	_showSchedule = true;
 	nextTurn( true );
+}
+
+void ASignalsBattleMode::dumpSchedule()
+{
+	UE_LOG(SignalsLog, Log, TEXT("------------------"));
+	for (int i = 0; i < SCHEDULE_SIZE; ++i)
+	{
+		int playerIndex = _scheduler.Peek(i);
+		auto c = &_combatants[playerIndex];
+		UE_LOG(SignalsLog, Log, TEXT("%d: %s"), i + 1, *c->Avatar->GetName());
+	}
+	UE_LOG(SignalsLog, Log, TEXT("------------------"));
 }
 
 void ASignalsBattleMode::scheduleTurn(int playerIndex)
@@ -258,7 +320,7 @@ void ASignalsBattleMode::scheduleTurn(int playerIndex)
 	auto * comb = &_combatants[playerIndex];
 	auto * stats = comb->Stats;
 	auto speed = (int)FMath::Clamp((int)(stats->Speed * (1 + s_rng.HalfGaussian01())), 1, 100);
-	comb->TurnDelay = 100.0f / speed;
+	comb->TurnDelay += 100.0f / speed;
 	_scheduler.Add(playerIndex, comb->TurnDelay);
 }
 
@@ -288,6 +350,8 @@ void ASignalsBattleMode::InitializeInput(UInputComponent * input)
 	input->BindAction("MenuLeft", IE_Pressed, this, &ASignalsBattleMode::OnMenuLeft);
 	input->BindAction("MenuSelect", IE_Pressed, this, &ASignalsBattleMode::OnMenuSelect);
 	input->BindAction("MenuBack", IE_Pressed, this, &ASignalsBattleMode::OnMenuBack);
+	input->BindAction("MenuUp", IE_Pressed, this, &ASignalsBattleMode::OnMenuUp);
+	input->BindAction("MenuDown", IE_Pressed, this, &ASignalsBattleMode::OnMenuDown);
 	input->BindAction("CycleCameras", IE_Pressed, this, &ASignalsBattleMode::CycleCameras);
 }
 
@@ -337,6 +401,15 @@ FString ASignalsBattleMode::GetActiveCombatant() const
 	return _combatants[_currentPlayerIndex].Avatar->GetName();
 }
 
+TArray<FInventoryEntry> ASignalsBattleMode::GetActiveCombatantItems(EItemProperty filter) const
+{
+	auto player = &_combatants[_currentPlayerIndex];
+	check(player->IsHuman);
+	auto stats = Cast<UHumanPlayerStats>(player->Stats);
+	auto inventory = stats->GetInventory();
+	return inventory.GetItems(filter);
+}
+
 void ASignalsBattleMode::RunActionPayload()
 {
 	auto combatant = &_combatants[_currentPlayerIndex];
@@ -350,10 +423,6 @@ void ASignalsBattleMode::OnActionComplete()
 	auto combatant = &_combatants[_currentPlayerIndex];
 	auto currentAction = combatant->Activity;
 	currentAction->NotifyActionComplete(this);
-	//if (currentAction->IsFinished())
-	//{
-	//	combatant->State = ActionState::Complete;
-	//}
 }
 
 void ASignalsBattleMode::ApplyDamage()
@@ -449,7 +518,7 @@ void ASignalsBattleMode::nextTurn( bool firstTurn )
 		}
 
 		findAvailableActions(player);
-		_menuState = MenuState::SelectAction;
+		_menuState = EMenuState::SelectAction;
 		_infoText = FString::Printf(TEXT("%s: select an action"), *player->Avatar->GetName());
 	}
 	else
@@ -458,6 +527,7 @@ void ASignalsBattleMode::nextTurn( bool firstTurn )
 	}
 	EnablePlayerInput(false,firstTurn);
 	OnTurnBeginning(player->Avatar, player->IsHuman);
+	RefreshScheduleUI(_showSchedule);
 }
 
 void ASignalsBattleMode::findAvailableActions(Combatant * const combatant)
@@ -481,9 +551,11 @@ void ASignalsBattleMode::findAvailableActions(Combatant * const combatant)
 				ami.Text = action->GetName();
 				ami.Description = action->GetDescription();
 				ami.IsLeaf = true;
+				ami.IsSelectable = true;
 				ami.ID = ID++;
 				ami.Level = 0;
 				ami.ParentID = -1;
+				ami.ItemType = ItemType::RunAction;
 				_menuItems.Add(ami);
 			}
 			else
@@ -494,20 +566,24 @@ void ASignalsBattleMode::findAvailableActions(Combatant * const combatant)
 					FActionMenuItem catAmi;
 					catAmi.Text = cat + TEXT(">");
 					catAmi.IsLeaf = false;
+					ami.IsSelectable = true;
 					catAmi.ID = ID++;
 					catAmi.Level = 0;
 					catAmi.ParentID = -1;
 					_menuItems.Add(catAmi);
+					ami.ItemType = ItemType::RunAction;
 					categoryIDs.Add(cat, catAmi.ID);
 				}
 
 				// Add an item for the action as well.
 				ami.Text = action->GetName();
 				ami.Description = action->GetDescription();
+				ami.IsSelectable = (action->GetCost() <= instance->Ergs);
 				ami.IsLeaf = true;
 				ami.ID = ID++;
 				ami.Level = 1;
 				ami.ParentID = categoryIDs[cat];
+				ami.ItemType = ItemType::RunAction;
 				_menuItems.Add(ami);
 			}
 		}
@@ -516,6 +592,18 @@ void ASignalsBattleMode::findAvailableActions(Combatant * const combatant)
 			UE_LOG(SignalsLog, Error, TEXT("Could not find action '%s'"), *name);
 		}
 	}
+
+	// Always add an "item" item :-)
+	FActionMenuItem itemItem;
+	itemItem.Text = TEXT("Item");
+	itemItem.Description = TEXT("Use an item from the inventory");
+	itemItem.IsSelectable = true;
+	itemItem.IsLeaf = true;
+	itemItem.Level = 0;
+	itemItem.ID = ID++;
+	itemItem.ParentID = -1;
+	itemItem.ItemType = ItemType::UseInventoryItem;
+	_menuItems.Add(itemItem);
 }
 
 void ASignalsBattleMode::SetActionTargets(TArray<Combatant *> const & targets)
@@ -573,11 +661,11 @@ bool ASignalsBattleMode::updateCombatant( UWorld * world, Combatant * combatant,
 					auto action = combatant->Activity->GetAction();
 					combatant->State = ActionState::Paused;
 					_nextState = ActionState::Start;
-					_pauseTimer = 3.0f; // TODO: make variable, pass as parameter.
+					_pauseTimer = 2.0f; 
 					_infoIcon = action->GetMenuIcon();
 					_infoText = FString::Printf(TEXT("%s: %s"), *combatant->Avatar->GetName(), *action->GetName());
 					UpdateUI();
-					AddSpeechBubble(combatant->Avatar, action->GetName(),2.0);
+					AddSpeechBubble(combatant->Avatar, action->GetName(), _pauseTimer);
 				}
 				else
 				{
@@ -691,7 +779,67 @@ void ASignalsBattleMode::EnablePlayerInput(bool enable,bool force)
 	}
 }
 
-void ASignalsBattleMode::HandleMenuSelect(int itemID)
+void ASignalsBattleMode::HandleUseItem( int itemID )
+{
+	UE_LOG(SignalsLog, Log, TEXT("ASignalsBattleMode::HandleUseItem()"));
+
+	auto player = &_combatants[_currentPlayerIndex];
+	auto stats = Cast<UHumanPlayerStats>(player->Stats);
+	auto & inventory = stats->GetInventory();
+	inventory.RemoveItem(itemID);
+	auto item = Item::FindByID(itemID);
+	check(item != nullptr);
+	item->Use(this,player);
+}
+
+void ASignalsBattleMode::InvokeAction( FString const & actionName )
+{
+	UE_LOG(SignalsLog, Log, TEXT("Action %s selected"), *actionName);
+	auto action = Action::FindAction(actionName);
+	checkf(action != nullptr, TEXT("No such action: %s"), *action);
+	_targets.Empty();
+	auto player = &_combatants[_currentPlayerIndex];
+	if (action->AffectsMultipleTargets())
+	{
+		// TODO: consider manual selection of either side rather than auto-targetting.
+		if (action->GetClass() == EActionClass::Offensive)
+		{
+			getEnemies(_targets, _combatants);
+		}
+		else
+		{
+			getFriends(_targets, _combatants, player);
+		}
+		auto actionInst = new ActionInstance(action);
+		SetCurrentCombatantAction(actionInst);
+	}
+	else
+	{
+		_selectedAction = action;
+		_currentTarget = 0;
+		_menuState = EMenuState::SelectTarget;
+		// Offensive actions should select the enemies first; otherwise Our Side.
+		TArray<Combatant *> friends;
+		TArray<Combatant *> enemies;
+		if (action->GetClass() == EActionClass::Offensive)
+		{
+			getEnemies(_targets, _combatants);
+			getFriends(_targets, _combatants, player);
+		}
+		else
+		{
+			getFriends(_targets, _combatants, player);
+			getEnemies(_targets, _combatants);
+		}
+		HideActiveMarker();
+		ShowTargetMarker(_targets[0]->Avatar);
+		_infoIcon = action->GetMenuIcon();
+		_infoText = FString::Printf(TEXT("Target: %s"), *_targets[0]->Avatar->GetName());
+		UpdateUI();
+	}
+}
+
+bool ASignalsBattleMode::HandleMenuSelect(int itemID)
 {
 	_selectedItem = _menuItems.FindByPredicate([itemID](FActionMenuItem const & item)
 	{
@@ -699,53 +847,30 @@ void ASignalsBattleMode::HandleMenuSelect(int itemID)
 	});
 	if (_selectedItem->IsLeaf)
 	{
-		// This is an action, so let's invoke it.
-		auto actionName = _selectedItem->Text;
-		UE_LOG(SignalsLog, Log, TEXT("Action %s selected"), *actionName);
-		auto action = Action::FindAction(actionName);
-		checkf(action != nullptr, TEXT("No such action: %s"), *action);
-		_targets.Empty();
-		auto player = &_combatants[_currentPlayerIndex];
-		if (action->AffectsMultipleTargets())
+		switch (_selectedItem->ItemType)
 		{
-			// TODO: consider manual selection of either side rather than auto-targetting.
-			if (action->GetClass() == EActionClass::Offensive)
-			{
-				getEnemies(_targets, _combatants);
-			}
-			else
-			{
-				getFriends(_targets, _combatants, player);
-			}
-			auto actionInst = new ActionInstance(action);
-			SetCurrentCombatantAction(actionInst);
-		}
-		else
-		{
-			_selectedAction = action;
-			_currentTarget = 0;
-			_menuState = MenuState::SelectTarget;
-			// Offensive actions should select the enemies first; otherwise Our Side.
-			TArray<Combatant *> friends;
-			TArray<Combatant *> enemies;
-			if (action->GetClass() == EActionClass::Offensive)
-			{
-				getEnemies(_targets, _combatants);
-				getFriends(_targets, _combatants, player);
-			}
-			else
-			{
-				getFriends(_targets, _combatants, player);
-				getEnemies(_targets, _combatants);
-			}
-			HideActiveMarker();
-			ShowTargetMarker(_targets[0]->Avatar);
-			_infoIcon = action->GetMenuIcon();
-			_infoText = FString::Printf(TEXT("Target: %s"), *_targets[0]->Avatar->GetName());
-			UpdateUI();
-		}
+			case ItemType::RunAction:
+				InvokeAction(_selectedItem->Text);
+				return true;
 
+			case ItemType::UseInventoryItem:
+				_menuState = EMenuState::ItemInventory;
+				ShowInventory();
+				_infoText = TEXT("Select an item to use");
+				UpdateUI();
+				return false;
+		}
 	}
+
+	return false;
+}
+
+void ASignalsBattleMode::OnInventoryClosed()
+{
+	UE_LOG(SignalsLog, Log, TEXT("Inventory closed"));
+	auto player = &_combatants[_currentPlayerIndex];
+	_menuState = EMenuState::SelectAction;
+	_infoText = FString::Printf(TEXT("%s: select an action"), *player->Avatar->GetName());
 }
 
 void ASignalsBattleMode::initCombatants(UWorld * world, APlayerStart * starts[], TArray<FString> const & combatants, bool human)

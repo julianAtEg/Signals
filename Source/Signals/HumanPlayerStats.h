@@ -6,9 +6,26 @@
 #include "Ability.h"
 #include "Curve.h"
 #include "BattleSkills.h"
+#include "Inventory.h"
 #include "HumanPlayerStats.generated.h"
 
 class Random;
+
+enum 
+{
+	// The number of item equip slots.
+	MAX_EQUIP_SLOTS  = 3
+};
+
+// Holds info about transient stat changes (single battle duration).
+struct TransientStatChange
+{
+	// The stat to change.
+	EStatClass Stat;
+
+	// The pre-modification level of the stat.
+	int Value;
+};
 
 /**
  * Stats for a player character controlled agent.
@@ -56,8 +73,23 @@ public:
 
 	TArray<FString> GetActions() const override;
 
+	// Item store.
+	Inventory & GetInventory();
+	Inventory const & GetInventory() const;
+
+	bool CanEquipItem() const;
+	const TArray<int> & GetEquippedItems() const;
+	void EquipItem(int id);
+	void UnequipItem(int id);
+
+	void ApplyStatChange( EStatClass stat, int delta, bool transient ) override;
+	void BeginBattle() override;
+	void EndBattle() override;
+
 protected:
 	void fromXml(FXmlNode * const root) override;
+	int getEnergy() const override;
+	void setEnergy(int value) override;
 
 private:
 	TArray<Ability> _abilities;
@@ -66,4 +98,27 @@ private:
 	Curve _hpCurve;
 	int _nextExpLevel;
 	TSet<BattleSkill> _skills;
+	Inventory _inventory;
+	TArray<int> _equippedItems;
+	TArray<TransientStatChange> _transientStatChanges;
 };
+
+inline const TArray<int> & UHumanPlayerStats::GetEquippedItems() const
+{
+	return _equippedItems;
+}
+
+inline bool UHumanPlayerStats::CanEquipItem() const
+{
+	return(_equippedItems.Num() < MAX_EQUIP_SLOTS);
+}
+
+inline Inventory & UHumanPlayerStats::GetInventory()
+{
+	return _inventory;
+}
+
+inline Inventory const & UHumanPlayerStats::GetInventory() const
+{
+	return _inventory;
+}

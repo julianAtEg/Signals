@@ -1,6 +1,5 @@
 <actions>
-	<!--TODO: preconditions for actions-->
-	<action id="1" name="Throw" target="single" category="mecha" cost="0"
+	<action id="1" name="Throw" target="single" category="mecha" cost="0" class="offensive"
 	        description="Throws a small object at the enemy" menuIcon="0">
 		<warmup/>
 		<activity>
@@ -17,7 +16,7 @@
 			</damages>
 		</payload>
 	</action>
-	<action id="2" name="Bombard" target="multiple" category="mecha" cost="0"
+	<action id="2" name="Bombard" target="multiple" category="mecha" cost="0" class="offensive"
 	        description="Throws a small object at all enemies" menuIcon="1">
 		<warmup/>
 		<activity>
@@ -31,7 +30,7 @@
 			</damages>
 		</payload>
 	</action>
-	<action id="3" name="Heal" target="single" category="medica" cost="1"
+	<action id="3" name="Heal" target="single" category="medica" cost="1" class="restorative"
             description="Recover some health" menuIcon="2">
 			<warmup/>
 			<activity>
@@ -43,7 +42,7 @@
 				<restore type="hitpoints" base="1" levelScale="2" min="1" max="100" destination="targets"/>
 			</payload>				
 	</action>
-	<action id="4" name="Burn" target="single" category="therma" cost="3"
+	<action id="4" name="Burn" target="single" category="therma" cost="3" class="offensive"
 	        description="Damage an enemy with fire" menuIcon="3">
 		<warmup/>
 		<activity>
@@ -60,7 +59,7 @@
 			</damages>
 		</payload>				
 	</action>
-	<action id="5" name="Punch" target="single" category="mecha" cost="1"
+	<action id="5" name="Punch" target="single" category="mecha" cost="1" class="offensive"
 	        description="Hit an enemy with bare hands" menuIcon="4">
 		<warmup/>
 		<activity>
@@ -77,5 +76,23 @@
 				<damage type="hitpoints" base="2" levelScale="2" min="1" max="50" destination="targets" class="physical"/>
 			</damages>
 		</payload>				
+	</action>
+	<action id="6" name="Tonic" target="single" cost="0" class="restorative">
+		<warmup/>
+		<activity>
+			<anim destination="source" name="Drink" cue="twinkle" block="true"/>				
+		</activity>
+		<payload>
+			<restore type="hitpoints" fixed="true" base="50" destination="targets"/>
+		</payload>
+	</action>
+	<action id="7" name="Caffeine" target="single" cost="0" class="restorative">
+		<warmup/>
+		<activity>
+			<anim destination="source" name="Drink" cue="twinkle" block="true"/>				
+		</activity>
+		<payload>
+			<modifyStat stat="Speed" delta="1" transient="true" destination="targets"/>
+		</payload>
 	</action>
 </actions>

@@ -1,4 +1,4 @@
-<character name="Brandon" level="1" hp="50" maxHP="50" exp="0" strength="60" speed="4" evasion="3">
+<character name="Brandon" level="1" hp="50" maxHP="50" exp="0" strength="60" speed="4" evasion="3" icon="0">
 	<defence physical="6" fire="5" ice="5" electro="5" light="5" plasma="5" sound="5"
 	         poison="5" bacterial="5" viral="5"/>
 	<abilities>	
@@ -7,4 +7,8 @@
 		<ability name="Heal" ap="0" skill="1" maxSkill="100"/> 
 		<ability name="Punch" ap="0" skill="1" maxSkill="100"/> 
 	</abilities>
+	<inventory>
+		<item id="1" count="2"/>
+		<item id="2" count="1"/>
+	</inventory>	
 </character>

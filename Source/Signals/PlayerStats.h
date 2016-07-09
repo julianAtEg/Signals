@@ -4,7 +4,7 @@
 
 #include "Ability.h"
 #include "AttackClass.h"
-#include "ResourceManager.h"
+#include "StatType.h"
 #include "PlayerStats.generated.h"
 
 class Random;
@@ -42,13 +42,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	int Evasion;
 
-	// How resistant to attacks, max out at 100 (parameterised by EActionClass)
+	// How resistant to attacks, max out at 100 (parameterised by EAttackClass)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	TArray<int> Defence;
 
 	// Character development level. [0,99].
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	int Level;
+
+	// Index of the icon in the UI.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	int IconIndex;
 
 	// Loads stats data from a file.
 	void Load( FString const & filePath );
@@ -61,8 +65,20 @@ public:
 	// Gets all the known actions for the player
 	virtual TArray<FString> GetActions() const;
 
+	// Changes a stat.
+	virtual void ApplyStatChange(EStatClass stat, int delta, bool transient);
+
+	// Called at start and end of battle.
+	virtual void BeginBattle();
+	virtual void EndBattle();
+
 protected:
 	virtual void fromXml(FXmlNode * const node);
+
+	int getStat(EStatClass stat) const;
+	void setStat(EStatClass stat, int value);
+	virtual int getEnergy() const;
+	virtual void setEnergy(int energy);
 
 private:
 

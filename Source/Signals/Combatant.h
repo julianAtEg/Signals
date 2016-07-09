@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Signals.h"
+#include "StatType.h"
 
 class UPlayerStats;
 class ActionInstance;
@@ -32,7 +32,6 @@ enum class ActionState
 	// Paused
 	Paused,
 };
-
 
 /**
  * Data structure holding the various components of player data in a single location.
@@ -92,4 +91,8 @@ struct SIGNALS_API Combatant
 	bool CanPerformAction(Action * const action) const;
 
 	void OnTurnBeginning();
+
+	// Called at begin and end of a battle.
+	void BeginBattle();
+	void EndBattle();
 };

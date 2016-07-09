@@ -8,5 +8,7 @@ enum class EUiEvent
 	MenuLeft,
 	MenuRight,
 	MenuSelect,
-	MenuBack
+	MenuBack,
+	MenuUp,
+	MenuDown,
 };

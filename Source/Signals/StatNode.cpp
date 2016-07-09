@@ -2,6 +2,10 @@
 #include "StatNode.h"
 #include "StatType.h"
 #include "Action.h"
+#include "SignalsBattleMode.h"
+#include "PlayerStats.h"
+#include "Combat.h"
+#include "Combatant.h"
 
 StatNode::StatNode(FString const & type)
 : ActionNode(type)
@@ -10,6 +14,7 @@ StatNode::StatNode(FString const & type)
 , _levelScale(1)
 , _min(0)
 , _max(1)
+, _isFixed(false)
 {
 }
 
@@ -23,14 +28,21 @@ void StatNode::FromXml(FXmlNode * const node)
 	auto baseStr = node->GetAttribute(TEXT("base"));
 	_base = FCString::Atoi(*baseStr);
 
-	auto scaleStr = node->GetAttribute(TEXT("levelScale"));
-	_levelScale = FCString::Atoi(*scaleStr);
+	auto fixedStr = node->GetAttribute(TEXT("fixed"));
+	fixedStr.ToLowerInline();
+	_isFixed = (fixedStr == TEXT("true"));
 
-	auto minStr = node->GetAttribute(TEXT("min"));
-	_min = FCString::Atoi(*minStr);
+	if (!_isFixed)
+	{
+		auto scaleStr = node->GetAttribute(TEXT("levelScale"));
+		_levelScale = FCString::Atoi(*scaleStr);
 
-	auto maxStr = node->GetAttribute(TEXT("max"));
-	_max = FCString::Atoi(*maxStr);
+		auto minStr = node->GetAttribute(TEXT("min"));
+		_min = FCString::Atoi(*minStr);
+
+		auto maxStr = node->GetAttribute(TEXT("max"));
+		_max = FCString::Atoi(*maxStr);
+	}
 }
 
 void StatNode::PostInitialize(Action * const action)
@@ -38,3 +50,4 @@ void StatNode::PostInitialize(Action * const action)
 	action->AddTarget(_type);
 	ActionNode::PostInitialize(action);
 }
+

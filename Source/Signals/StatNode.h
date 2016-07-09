@@ -3,6 +3,9 @@
 #include "ActionNode.h"
 #include "StatType.h"
 
+/**
+ * Node for complex stat operations.
+ */
 class StatNode : public ActionNode
 {
 public:
@@ -14,6 +17,7 @@ public:
 	int GetLevelScale() const;
 	int GetMin() const;
 	int GetMax() const;
+	bool IsFixed() const;
 
 protected:
 	StatNode(FString const & type);
@@ -24,7 +28,13 @@ private:
 	int _levelScale;
 	int _min;
 	int _max;
+	bool _isFixed;
 };
+
+inline bool StatNode::IsFixed() const
+{
+	return _isFixed;
+}
 
 inline EStatClass StatNode::GetType() const
 {

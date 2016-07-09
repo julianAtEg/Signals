@@ -58,8 +58,9 @@ public:
 	// Loads resources for the action.
 	void LoadResources(ASignalsBattleMode * const battle);
 
-	// Initialize the action system (one-time at startup)
+	// Initialize / terminate the action system (one-time at startup/shutdown)
 	static void Initialize();
+	static void Terminate();
 
 	// Find an action by name.
 	static Action * FindAction(FString const & name);

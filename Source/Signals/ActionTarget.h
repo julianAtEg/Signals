@@ -9,18 +9,18 @@ UENUM(BlueprintType)
 enum ActionTarget
 {
 	// Nothing.
-	None = 0,
+	atNone = 0,
 
 	// Action targets HP.
-	Hitpoints = 1,
+	atHitpoints = 1,
 
 	// Action targets ERG.
-	Energy = 2,
+	atEnergy = 2,
 
 	// Action targets defence (inc shields)
-	Defence = 4,
+	atDefence = 4,
 
 	// TBD.
-	Other = 8,
+	atOther = 8,
 };
 

@@ -27,14 +27,6 @@ EffectNode::EffectNode()
 
 EffectNode::~EffectNode()
 {
-	if (_particles != nullptr)
-	{
-		if (_particles->IsValidLowLevel())
-		{
-			_particles->ConditionalBeginDestroy();
-			_particles = nullptr;
-		}
-	}
 }
 
 void EffectNode::FromXml(FXmlNode * const node)

@@ -64,7 +64,6 @@ void DamageContainer::PostInitialize(Action * const action)
 DamageNode::DamageNode()
 : StatNode(s_type)
 , _class(EAttackClass::NumAttackClasses)
-, _persistent(true)
 , _isAvoidable(false)
 {
 }
@@ -94,6 +93,7 @@ void DamageNode::executeInner( ASignalsBattleMode * const battle, Combatant * ta
 		if (!Combat::GetHitOrMiss(rng, attackStats->Dexterity, defenceStats->Evasion))
 		{
 			// Oops, missed!
+			// TODO: trigger DODGE animation.
 			UE_LOG(SignalsLog, Log, TEXT("MISSED!"));
 			target->ActionMissed = true;
 			return;
@@ -101,15 +101,23 @@ void DamageNode::executeInner( ASignalsBattleMode * const battle, Combatant * ta
 	}
 
 	// Do the sums.
-	auto actionName = source->Activity->GetName();
-	int attack = attackStats->ComputeAttack(rng, GetBase(), GetLevelScale(), actionName);
-	int defence = defenceStats->ComputeDefence(rng, GetLevelScale(), _class);
-	int amount = FMath::Clamp( attack - defence, GetMin(), GetMax() );
+	int amount;
+	if (!IsFixed())
+	{
+		auto actionName = source->Activity->GetName();
+		int attack = attackStats->ComputeAttack(rng, GetBase(), GetLevelScale(), actionName);
+		int defence = defenceStats->ComputeDefence(rng, GetLevelScale(), _class);
+		amount = FMath::Clamp(attack - defence, GetMin(), GetMax());
 
-	// Any boost to apply?
-	auto boostFrac = battle->GetBoostFraction();
-	auto boostScalar = Combat::ComputeBoostFactor(boostFrac, attackStats->Level);
-	amount = (int)(float(amount)*boostScalar);
+		// Any boost to apply?
+		auto boostFrac = battle->GetBoostFraction();
+		auto boostScalar = Combat::ComputeBoostFactor(boostFrac, attackStats->Level);
+		amount = (int)(float(amount)*boostScalar);
+	}
+	else
+	{
+		amount = GetBase();
+	}
 
 	// TODO: shields, etc, reduce the size of damage.
 

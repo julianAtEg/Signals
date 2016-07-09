@@ -1,7 +1,12 @@
 #pragma once
 
-#include "Signals.h"
 #include "ActionMenuItem.generated.h"
+
+enum ItemType
+{
+	RunAction,
+	UseInventoryItem,
+};
 
 USTRUCT(BlueprintType)
 struct FActionMenuItem
@@ -37,4 +42,7 @@ struct FActionMenuItem
 
 	// Parent (Category) ID. -1 = no parent.
 	int ParentID;
+
+	// What the item should do.
+	ItemType ItemType;
 };

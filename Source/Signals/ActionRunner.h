@@ -47,6 +47,9 @@ public:
 	// Called when an async action completes to move the execution on.
 	void Advance(ASignalsBattleMode * const battle);
 
+	// Atomically runs the command block.
+	void RunAtomic(ASignalsBattleMode * battle, ContainerNode * root);
+
 private:
 	void descendInto(ContainerNode * container);
 

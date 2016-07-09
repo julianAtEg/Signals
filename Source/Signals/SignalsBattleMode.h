@@ -6,18 +6,23 @@
 #include "Combatant.h"
 #include "Scheduler.h"
 #include "ActionMenuItem.h"
+#include "Inventory.h"
 #include "SignalsBattleMode.generated.h"
 
 class Action;
 class ActionInstance;
 class Random;
-class ResourceManager;
+class UResourceManager;
 
+/**
+ * Drives UI mechanics.
+ */
 UENUM(BlueprintType)
-enum class MenuState
+enum class EMenuState
 {
 	SelectAction,
 	SelectTarget,
+	ItemInventory,
 };
 
 /**
@@ -43,6 +48,9 @@ public:
 	// Returns the name of the human player by index.
 	UFUNCTION(BlueprintPure, Category = "Battle State")
 	FString GetHumanPlayer(int index) const;
+
+	UFUNCTION(BlueprintPure, Category = "Battle State")
+	TArray<FInventoryEntry> GetActiveCombatantItems(EItemProperty filter) const;
 
 	// Returns name of active character.
 	UFUNCTION(BlueprintPure, Category = "Battle State")
@@ -86,6 +94,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void OnMenuRight();
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+	void OnMenuUp();
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+	void OnMenuDown();
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void OnMenuSelect();
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void OnMenuBack();
@@ -98,6 +110,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Battle State")
 	void AddFloatingNotification( ACharacter * who, FString const & text, FVector color );
 
+	// Invokes the inventory menu.
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+	void ShowInventory();
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void OnInventoryClosed();
+
 	// Sets the action for the current player.
 	void SetCurrentCombatantAction(ActionInstance * action);
 	
@@ -105,9 +123,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	TArray<FActionMenuItem> GetAvailableActions( int level ) const;
 
-	// Callback for menu selection.
+	// Callback for menu selection. Returns true if the selection resulted in an action.
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	void HandleMenuSelect(int itemID);
+	bool HandleMenuSelect(int itemID);
+
+	// Callback to use an inventory item.
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void HandleUseItem(int itemID);
 
 	// Plays a named animation on the character, and optional sound.
 	UFUNCTION(BlueprintImplementableEvent, Category = "Battle State")
@@ -115,7 +137,7 @@ public:
 
 	// Picking actions or sub-actions?
 	UFUNCTION(BlueprintPure, Category = "UI")
-	MenuState GetMenuState() const;
+	EMenuState GetMenuState() const;
 
 	// Marker API - hovering arrows to show current player / target.
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
@@ -151,6 +173,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "UI")
 	float GetBoostFraction() const;
 
+	// Invokes a named action.
+	void InvokeAction(FString const & actionName);
+
 	// Called when the action system requires payload delivery.
 	void RunActionPayload();
 
@@ -169,7 +194,17 @@ public:
 	Random * GetRandom() const;
 
 	// Gets the resource manager.
-	ResourceManager * GetResourceManager();
+	UResourceManager * GetResourceManager();
+
+	// Rebuild the player's schedule after some event.
+	void ReschedulePlayer( Combatant * player );
+
+	// Gets the icons of the players in schedule order.
+	UFUNCTION(BlueprintPure, Category = "UI")
+	TArray<int> GetSchedule() const;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+	void RefreshScheduleUI( bool showSchedule );
 
 private:
 	bool updateCombatant(UWorld * world, Combatant * combatant,float dt);
@@ -179,6 +214,8 @@ private:
 	void findAvailableActions(Combatant * const combatant);
 	void scheduleTurn(int playerIndex);
 	void refreshTargetInfo();
+	void handleUseItem();
+	void dumpSchedule();
 
 	enum { MAX_PLAYER_STARTS = 3 };
 	APlayerStart * _playerStarts[MAX_PLAYER_STARTS];
@@ -194,7 +231,7 @@ private:
 	bool _commandsEnabled;
 	TArray<FActionMenuItem> _menuItems;
 	FActionMenuItem * _selectedItem;
-	MenuState _menuState;
+	EMenuState _menuState;
 	Action * _selectedAction;
 	TArray<Combatant *> _targets;
 	int _currentTarget;
@@ -203,9 +240,12 @@ private:
 	bool _boostGaugeActive;
 	float _boostMaxTime;
 	float _boostTime;
-	ResourceManager * _resMgr;
 	ActionState _nextState;
 	float _pauseTimer;
+	bool _showSchedule;
+
+	UPROPERTY()
+	UResourceManager * _resMgr;
 };
 
 inline Combatant const * ASignalsBattleMode::GetActionSource() const
@@ -223,7 +263,7 @@ inline TArray<Combatant *> const & ASignalsBattleMode::GetActionTargets() const
 	return(_targets);
 }
 
-inline ResourceManager * ASignalsBattleMode::GetResourceManager()
+inline UResourceManager * ASignalsBattleMode::GetResourceManager()
 {
 	return _resMgr;
 }

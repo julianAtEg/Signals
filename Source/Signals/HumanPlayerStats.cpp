@@ -5,6 +5,8 @@
 #include "Random.h"
 #include "Combat.h"
 #include "Action.h"
+#include "Item.h"
+#include "SignalsInstance.h"
 
 UHumanPlayerStats::UHumanPlayerStats(FObjectInitializer const & init)
 : Super(init)
@@ -103,6 +105,9 @@ void UHumanPlayerStats::fromXml(FXmlNode * const root)
 		ability.FromXml(abNode, true);
 		_abilities.Add(ability);
 	}
+
+	auto invNode = root->FindChildNode(TEXT("inventory"));
+	_inventory.FromXml(invNode);
 }
 
 void UHumanPlayerStats::AddAbility(Ability const & ability)
@@ -183,3 +188,69 @@ TArray<FString> UHumanPlayerStats::GetActions() const
 	return result;
 }
 
+void UHumanPlayerStats::EquipItem(int itemID)
+{
+	UE_LOG(SignalsLog, Log, TEXT("Player equipping item %d"), itemID);
+
+	_inventory.RemoveItem(itemID);
+	_equippedItems.Add(itemID);
+}
+
+void UHumanPlayerStats::UnequipItem(int itemID)
+{
+	UE_LOG(SignalsLog, Log, TEXT("Player unequipping item %d"), itemID);
+
+	_equippedItems.Remove(itemID);
+	_inventory.AddItem(itemID);
+}
+
+void UHumanPlayerStats::ApplyStatChange(EStatClass stat, int delta, bool transient)
+{
+	if (transient)
+	{
+		TransientStatChange delta1;
+		delta1.Stat = stat;
+		delta1.Value = getStat(stat);
+		_transientStatChanges.Emplace(delta1);
+
+		// Changing a max means caching the max'd stat, too.
+		if (stat == EStatClass::MaxHitPoints)
+		{
+			TransientStatChange delta2;
+			delta2.Stat = EStatClass::HitPoints;
+			delta2.Value = HitPoints;
+			_transientStatChanges.Emplace(delta2);
+		}
+	}
+
+	UPlayerStats::ApplyStatChange(stat, delta, transient);
+}
+
+int UHumanPlayerStats::getEnergy() const
+{
+	auto world = GEngine->GetWorld();
+	auto instance = Cast<USignalsInstance>(UGameplayStatics::GetGameInstance(world));
+	return instance->Ergs;
+}
+
+void UHumanPlayerStats::setEnergy(int value)
+{
+	auto world = GEngine->GetWorld();
+	auto instance = Cast<USignalsInstance>(UGameplayStatics::GetGameInstance(world));
+	instance->Ergs = value;
+}
+
+void UHumanPlayerStats::BeginBattle()
+{
+	_transientStatChanges.Empty();
+}
+
+void UHumanPlayerStats::EndBattle()
+{
+	// Apply in reverse order to maintain consistency.
+	for (int i = _transientStatChanges.Num() - 1; i >= 0; --i)
+	{
+		setStat(_transientStatChanges[i].Stat, _transientStatChanges[i].Value);
+	}
+	_transientStatChanges.Empty();
+}

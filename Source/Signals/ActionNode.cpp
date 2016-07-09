@@ -17,13 +17,13 @@ ActionNode::~ActionNode()
 
 void ActionNode::FromXml(FXmlNode * const node)
 {
-	auto destAttr = node->GetAttribute(TEXT("destination"));
-	auto destStr = destAttr.ToLower();
-	if (destStr == "source")
+	auto destStr = node->GetAttribute(TEXT("destination"));
+	destStr.ToLowerInline();
+	if (destStr == TEXT("source"))
 	{
 		_destination = Destination::Source;
 	}
-	else if (destStr == "targets")
+	else if (destStr == TEXT("targets"))
 	{
 		_destination = Destination::Targets;
 	}
@@ -63,6 +63,7 @@ void ActionNode::Execute(ASignalsBattleMode * battle)
 			break;
 
 		case Destination::None:
+			executeInner(battle, nullptr);
 			break;
 	}
 }

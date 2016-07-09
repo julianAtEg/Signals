@@ -1,4 +1,4 @@
-<character name="Alice" level="1" hp="50" maxHP="50" exp="0" strength="50" speed="3" evasion="3">
+<character name="Alice" level="1" hp="50" maxHP="50" exp="0" strength="50" speed="3" evasion="3" icon="1">
 	<defence physical="5" fire="5" ice="5" electro="5" light="5" plasma="5" sound="5"
 		poison="4" bacterial="4" viral="4"/>
 	<abilities>	
@@ -6,4 +6,6 @@
 		<ability name="Bombard" ap="0" skill="1" maxSkill="80"/> 
 		<ability name="Burn" ap="0" skill="1" maxSkill="100"/> 
 	</abilities>
+	<inventory>
+	</inventory>
 </character>

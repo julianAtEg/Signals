@@ -19,6 +19,7 @@ public:
 	USignalsInstance(FObjectInitializer const & init);
 
 	void Init() override;
+	void Shutdown() override;
 
 	UFUNCTION(BlueprintPure, Category = "Battle stats")
 	UHumanPlayerStats * GetHumanPlayerStats(FString player);

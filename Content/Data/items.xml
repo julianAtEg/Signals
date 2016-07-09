@@ -1,0 +1,12 @@
+<items>
+	<item id="1" name="Tonic" description="Recover some health" icon="0" ergValue="1">
+		<use>
+			<run action="Tonic"/>
+		</use>
+	</item>
+	<item id="2" name="Caffeine" description="Temporary speed boost" icon="1" ergValue="1">
+		<use>
+			<run action="Caffeine"/>
+		</use>
+	</item>
+</items>
