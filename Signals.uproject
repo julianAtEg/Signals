@@ -14,5 +14,12 @@
 				"CoreUObject"
 			]
 		}
+	],
+	"Plugins": [
+		{
+			"Name": "KantanCharts",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/offers/89bd18db011b4bd19606db2e31020f13"
+		}
 	]
 }

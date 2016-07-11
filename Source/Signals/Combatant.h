@@ -3,6 +3,7 @@
 #pragma once
 
 #include "StatType.h"
+#include "ShieldInfo.h"
 
 class UPlayerStats;
 class ActionInstance;
@@ -51,6 +52,7 @@ struct SIGNALS_API Combatant
 		, ActionMissed(false)
 		, TookDamage(false)
 		, IsAlive( true )
+		, Shields()
 	{
 
 	}
@@ -86,6 +88,9 @@ struct SIGNALS_API Combatant
 
 	// If true, the player is alive.
 	bool IsAlive;
+
+	// Player shields.
+	ShieldInfo Shields;
 
 	// Can the player perform the supplied action?
 	bool CanPerformAction(Action * const action) const;

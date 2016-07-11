@@ -15,33 +15,26 @@ static ActionNode::Ctor s_ctor = ActionNode::RegisterCtor(s_type,ctor);
 
 ModifyStatNode::ModifyStatNode()
 : ActionNode(s_type)
-, _delta(0)
-, _transient(false)
 {
-}
-
-void ModifyStatNode::FromXml(FXmlNode * node)
-{
-	ActionNode::FromXml(node);
-
-	auto statStr = node->GetAttribute(TEXT("stat"));
-	_whichStat = StatType::FromString(statStr);
-
-	auto deltaStr = node->GetAttribute(TEXT("delta"));
-	_delta = FCString::Atoi(*deltaStr);
-
-	auto transStr = node->GetAttribute(TEXT("transient"));
-	transStr.ToLowerInline();
-	_transient = (transStr == TEXT("true"));
 }
 
 void ModifyStatNode::executeInner(ASignalsBattleMode * battle, Combatant * target)
 {
-	target->Stats->ApplyStatChange(_whichStat, _delta, _transient);
-	auto statAbbrev = StatType::ToAbbreviatedString(_whichStat);
+	auto statStr = battle->GetActionArgument(TEXT("stat"));
+	auto whichStat = StatType::FromString(statStr);
+
+	auto deltaStr = battle->GetActionArgument(TEXT("delta"));
+	auto delta = FCString::Atoi(*deltaStr);
+
+	auto transStr = battle->GetActionArgument(TEXT("transient"));
+	transStr.ToLowerInline();
+	auto transient = (transStr == TEXT("true"));
+
+	target->Stats->ApplyStatChange(whichStat, delta, transient);
+	auto statAbbrev = StatType::ToAbbreviatedString(whichStat);
 	FVector colour;
 	FString sign;
-	if (_delta > 0)
+	if (delta > 0)
 	{
 		colour = FVector(0.2, 1, 0.1);
 		sign = TEXT("+");
@@ -52,9 +45,9 @@ void ModifyStatNode::executeInner(ASignalsBattleMode * battle, Combatant * targe
 		sign = TEXT("-");
 	}
 
-	auto statStr = FString::Printf(TEXT("%s%d%s"), *sign, _delta, *statAbbrev);
-	battle->AddFloatingNotification(target->Avatar, statStr, colour);
-	if (StatType::AffectsSchedule(_whichStat))
+	auto notStr = FString::Printf(TEXT("%s%d%s"), *sign, delta, *statAbbrev);
+	battle->AddFloatingNotification(target->Avatar, notStr, colour);
+	if (StatType::AffectsSchedule(whichStat))
 	{
 		battle->ReschedulePlayer(target);
 	}

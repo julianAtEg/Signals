@@ -13,6 +13,7 @@ class Action;
 class ActionInstance;
 class Random;
 class UResourceManager;
+class BattleTask;
 
 /**
  * Drives UI mechanics.
@@ -175,6 +176,8 @@ public:
 
 	// Invokes a named action.
 	void InvokeAction(FString const & actionName);
+	void InvokeAction(FString const & actionName, TMap<FString,FString> const &args);
+	FString const & GetActionArgument(FString const & arg) const;
 
 	// Called when the action system requires payload delivery.
 	void RunActionPayload();
@@ -206,6 +209,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void RefreshScheduleUI( bool showSchedule );
 
+	// Adds a start-of-turn task.
+	void AddTask( BattleTask * task );
+
 private:
 	bool updateCombatant(UWorld * world, Combatant * combatant,float dt);
 	void nextTurn( bool firstTurn );
@@ -233,6 +239,7 @@ private:
 	FActionMenuItem * _selectedItem;
 	EMenuState _menuState;
 	Action * _selectedAction;
+	TMap<FString,FString> _actionArgs;
 	TArray<Combatant *> _targets;
 	int _currentTarget;
 	FString _infoText;
@@ -243,10 +250,17 @@ private:
 	ActionState _nextState;
 	float _pauseTimer;
 	bool _showSchedule;
+	TArray<BattleTask *> _tasks;
 
 	UPROPERTY()
 	UResourceManager * _resMgr;
 };
+
+
+inline FString const & ASignalsBattleMode::GetActionArgument(FString const & arg) const
+{
+	return _actionArgs[arg];
+}
 
 inline Combatant const * ASignalsBattleMode::GetActionSource() const
 {

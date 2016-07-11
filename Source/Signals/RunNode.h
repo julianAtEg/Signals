@@ -17,4 +17,5 @@ protected:
 
 private:
 	FString _action;
+	TMap<FString,FString> _args;
 };

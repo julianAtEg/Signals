@@ -1,7 +1,11 @@
-o Item class / inventory
+o Item equipping
+o Item customisation / combination
 o Status
 o Status icons in HUD?
+o Monster types (land / water / reptile / dragon / avian / humanoid)
+o Monster attack groups
 o Merge of Anim blueprints to save hassle of per-character rigging
+o More items
 o More actions
 o More fx
 o Better music track

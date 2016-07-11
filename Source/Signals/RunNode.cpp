@@ -19,9 +19,20 @@ RunNode::RunNode()
 void RunNode::FromXml(FXmlNode * node)
 {
 	_action = node->GetAttribute(TEXT("action"));
+	for (auto & attr : node->GetAttributes())
+	{
+		if (attr.GetTag() == TEXT("action"))
+		{
+			_action = attr.GetValue();
+		}
+		else
+		{
+			_args.Add(attr.GetTag(), attr.GetValue());
+		}
+	}
 }
 
 void RunNode::executeInner(ASignalsBattleMode * battle, Combatant * )
 {
-	battle->InvokeAction(_action);
+	battle->InvokeAction(_action,_args);
 }

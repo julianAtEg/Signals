@@ -61,6 +61,7 @@ public:
 	virtual int ComputeAttack(Random * rng, int base, int levelScale, FString const & action) const;
 	virtual int ComputeDefence(Random * rng, int levelScale, EAttackClass actionClass) const;
 	virtual int ComputeRegain(Random * rng, int base, int levelScale, FString const & action) const;
+	virtual float ComputeShieldFactor(Random * rng) const;
 
 	// Gets all the known actions for the player
 	virtual TArray<FString> GetActions() const;

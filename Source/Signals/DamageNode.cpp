@@ -6,6 +6,7 @@
 #include "ActionInstance.h"
 #include "Combat.h"
 #include "Action.h"
+#include "Shields.h"
 
 //-----------------------------------------------------------------------------
 
@@ -119,7 +120,12 @@ void DamageNode::executeInner( ASignalsBattleMode * const battle, Combatant * ta
 		amount = GetBase();
 	}
 
-	// TODO: shields, etc, reduce the size of damage.
+	if (target->Shields.IsShielded(_class))
+	{
+		auto shieldScalar = defenceStats->ComputeShieldFactor(rng);
+		amount = int(float(amount)*shieldScalar);
+		Shields::ShowShield(battle, target, _class);
+	}
 
 	// TODO: add in the type of damage done.
 	UE_LOG(SignalsLog, Log, TEXT("DAMAGE = %d"), amount);

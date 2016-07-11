@@ -6,7 +6,7 @@
 	</item>
 	<item id="2" name="Caffeine" description="Temporary speed boost" icon="1" ergValue="1">
 		<use>
-			<run action="Caffeine"/>
+			<run action="ItemModifyStat" stat="speed" delta="1" transient="true"/>
 		</use>
 	</item>
 </items>

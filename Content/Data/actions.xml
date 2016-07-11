@@ -84,15 +84,27 @@
 		</activity>
 		<payload>
 			<restore type="hitpoints" fixed="true" base="50" destination="targets"/>
+			<effect name="P_magicCircle1" destination="targets"/>
 		</payload>
 	</action>
-	<action id="7" name="Caffeine" target="single" cost="0" class="restorative">
+	<action id="7" name="ItemModifyStat" target="single" cost="0" class="neutral">
 		<warmup/>
 		<activity>
 			<anim destination="source" name="Drink" cue="twinkle" block="true"/>				
 		</activity>
 		<payload>
-			<modifyStat stat="Speed" delta="1" transient="true" destination="targets"/>
+			<modifyStat destination="targets"/>
+			<effect name="P_healGlow" destination="targets"/>			
+		</payload>
+	</action>	
+	<action id="8" name="Deflect-4" category="defence" class="defensive" cost="2" target="single"
+	        description="Reduce the power of physical attacks for 4 turns">
+		<warmup/>
+		<activity>
+			<anim destination="source" name="Cast1" cue="shields" block="true"/>
+		</activity>
+		<payload>
+			<shield destination="targets" type="physical" duration="4"/>				
 		</payload>
 	</action>
 </actions>

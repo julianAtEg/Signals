@@ -16,6 +16,7 @@
 #include "Strategy.h"
 #include "ResourceManager.h"
 #include "Item.h"
+#include "BattleTask.h"
 
 //-----------------------------------------------------------------------------
 
@@ -32,8 +33,18 @@ static bool compareItems(FActionMenuItem const & a1, FActionMenuItem const & a2)
 static void getEnemies(TArray<Combatant *> & enemies, TArray<Combatant> & all);
 static void getFriends(TArray<Combatant *> & friends, TArray<Combatant> & all, Combatant * me);
 static bool checkForWin(TArray<Combatant> const & players, bool human);
+static void runTasks( ASignalsBattleMode * battle, TArray<BattleTask *> & tasks );
+static void loadStaticData(UResourceManager * resMgr);
 
 //-----------------------------------------------------------------------------
+
+void ASignalsBattleMode::AddTask(BattleTask * task)
+{
+	check(task != nullptr); // Is valid.
+	check(_tasks.Find(task) == INDEX_NONE); // No duplicates.
+
+	_tasks.Add(task);
+}
 
 TArray<int> ASignalsBattleMode::GetSchedule() const
 {
@@ -189,6 +200,12 @@ TArray<ACharacter *> & ASignalsBattleMode::GetHumanPlayers()
 void ASignalsBattleMode::EndPlay(EEndPlayReason::Type reason)
 {
 	Super::EndPlay(reason);
+
+	for (auto task : _tasks)
+	{
+		delete task;
+	}
+	_tasks.Empty();
 
 	if (_resMgr != nullptr)
 	{
@@ -498,8 +515,10 @@ void ASignalsBattleMode::nextTurn( bool firstTurn )
 	// Reset the state, and the UI too.
 	_menuItems.Empty();
 	_targets.Empty();
+	_actionArgs.Empty();
 	_selectedItem = nullptr;
 	_currentPlayerIndex = _scheduler.Next();
+	runTasks(this, _tasks);
 	auto player = &_combatants[_currentPlayerIndex];
 	player->OnTurnBeginning();
 	_infoIcon = -1;
@@ -792,11 +811,19 @@ void ASignalsBattleMode::HandleUseItem( int itemID )
 	item->Use(this,player);
 }
 
-void ASignalsBattleMode::InvokeAction( FString const & actionName )
+void ASignalsBattleMode::InvokeAction(FString const & actionName)
+{
+	TMap<FString, FString> emptyArgs;
+	InvokeAction(actionName, emptyArgs);
+}
+
+void ASignalsBattleMode::InvokeAction( FString const & actionName, TMap<FString,FString> const & args )
 {
 	UE_LOG(SignalsLog, Log, TEXT("Action %s selected"), *actionName);
+
 	auto action = Action::FindAction(actionName);
 	checkf(action != nullptr, TEXT("No such action: %s"), *action);
+	_actionArgs = args;
 	_targets.Empty();
 	auto player = &_combatants[_currentPlayerIndex];
 	if (action->AffectsMultipleTargets())
@@ -1010,3 +1037,50 @@ static bool checkForWin(TArray<Combatant> const & players, bool human)
 	return true;
 }
 
+static void runTasks(ASignalsBattleMode * battle, TArray<BattleTask *> & tasks)
+{
+	TArray<BattleTask *> killList;
+	for (auto task : tasks)
+	{
+		if (task->CanRun(battle))
+		{
+			if (!task->Run(battle))
+			{
+				killList.Add(task);
+			}
+		}
+	}
+
+	for (auto task : killList)
+	{
+		tasks.Remove(task);
+		delete task;
+	}
+}
+
+static void loadStaticData(UResourceManager * resMgr)
+{
+	UE_LOG(SignalsLog, Log, TEXT("Loading static assets"));
+
+	auto contentFolder = FPaths::GameContentDir();
+	auto dataPath = FPaths::Combine(*contentFolder, TEXT("Data/battle-static.xml"));
+	FXmlFile dataXml;
+	if (!dataXml.LoadFile(dataPath, EConstructMethod::Type::ConstructFromFile))
+	{
+		UE_LOG(SignalsLog, Error, TEXT("Error loading battle-static.xml"));
+	}
+
+	auto root = dataXml.GetRootNode();
+	auto & children = root->GetChildrenNodes();
+	for (auto itemNode : children)
+	{
+		auto typeStr = itemNode->GetAttribute(TEXT("type"));
+		typeStr.ToLowerInline();
+		auto name = itemNode->GetAttribute(TEXT("name"));
+		if (typeStr == TEXT("fx"))
+		{
+			resMgr->LoadParticleSystem(name);
+		}
+		// other types here.
+	}
+}

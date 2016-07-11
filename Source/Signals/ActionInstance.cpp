@@ -34,13 +34,7 @@ void ActionInstance::RunPayload(ASignalsBattleMode * const battle)
 	payloadRunner.Start(_action->GetPayloadNode());
 	while (!payloadRunner.Update(battle, 0.0f))
 	{
-
 	}
-	//_currentNode = _action->GetPayloadNode();
-	//if (_currentNode != nullptr)
-	//{
-	//	_runner.Start(_currentNode);
-	//}
 }
 
 void ActionInstance::Update(ASignalsBattleMode * const battle, float dt)

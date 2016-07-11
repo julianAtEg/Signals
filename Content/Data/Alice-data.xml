@@ -4,6 +4,7 @@
 			<ability name="Throw" maxSkill="80"/>
 			<ability name="Bombard" maxSkill="80"/>
 			<ability name="Burn" maxSkill="100"/>
+			<ability name="Deflect-4" maxSkill="100"/>
 		</level>
 	</skilltree>
 	<hpCurve scalar="50.0" exponent="1.150493"/>
