@@ -318,13 +318,16 @@
     <ClInclude Include="..\..\Source\Signals\FaceNode.h" />
     <ClCompile Include="..\..\Source\Signals\HumanPlayerStats.cpp" />
     <ClInclude Include="..\..\Source\Signals\HumanPlayerStats.h" />
+    <ClCompile Include="..\..\Source\Signals\IndicatorNode.cpp" />
     <ClCompile Include="..\..\Source\Signals\IntermediateActionSelector.cpp" />
+    <ClInclude Include="..\..\Source\Signals\IndicatorNode.h" />
     <ClInclude Include="..\..\Source\Signals\IntermediateActionSelector.h" />
     <ClCompile Include="..\..\Source\Signals\Inventory.cpp" />
     <ClInclude Include="..\..\Source\Signals\Inventory.h" />
     <ClCompile Include="..\..\Source\Signals\Item.cpp" />
     <ClInclude Include="..\..\Source\Signals\Item.h" />
     <ClCompile Include="..\..\Source\Signals\ModifyStatNode.cpp" />
+    <ClInclude Include="..\..\Source\Signals\ItemActionNode.h" />
     <ClInclude Include="..\..\Source\Signals\ModifyStatNode.h" />
     <ClCompile Include="..\..\Source\Signals\NpcPlayerStats.cpp" />
     <ClInclude Include="..\..\Source\Signals\NpcPlayerStats.h" />
@@ -332,6 +335,7 @@
     <ClInclude Include="..\..\Source\Signals\PlayAudioNode.h" />
     <ClCompile Include="..\..\Source\Signals\PlayerStats.cpp" />
     <ClInclude Include="..\..\Source\Signals\PlayerStats.h" />
+    <ClInclude Include="..\..\Source\Signals\PlayerStatus.h" />
     <ClInclude Include="..\..\Source\Signals\PlayerTask.h" />
     <ClInclude Include="..\..\Source\Signals\PriorityQueue.h" />
     <ClCompile Include="..\..\Source\Signals\PlayerTask.cpp" />
@@ -350,11 +354,9 @@
     <ClCompile Include="..\..\Source\Signals\SequenceStrategy.cpp" />
     <ClInclude Include="..\..\Source\Signals\SequenceStrategy.h" />
     <None Include="..\..\Source\Signals\Signals.Build.cs" />
-    <ClCompile Include="..\..\Source\Signals\ShieldInfo.cpp" />
     <ClCompile Include="..\..\Source\Signals\ShieldNode.cpp" />
     <ClCompile Include="..\..\Source\Signals\Shields.cpp" />
     <ClCompile Include="..\..\Source\Signals\Signals.cpp" />
-    <ClInclude Include="..\..\Source\Signals\ShieldInfo.h" />
     <ClInclude Include="..\..\Source\Signals\ShieldNode.h" />
     <ClInclude Include="..\..\Source\Signals\Shields.h" />
     <ClInclude Include="..\..\Source\Signals\Signals.h" />
@@ -374,8 +376,10 @@
     <ClInclude Include="..\..\Source\Signals\StatType.h" />
     <ClCompile Include="..\..\Source\Signals\Strategy.cpp" />
     <ClInclude Include="..\..\Source\Signals\Strategy.h" />
+    <ClInclude Include="..\..\Source\Signals\TaskSchedule.h" />
     <ClInclude Include="..\..\Source\Signals\TStack.h" />
     <ClInclude Include="..\..\Source\Signals\UIEvent.h" />
+    <ClCompile Include="..\..\Source\Signals\TaskSchedule.cpp" />
     <ClCompile Include="..\..\Source\Signals\WalkNode.cpp" />
     <ClInclude Include="..\..\Source\Signals\WalkNode.h" />
     <ClCompile Include="..\..\Source\Signals\WarmupNode.cpp" />

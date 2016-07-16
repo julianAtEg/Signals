@@ -1,4 +1,5 @@
 <actions>
+	<!--Menu actions-->
 	<action id="1" name="Throw" target="single" category="mecha" cost="0" class="offensive"
 	        description="Throws a small object at the enemy" menuIcon="0">
 		<warmup/>
@@ -77,7 +78,33 @@
 			</damages>
 		</payload>				
 	</action>
-	<action id="6" name="Tonic" target="single" cost="0" class="restorative">
+	<action id="6" name="Deflect-4" category="defence" class="defensive" cost="2" target="single"
+	        menuIcon="5" description="Reduce the power of physical attacks for 4 turns">
+		<warmup/>
+		<activity>
+			<anim destination="source" name="Cast1" cue="shields" block="true"/>
+		</activity>
+		<payload>
+			<shield destination="targets" type="physical" duration="4"/>				
+		</payload>
+	</action>
+	<action id="7" name="Slow-4" target="single" cost="5" category="status" class="offensive"
+	        menuIcon="0" description="Slow a player for 4 turns">
+		<warmup/>
+		<activity>
+			<effect name="P_positiveCircle" destination="source"/>
+			<anim destination="source" name="Cast1" cue="twinkle" block="true"/>
+		</activity>
+		<payload>
+			<modifyStat destination="targets" stat="speed" delta="-5" duration="turns" turns="4" show="false"/>
+			<modifyStat destination="targets" stat="evasion" delta="-5" duration="turns" turns="4" show="false"/>
+			<indicator destination="targets" text="Slow" colour="1,1,1"/>
+			<audio cue="slowdown" destination="targets"/>
+		</payload>
+	</action>
+	
+	<!--Item actions-->
+	<action id="1000" name="Tonic" target="single" cost="0" class="restorative">
 		<warmup/>
 		<activity>
 			<anim destination="source" name="Drink" cue="twinkle" block="true"/>				
@@ -87,24 +114,14 @@
 			<effect name="P_magicCircle1" destination="targets"/>
 		</payload>
 	</action>
-	<action id="7" name="ItemModifyStat" target="single" cost="0" class="neutral">
+	<action id="1001" name="ModifyStat" target="single" cost="0" class="neutral">
 		<warmup/>
 		<activity>
 			<anim destination="source" name="Drink" cue="twinkle" block="true"/>				
 		</activity>
 		<payload>
-			<modifyStat destination="targets"/>
+			<modifyStat dynamic="true" destination="targets"/>
 			<effect name="P_healGlow" destination="targets"/>			
 		</payload>
 	</action>	
-	<action id="8" name="Deflect-4" category="defence" class="defensive" cost="2" target="single"
-	        description="Reduce the power of physical attacks for 4 turns">
-		<warmup/>
-		<activity>
-			<anim destination="source" name="Cast1" cue="shields" block="true"/>
-		</activity>
-		<payload>
-			<shield destination="targets" type="physical" duration="4"/>				
-		</payload>
-	</action>
 </actions>

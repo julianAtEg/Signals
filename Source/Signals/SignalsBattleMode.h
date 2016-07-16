@@ -7,13 +7,13 @@
 #include "Scheduler.h"
 #include "ActionMenuItem.h"
 #include "Inventory.h"
+#include "BattleTask.h"
 #include "SignalsBattleMode.generated.h"
 
 class Action;
 class ActionInstance;
 class Random;
 class UResourceManager;
-class BattleTask;
 
 /**
  * Drives UI mechanics.
@@ -250,7 +250,7 @@ private:
 	ActionState _nextState;
 	float _pauseTimer;
 	bool _showSchedule;
-	TArray<BattleTask *> _tasks;
+	BattleSchedule _tasks;
 
 	UPROPERTY()
 	UResourceManager * _resMgr;

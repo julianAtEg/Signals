@@ -103,69 +103,89 @@ void UPlayerStats::fromXml(FXmlNode * const root)
 	}
 }
 
-int UPlayerStats::getStat(EStatClass stat) const
+int UPlayerStats::GetStat(EStatClass stat) const
 {
+	int value = 0;
 	switch (stat)
 	{
 	case EStatClass::HitPoints:
-		return HitPoints;
+		value = HitPoints;
+		break;
 
 	case EStatClass::PhysicalDefence:
-		return Defence[EAttackClass::Physical];
+		value = Defence[EAttackClass::Physical];
+		break;
 
 	case EStatClass::FireDefence:
-		return Defence[EAttackClass::Fire];
+		value = Defence[EAttackClass::Fire];
+		break;
 
 	case EStatClass::IceDefence:
-		return Defence[EAttackClass::Ice];
+		value = Defence[EAttackClass::Ice];
+		break;
 
 	case EStatClass::ElectricalDefence:
-		return Defence[EAttackClass::Electrical];
+		value = Defence[EAttackClass::Electrical];
+		break;
 
 	case EStatClass::LightDefence:
-		return Defence[EAttackClass::Light];
+		value = Defence[EAttackClass::Light];
+		break;
 
 	case EStatClass::PlasmaDefence:
-		return Defence[EAttackClass::Plasma];
+		value = Defence[EAttackClass::Plasma];
+		break;
 
 	case EStatClass::SoundDefence:
-		return Defence[EAttackClass::Sound];
+		value = Defence[EAttackClass::Sound];
+		break;
 
 	case EStatClass::PoisonDefence:
-		return Defence[EAttackClass::Poison];
+		value = Defence[EAttackClass::Poison];
+		break;
 
 	case EStatClass::BacterialDefence:
-		return Defence[EAttackClass::Bacterial];
+		value = Defence[EAttackClass::Bacterial];
+		break;
 
 	case EStatClass::ViralDefence:
-		return Defence[EAttackClass::Viral];
+		value = Defence[EAttackClass::Viral];
+		break;
 
 	case EStatClass::Dexterity:
-		return Dexterity;
+		value = Dexterity;
+		break;
 
 	case EStatClass::Evasion:
-		return Evasion;
+		value = Evasion;
+		break;
 
 	case EStatClass::Speed:
-		return Speed;
+		value = Speed;
+		break;
 
 	case EStatClass::Strength:
-		return Strength;
+		value = Strength;
+		break;
 
 	case EStatClass::Energy:
-		return getEnergy();
+		value = getEnergy();
+		break;
 
 	case EStatClass::MaxHitPoints:
-		return MaxHitPoints;
+		value = MaxHitPoints;
+		break;
 
 	case EStatClass::Undefined:
 	default:
 		UE_LOG(SignalsLog, Error, TEXT("Undefined stat type"));
-		return 0;
+		break;
 	}
+
+	return value;
 }
 
-void UPlayerStats::setStat(EStatClass stat, int value)
+void UPlayerStats::SetStat(EStatClass stat, int value)
 {
 	switch (stat)
 	{
@@ -261,9 +281,9 @@ void UPlayerStats::ApplyStatChange(EStatClass stat, int delta, bool transient)
 	}
 	else
 	{
-		auto value = getStat(stat);
+		auto value = GetStat(stat);
 		value = FMath::Clamp(value + delta, 0, 100);
-		setStat(stat, value);
+		SetStat(stat, value);
 	}
 }
 

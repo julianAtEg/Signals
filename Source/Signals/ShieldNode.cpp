@@ -33,6 +33,6 @@ void ShieldNode::FromXml(FXmlNode * node)
 
 void ShieldNode::executeInner(ASignalsBattleMode * battle, Combatant * player)
 {
-	player->Shields.ActivateShield(_class, _duration);
+	player->ActivateShield(_class,_duration);
 	Shields::ShowShield(battle, player, _class);
 }

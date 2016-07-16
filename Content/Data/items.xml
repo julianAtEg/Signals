@@ -6,7 +6,12 @@
 	</item>
 	<item id="2" name="Caffeine" description="Temporary speed boost" icon="1" ergValue="1">
 		<use>
-			<run action="ItemModifyStat" stat="speed" delta="1" transient="true"/>
+			<run action="ModifyStat" stat="speed" delta="1" duration="battle" show="true"/>
 		</use>
 	</item>
+	<item id="3" name="Spinach" description="Temporary strength boost" icon="2" ergValue="1">
+		<use>
+			<run action="ModifyStat" stat="strength" delta="1" duration="battle" show="true"/>
+		</use>
+	</item>	
 </items>

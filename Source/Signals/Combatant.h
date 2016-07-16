@@ -3,7 +3,9 @@
 #pragma once
 
 #include "StatType.h"
-#include "ShieldInfo.h"
+#include "PlayerTask.h"
+#include "AttackClass.h"
+#include "PlayerStatus.h"
 
 class UPlayerStats;
 class ActionInstance;
@@ -39,23 +41,7 @@ enum class ActionState
  */
 struct SIGNALS_API Combatant
 {
-	inline Combatant(APlayerStart * start, bool human, ACharacter * avatar, UPlayerStats * stats)
-		: Start(start)
-		, IsHuman(human)
-		, Avatar(avatar)
-		, Stats(stats)
-		, TurnDelay(0)
-		, State(ActionState::Idle)
-		, TurnCounter(0)
-		, Activity(nullptr)
-		, HPDamageThisTurn(0)
-		, ActionMissed(false)
-		, TookDamage(false)
-		, IsAlive( true )
-		, Shields()
-	{
-
-	}
+	Combatant(APlayerStart * start, bool human, ACharacter * avatar, UPlayerStats * stats);
 
 	// The start point for the character.
 	APlayerStart * const Start;
@@ -89,15 +75,41 @@ struct SIGNALS_API Combatant
 	// If true, the player is alive.
 	bool IsAlive;
 
-	// Player shields.
-	ShieldInfo Shields;
-
 	// Can the player perform the supplied action?
 	bool CanPerformAction(Action * const action) const;
 
+	// Called when the player's turn starts.
 	void OnTurnBeginning();
 
 	// Called at begin and end of a battle.
 	void BeginBattle();
 	void EndBattle();
+
+	// Shield API.
+	void ActivateShield(EAttackClass type, int duration);
+	bool DeactivateShield(EAttackClass type);
+	bool IsShielded(EAttackClass type) const;
+
+	// Status API
+	void SetStatus(EPlayerStatus status);
+	void ClearStatus(EPlayerStatus status);
+	bool HasStatus(EPlayerStatus status) const;
+
+	// Tasks.
+	void AddTask(PlayerTask * task);
+
+private:
+	int _shields[EAttackClass::NumAttackClasses];	
+	PlayerSchedule _tasks;
+	unsigned _status;
 };
+
+inline bool Combatant::IsShielded(EAttackClass type) const
+{
+	return(_shields[type] > 0);
+}
+
+inline bool Combatant::HasStatus(EPlayerStatus status) const
+{
+	return((_status & (1U << status)) != 0);
+}

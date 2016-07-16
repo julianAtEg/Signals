@@ -73,11 +73,12 @@ public:
 	virtual void BeginBattle();
 	virtual void EndBattle();
 
+	int GetStat(EStatClass stat) const;
+	void SetStat(EStatClass stat, int value);
+
 protected:
 	virtual void fromXml(FXmlNode * const node);
 
-	int getStat(EStatClass stat) const;
-	void setStat(EStatClass stat, int value);
 	virtual int getEnergy() const;
 	virtual void setEnergy(int energy);
 

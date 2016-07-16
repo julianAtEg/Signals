@@ -1,11 +1,15 @@
-o Item equipping
-o Item customisation / combination
-o Status
+> Status
+o Apply pending tasks at end of battle
 o Status icons in HUD?
+o Defend action - puts player into "defend" pose for one turn, increases physical defence by +N
+o More boost types
+	- Gesture recognition
+o More monsters
 o Monster types (land / water / reptile / dragon / avian / humanoid)
 o Monster attack groups
 o Merge of Anim blueprints to save hassle of per-character rigging
 o More items
+o Item customisation / combination
 o More actions
 o More fx
 o Better music track
@@ -13,4 +17,6 @@ o Resource management
 o Improve ring menu gfx
 o Analog control to move selectors
 o Projected textures for cloud shadows
+o Merge of battle tasks and turn schedule
+
 

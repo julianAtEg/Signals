@@ -1,14 +1,7 @@
 #pragma once
 
-#include "BattleTask.h"
+#include "TaskSchedule.h"
 
-class PlayerTask : public BattleTask
-{
-public:
-	PlayerTask(TaskFunc func, int numTurns, FString const & playerName);
-
-	bool CanRun(ASignalsBattleMode * battle) const override;
-
-private:
-	FString const _playerName;
-};
+struct Combatant;
+typedef Task<Combatant> PlayerTask;
+typedef TaskSchedule<PlayerTask> PlayerSchedule;

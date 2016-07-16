@@ -376,10 +376,19 @@
     <ClInclude Include="..\..\Source\Signals\ShieldNode.h">
       <Filter>Source\Signals</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Signals\ShieldInfo.h">
+    <ClInclude Include="..\..\Source\Signals\Shields.h">
       <Filter>Source\Signals</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Signals\Shields.h">
+    <ClInclude Include="..\..\Source\Signals\ItemActionNode.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\TaskSchedule.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\PlayerStatus.h">
+      <Filter>Source\Signals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Signals\IndicatorNode.h">
       <Filter>Source\Signals</Filter>
     </ClInclude>
   </ItemGroup>
@@ -393,10 +402,13 @@
     <ClCompile Include="..\..\Source\Signals\ShieldNode.cpp">
       <Filter>Source\Signals</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Signals\ShieldInfo.cpp">
+    <ClCompile Include="..\..\Source\Signals\Shields.cpp">
       <Filter>Source\Signals</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Signals\Shields.cpp">
+    <ClCompile Include="..\..\Source\Signals\TaskSchedule.cpp">
+      <Filter>Source\Signals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Signals\IndicatorNode.cpp">
       <Filter>Source\Signals</Filter>
     </ClCompile>
   </ItemGroup>

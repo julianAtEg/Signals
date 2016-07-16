@@ -68,7 +68,6 @@ Item::Item()
 , _root()
 , _useNode(nullptr)
 , _equipNode(nullptr)
-, _unequipNode(nullptr)
 , _ergValue(-1)
 , _isCombinable(false)
 , _icon(0)
@@ -96,7 +95,6 @@ void Item::FromXml(FXmlNode * node)
 	// Lashup of actions.
 	_useNode = (ContainerNode *)_root.FindChildOfType(TEXT("use"));
 	_equipNode = (ContainerNode *)_root.FindChildOfType(TEXT("equip"));
-	_unequipNode = (ContainerNode *)_root.FindChildOfType(TEXT("unequip"));
 }
 
 void Item::Use(ASignalsBattleMode * const battle, Combatant * const user)
@@ -107,26 +105,13 @@ void Item::Use(ASignalsBattleMode * const battle, Combatant * const user)
 	runner.RunAtomic(battle, _useNode);
 }
 
-void Item::Equip(ASignalsBattleMode * const battle, Combatant * const user)
-{
-	check(IsEquippable());
-	check(_unequipNode != nullptr);
-
-	ActionRunner runner;
-	runner.RunAtomic(battle, _equipNode);
-}
-
-void Item::Unequip(ASignalsBattleMode * const battle, Combatant * const user)
-{
-	check(IsEquippable());
-	check(_unequipNode != nullptr);
-
-	ActionRunner runner;
-	runner.RunAtomic(battle, _unequipNode);
-}
-
-int Item::Combine(TArray<Item *> const & others)
+int Item::Combine(Item * const that) const
 {
 	// TODO: combination table.
 	return -1;
+}
+
+int Item::GetCombinationCost(Item * const that) const
+{
+	return 0;
 }

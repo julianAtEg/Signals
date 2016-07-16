@@ -7,6 +7,7 @@
 #include "Action.h"
 #include "Item.h"
 #include "SignalsInstance.h"
+#include "ItemActionNode.h"
 
 UHumanPlayerStats::UHumanPlayerStats(FObjectInitializer const & init)
 : Super(init)
@@ -97,6 +98,7 @@ void UHumanPlayerStats::fromXml(FXmlNode * const root)
 	auto expStr = root->GetAttribute(TEXT("exp"));
 	EXP = FCString::Atoi(*expStr);
 
+	_abilities.Empty();
 	auto absNode = root->FindChildNode(TEXT("abilities"));
 	auto & children = absNode->GetChildrenNodes();
 	for (auto & abNode : children)
@@ -106,8 +108,19 @@ void UHumanPlayerStats::fromXml(FXmlNode * const root)
 		_abilities.Add(ability);
 	}
 
+	_inventory.Clear();
 	auto invNode = root->FindChildNode(TEXT("inventory"));
 	_inventory.FromXml(invNode);
+
+	_equippedItems.Empty();
+	auto itemsNode = root->FindChildNode(TEXT("equippedItems"));
+	auto itemsStr = itemsNode->GetContent();
+	TArray<FString> strItems;
+	itemsStr.ParseIntoArray(strItems, TEXT(","));
+	for (auto & item : strItems)
+	{
+		_equippedItems.Add(FCString::Atoi(*item));
+	}
 }
 
 void UHumanPlayerStats::AddAbility(Ability const & ability)
@@ -193,6 +206,15 @@ void UHumanPlayerStats::EquipItem(int itemID)
 	UE_LOG(SignalsLog, Log, TEXT("Player equipping item %d"), itemID);
 
 	_inventory.RemoveItem(itemID);
+	auto item = Item::FindByID(itemID);
+	auto equipNode = item->GetEquipNode();
+	for (int i = 0; i < equipNode->GetChildCount(); ++i)
+	{
+		auto child = equipNode->GetChild(i);
+		auto ian = (ItemActionNode *)child;
+		ian->Apply(this);
+	}
+
 	_equippedItems.Add(itemID);
 }
 
@@ -201,6 +223,14 @@ void UHumanPlayerStats::UnequipItem(int itemID)
 	UE_LOG(SignalsLog, Log, TEXT("Player unequipping item %d"), itemID);
 
 	_equippedItems.Remove(itemID);
+	auto item = Item::FindByID(itemID);
+	auto equipNode = item->GetEquipNode();
+	for (int i = 0; i < equipNode->GetChildCount(); ++i)
+	{
+		auto child = equipNode->GetChild(i);
+		auto ian = (ItemActionNode *)child;
+		ian->Remove(this);
+	}
 	_inventory.AddItem(itemID);
 }
 
@@ -210,7 +240,7 @@ void UHumanPlayerStats::ApplyStatChange(EStatClass stat, int delta, bool transie
 	{
 		TransientStatChange delta1;
 		delta1.Stat = stat;
-		delta1.Value = getStat(stat);
+		delta1.Value = GetStat(stat);
 		_transientStatChanges.Emplace(delta1);
 
 		// Changing a max means caching the max'd stat, too.
@@ -250,7 +280,7 @@ void UHumanPlayerStats::EndBattle()
 	// Apply in reverse order to maintain consistency.
 	for (int i = _transientStatChanges.Num() - 1; i >= 0; --i)
 	{
-		setStat(_transientStatChanges[i].Stat, _transientStatChanges[i].Value);
+		SetStat(_transientStatChanges[i].Stat, _transientStatChanges[i].Value);
 	}
 	_transientStatChanges.Empty();
 }

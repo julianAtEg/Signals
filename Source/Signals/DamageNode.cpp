@@ -120,7 +120,7 @@ void DamageNode::executeInner( ASignalsBattleMode * const battle, Combatant * ta
 		amount = GetBase();
 	}
 
-	if (target->Shields.IsShielded(_class))
+	if (target->IsShielded(_class))
 	{
 		auto shieldScalar = defenceStats->ComputeShieldFactor(rng);
 		amount = int(float(amount)*shieldScalar);

@@ -14,28 +14,45 @@ struct Combatant;
 class Item
 {
 public:	
+	/** Lifecycle.*/
 	Item();
 	~Item() = default;
 
+	// Load from XML.
 	void FromXml(FXmlNode * node);
 
+	// Can the item be used in a battle?
 	bool IsUseable() const;
+
+	// Use the item in a battle.
 	void Use(ASignalsBattleMode * const battle, Combatant * const user);
 
+	// Can the item be equipped?
 	bool IsEquippable() const;
-	void Equip(ASignalsBattleMode * const battle, Combatant * const user);
-	void Unequip(ASignalsBattleMode * const battle, Combatant * const user);
 
+	// Can the item be transformed into ergs?
 	bool IsTransformable() const;
+
+	// Get the item's transform value in ergs.
 	int GetTransformValue() const;
 
+	// Can the item be combined with others?
 	bool IsCombinable() const;
-	int Combine(TArray<Item *> const & others);
 
+	// How many ergs does it cost to combine the items?
+	int GetCombinationCost(Item * const that) const;
+
+	// Combines two items, returns the ID of the new one.
+	int Combine(Item * const that) const;
+
+	// Gets basic data about the item.
 	int GetID() const;
 	FString const & GetName() const;
 	FString const & GetDescription() const;
 	int GetIcon() const;
+
+	// Gets the equip node.
+	ContainerNode * GetEquipNode() const;
 
 	// Load item data.
 	static void Initialize();
@@ -51,7 +68,6 @@ private:
 	ContainerNode _root;
 	ContainerNode * _useNode;
 	ContainerNode * _equipNode;
-	ContainerNode * _unequipNode;
 	int _ergValue;
 	bool _isCombinable;
 	int _icon;
@@ -100,4 +116,9 @@ inline int Item::GetTransformValue() const
 inline int Item::GetIcon() const
 {
 	return _icon;
+}
+
+inline ContainerNode * Item::GetEquipNode() const
+{
+	return _equipNode;
 }

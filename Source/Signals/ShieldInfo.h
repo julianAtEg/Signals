@@ -9,16 +9,15 @@ public:
 	~ShieldInfo() = default;
 
 	bool IsShielded(EAttackClass against) const;
-	void ActivateShield(EAttackClass against, int numTurns);
+	void ActivateShield(EAttackClass against);
 	void DeactivateShield(EAttackClass against);
-	bool Update();
 
 private:
 	// The number of turns left in each type of shield.
-	int _turnsLeft[EAttackClass::NumAttackClasses];
+	bool _enabled[EAttackClass::NumAttackClasses];
 };
 
 inline bool ShieldInfo::IsShielded(EAttackClass against) const
 {
-	return(_turnsLeft[against] > 0);
+	return(_enabled[against]);
 }

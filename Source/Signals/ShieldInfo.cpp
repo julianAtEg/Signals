@@ -5,40 +5,22 @@ ShieldInfo::ShieldInfo()
 {
 	for (int i = 0; i < EAttackClass::NumAttackClasses; ++i)
 	{
-		_turnsLeft[i] = 0;
+		_enabled[i] = false;
 	}
 }
 
-void ShieldInfo::ActivateShield(EAttackClass type, int numTurns)
+void ShieldInfo::ActivateShield(EAttackClass type)
 {
 	UE_LOG(SignalsLog, Log, TEXT("ShieldInfo::ActivateShield()"));
 
-	check(numTurns > 0);
-
-	_turnsLeft[type] = numTurns;
+	_enabled[type] = true;
 }
 
 void ShieldInfo::DeactivateShield(EAttackClass type)
 {
 	UE_LOG(SignalsLog, Log, TEXT("ShieldInfo::DeactivateShield()"));
 
-	_turnsLeft[type] = 0;
+	_enabled[type] = false;
 }
 
-bool ShieldInfo::Update()
-{
-	bool status = false;
-	for (int i = 0; i < EAttackClass::NumAttackClasses; ++i)
-	{
-		if (_turnsLeft[i] > 0)
-		{
-			--_turnsLeft[i];
-			if (_turnsLeft[i] == 0)
-			{
-				status = true;
-			}
-		}
-	}
 
-	return status;
-}

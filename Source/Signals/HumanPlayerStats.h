@@ -17,6 +17,9 @@ enum
 	MAX_EQUIP_SLOTS  = 3
 };
 
+// A general stat change.
+struct Change;
+
 // Holds info about transient stat changes (single battle duration).
 struct TransientStatChange
 {
@@ -78,11 +81,12 @@ public:
 	Inventory const & GetInventory() const;
 
 	bool CanEquipItem() const;
-	const TArray<int> & GetEquippedItems() const;
+	TArray<int> const & GetEquippedItems() const;
 	void EquipItem(int id);
 	void UnequipItem(int id);
 
 	void ApplyStatChange( EStatClass stat, int delta, bool transient ) override;
+
 	void BeginBattle() override;
 	void EndBattle() override;
 
