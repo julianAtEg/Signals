@@ -329,7 +329,8 @@ void ASignalsBattleMode::scheduleTurn(int playerIndex)
 {
 	auto * comb = &_combatants[playerIndex];
 	auto * stats = comb->Stats;
-	auto speed = (int)FMath::Clamp((int)(stats->Speed * (1 + s_rng.HalfGaussian01())), 1, 100);
+	auto playerSpeed = stats->GetStat(EStatClass::Speed);
+	auto speed = (int)FMath::Clamp((int)(playerSpeed * (1 + s_rng.HalfGaussian01())), 1, 100);
 	comb->TurnDelay += 100.0f / speed;
 	_scheduler.Add(playerIndex, comb->TurnDelay);
 }
@@ -458,8 +459,17 @@ void ASignalsBattleMode::ApplyDamage()
 			AddFloatingNotification(combatant.Avatar, text, color);
 
 			auto stats = combatant.Stats;
-			stats->HitPoints -= combatant.HPDamageThisTurn;
-			if (stats->HitPoints <= 0)
+			auto HP = stats->GetStat(EStatClass::HitPoints);
+			HP -= combatant.HPDamageThisTurn;
+			bool dead = false;
+			if (HP <= 0)
+			{
+				HP = 0;
+				dead = true;
+			}
+			stats->SetStat(EStatClass::HitPoints, HP);
+
+			if (dead)
 			{
 				// Remove player from schedule.
 				_scheduler.Cancel(i);

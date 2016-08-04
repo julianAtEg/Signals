@@ -6,17 +6,20 @@
 #include "Random.h"
 
 UPlayerStats::UPlayerStats(FObjectInitializer const & init)
-	: Super(init)
-	, HitPoints(0)
-	, MaxHitPoints(0)
-	, Speed(0)
-	, Strength(0)
-	, Dexterity(0)
-	, Defence()
-	, Level(1)
-	, IconIndex(0)
+: Super(init)
+, Level(1)
+, IconIndex(0)
+, Status(0x00000003)
+, _hitPoints()
+, _maxHitPoints()
+, _speed()
+, _strength()
+, _dexterity()
+, _evasion()
+, _defence()
 {
-	Defence.SetNum(EAttackClass::NumAttackClasses, true);
+
+	_defence.SetNum(EAttackClass::NumAttackClasses, true);
 }
 
 void UPlayerStats::Load(FString const & filePath)
@@ -50,7 +53,8 @@ int UPlayerStats::ComputeAttack(Random * rng, int base, int levelScale, FString 
 int UPlayerStats::ComputeDefence(Random * rng, int levelScale, EAttackClass attackClass) const
 {
 	float luckScalar = 0.80f + rng->Next01();
-	int defence = (int)(luckScalar*levelScale*(1.0f + Level / 100.0f)*Defence[attackClass]);
+	auto defValue = _defence[attackClass].GetValue();
+	int defence = (int)(luckScalar*levelScale*(1.0f + Level / 100.0f)*defValue);
 	return defence;
 }
 
@@ -72,25 +76,25 @@ void UPlayerStats::fromXml(FXmlNode * const root)
 	IconIndex = FCString::Atoi(*iconStr);
 
 	auto hpStr = root->GetAttribute(TEXT("hp"));
-	HitPoints = FCString::Atoi(*hpStr);
+	_hitPoints.SetBaseValue( FCString::Atoi(*hpStr) );
 
 	auto maxHpStr = root->GetAttribute(TEXT("maxHP"));
-	MaxHitPoints = FCString::Atoi(*maxHpStr);
+	_maxHitPoints.SetBaseValue(FCString::Atoi(*maxHpStr));
 
 	auto speedStr = root->GetAttribute(TEXT("speed"));
-	Speed = FCString::Atoi(*speedStr);
+	_speed.SetBaseValue( FCString::Atoi(*speedStr) );
 
 	auto strengthStr = root->GetAttribute(TEXT("strength"));
-	Strength = FCString::Atoi(*strengthStr);
+	_strength.SetBaseValue(FCString::Atoi(*strengthStr));
 
 	auto levelStr = root->GetAttribute(TEXT("level"));
 	Level = FCString::Atoi(*levelStr);
 
 	auto dexterityStr = root->GetAttribute(TEXT("dexterity"));
-	Dexterity = FCString::Atoi(*dexterityStr);
+	_dexterity.SetBaseValue( FCString::Atoi(*dexterityStr) );
 
 	auto evasionStr = root->GetAttribute(TEXT("evasion"));
-	Evasion = FCString::Atoi(*evasionStr);
+	_evasion.SetBaseValue(FCString::Atoi(*evasionStr));
 
 	auto defNode = root->FindChildNode(TEXT("defence"));
 	auto attrs = defNode->GetAttributes();
@@ -99,7 +103,7 @@ void UPlayerStats::fromXml(FXmlNode * const root)
 		auto traitStr = attr.GetTag();
 		auto value = FCString::Atoi(*attr.GetValue());
 		auto index = (int)AttackClass::FromString(traitStr);
-		Defence[index] = value;
+		_defence[index].SetBaseValue(value);
 	}
 }
 
@@ -109,63 +113,63 @@ int UPlayerStats::GetStat(EStatClass stat) const
 	switch (stat)
 	{
 	case EStatClass::HitPoints:
-		value = HitPoints;
+		value = _hitPoints.GetValue();
 		break;
 
 	case EStatClass::PhysicalDefence:
-		value = Defence[EAttackClass::Physical];
+		value = _defence[EAttackClass::Physical].GetValue();
 		break;
 
 	case EStatClass::FireDefence:
-		value = Defence[EAttackClass::Fire];
+		value = _defence[EAttackClass::Fire].GetValue();
 		break;
 
 	case EStatClass::IceDefence:
-		value = Defence[EAttackClass::Ice];
+		value = _defence[EAttackClass::Ice].GetValue();
 		break;
 
 	case EStatClass::ElectricalDefence:
-		value = Defence[EAttackClass::Electrical];
+		value = _defence[EAttackClass::Electrical].GetValue();
 		break;
 
 	case EStatClass::LightDefence:
-		value = Defence[EAttackClass::Light];
+		value = _defence[EAttackClass::Light].GetValue();
 		break;
 
 	case EStatClass::PlasmaDefence:
-		value = Defence[EAttackClass::Plasma];
+		value = _defence[EAttackClass::Plasma].GetValue();
 		break;
 
 	case EStatClass::SoundDefence:
-		value = Defence[EAttackClass::Sound];
+		value = _defence[EAttackClass::Sound].GetValue();
 		break;
 
 	case EStatClass::PoisonDefence:
-		value = Defence[EAttackClass::Poison];
+		value = _defence[EAttackClass::Poison].GetValue();
 		break;
 
 	case EStatClass::BacterialDefence:
-		value = Defence[EAttackClass::Bacterial];
+		value = _defence[EAttackClass::Bacterial].GetValue();
 		break;
 
 	case EStatClass::ViralDefence:
-		value = Defence[EAttackClass::Viral];
+		value = _defence[EAttackClass::Viral].GetValue();
 		break;
 
 	case EStatClass::Dexterity:
-		value = Dexterity;
+		value = _dexterity.GetValue();
 		break;
 
 	case EStatClass::Evasion:
-		value = Evasion;
+		value = _evasion.GetValue();
 		break;
 
 	case EStatClass::Speed:
-		value = Speed;
+		value = _speed.GetValue();
 		break;
 
 	case EStatClass::Strength:
-		value = Strength;
+		value = _strength.GetValue();
 		break;
 
 	case EStatClass::Energy:
@@ -173,7 +177,7 @@ int UPlayerStats::GetStat(EStatClass stat) const
 		break;
 
 	case EStatClass::MaxHitPoints:
-		value = MaxHitPoints;
+		value = _maxHitPoints.GetValue();
 		break;
 
 	case EStatClass::Undefined:
@@ -190,63 +194,63 @@ void UPlayerStats::SetStat(EStatClass stat, int value)
 	switch (stat)
 	{
 	case EStatClass::HitPoints:
-		HitPoints = FMath::Min(value, MaxHitPoints);
+		_hitPoints.SetBaseValue(value);
 		break;
 
 	case EStatClass::PhysicalDefence:
-		Defence[EAttackClass::Physical] = value;
+		_defence[EAttackClass::Physical] = value;
 		break;
 
 	case EStatClass::FireDefence:
-		Defence[EAttackClass::Fire] = value;
+		_defence[EAttackClass::Fire] = value;
 		break;
 
 	case EStatClass::IceDefence:
-		Defence[EAttackClass::Ice] = value;
+		_defence[EAttackClass::Ice] = value;
 		break;
 
 	case EStatClass::ElectricalDefence:
-		Defence[EAttackClass::Electrical] = value;
+		_defence[EAttackClass::Electrical] = value;
 		break;
 
 	case EStatClass::LightDefence:
-		Defence[EAttackClass::Light] = value;
+		_defence[EAttackClass::Light] = value;
 		break;
 
 	case EStatClass::PlasmaDefence:
-		Defence[EAttackClass::Plasma] = value;
+		_defence[EAttackClass::Plasma] = value;
 		break;
 
 	case EStatClass::SoundDefence:
-		Defence[EAttackClass::Sound] = value;
+		_defence[EAttackClass::Sound] = value;
 		break;
 
 	case EStatClass::PoisonDefence:
-		Defence[EAttackClass::Poison] = value;
+		_defence[EAttackClass::Poison] = value;
 		break;
 
 	case EStatClass::BacterialDefence:
-		Defence[EAttackClass::Bacterial] = value;
+		_defence[EAttackClass::Bacterial] = value;
 		break;
 
 	case EStatClass::ViralDefence:
-		Defence[EAttackClass::Viral] = value;
+		_defence[EAttackClass::Viral] = value;
 		break;
 
 	case EStatClass::Dexterity:
-		Dexterity = value;
+		_dexterity = value;
 		break;
 
 	case EStatClass::Evasion:
-		Evasion = value;
+		_evasion = value;
 		break;
 
 	case EStatClass::Speed:
-		Speed = value;
+		_speed = value;
 		break;
 
 	case EStatClass::Strength:
-		Strength = value;
+		_strength = value;
 		break;
 
 	case EStatClass::Energy:
@@ -254,10 +258,10 @@ void UPlayerStats::SetStat(EStatClass stat, int value)
 		break;
 
 	case EStatClass::MaxHitPoints:
-		MaxHitPoints = value;
-		HitPoints = FMath::Min(HitPoints, MaxHitPoints);
+		_maxHitPoints.SetBaseValue(value);
+		_hitPoints.SetMax(_maxHitPoints.GetValue());
 		break;
-
+	
 	case EStatClass::Undefined:
 		UE_LOG(SignalsLog, Error, TEXT("Undefined stat type"));
 		break;
@@ -273,24 +277,93 @@ void UPlayerStats::setEnergy(int)
 {
 }
 
-void UPlayerStats::ApplyStatChange(EStatClass stat, int delta, bool transient)
-{
-	if (stat == EStatClass::HitPoints)
-	{
-		HitPoints = FMath::Clamp(HitPoints + delta, 0, MaxHitPoints);
-	}
-	else
-	{
-		auto value = GetStat(stat);
-		value = FMath::Clamp(value + delta, 0, 100);
-		SetStat(stat, value);
-	}
-}
-
 void UPlayerStats::BeginBattle()
 {
 }
 
 void UPlayerStats::EndBattle()
 {
+	_hitPoints.ClearModifiers();
+	_maxHitPoints.ClearModifiers();
+	_hitPoints.SetMax(_maxHitPoints.GetBaseValue());
+	_speed.ClearModifiers();
+	_strength.ClearModifiers();
+	_dexterity.ClearModifiers();
+	_evasion.ClearModifiers();
+	for (auto & stat : _defence)
+	{
+		stat.ClearModifiers();
+	}
+}
+
+void UPlayerStats::ApplyStatChange(EStatClass stat, int delta)
+{
+	auto theStat = GetStatRef(stat);
+	if (theStat != nullptr)
+	{
+		theStat->SetBaseValue(theStat->GetBaseValue() + delta);
+	}
+}
+
+Stat * UPlayerStats::GetStatRef(EStatClass stat)
+{
+	switch (stat)
+	{
+	case EStatClass::HitPoints:
+		return &_hitPoints;
+
+	case EStatClass::PhysicalDefence:
+		return &_defence[EAttackClass::Physical];
+
+	case EStatClass::FireDefence:
+		return &_defence[EAttackClass::Fire];
+
+	case EStatClass::IceDefence:
+		return &_defence[EAttackClass::Ice];
+
+	case EStatClass::ElectricalDefence:
+		return &_defence[EAttackClass::Electrical];
+
+	case EStatClass::LightDefence:
+		return &_defence[EAttackClass::Light];
+
+	case EStatClass::PlasmaDefence:
+		return &_defence[EAttackClass::Plasma];
+
+	case EStatClass::SoundDefence:
+		return &_defence[EAttackClass::Sound];
+
+	case EStatClass::PoisonDefence:
+		return &_defence[EAttackClass::Poison];
+
+	case EStatClass::BacterialDefence:
+		return &_defence[EAttackClass::Bacterial];
+
+	case EStatClass::ViralDefence:
+		return &_defence[EAttackClass::Viral];
+
+	case EStatClass::Dexterity:
+		return &_dexterity;
+
+	case EStatClass::Evasion:
+		return &_evasion;
+
+	case EStatClass::Speed:
+		return &_speed;
+
+	case EStatClass::Strength:
+		return &_strength;
+
+	case EStatClass::Energy:
+		return nullptr;
+
+	case EStatClass::MaxHitPoints:
+		return &_maxHitPoints;
+		break;
+
+	case EStatClass::Undefined:
+	default:
+		UE_LOG(SignalsLog, Error, TEXT("Undefined stat type"));
+		return nullptr;
+	}
 }

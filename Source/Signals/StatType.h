@@ -1,5 +1,8 @@
 #pragma once
 
+#include "StatType.generated.h"
+
+UENUM(BlueprintType)
 enum EStatClass
 {
 	Undefined,

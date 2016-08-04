@@ -3,6 +3,7 @@
 #include "ActionNode.h"
 #include "ItemActionNode.h"
 #include "StatType.h"
+#include "ActionDuration.h"
 
 /**
  * Node used to modify a player stat. Can be transient (duration of battle) or
@@ -21,14 +22,6 @@ protected:
 	void executeInner( ASignalsBattleMode * battle, Combatant * player ) override;
 
 private:
-	enum EDuration
-	{
-		dtNone,			// Undefined
-		dtPermanent,	// Lasts forever
-		dtBattle,		// Lasts for the duration of the battle
-		dtTurns,		// Lasts for a number of turns.
-	};
-
 	bool _dynamic;
 	EStatClass _whichStat;
 	int _delta;

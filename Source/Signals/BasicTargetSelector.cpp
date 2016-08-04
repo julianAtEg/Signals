@@ -74,10 +74,11 @@ static Combatant * findWeakestPlayer(TArray<Combatant *> const & players)
 	Combatant * runt = nullptr;
 	for (auto & player : players)
 	{
-		if (player->Stats->HitPoints < minHP)
+		auto HP = player->Stats->GetStat(EStatClass::HitPoints);
+		if (HP < minHP)
 		{
 			runt = player;
-			minHP = player->Stats->HitPoints;
+			minHP = HP;
 		}
 	}
 

@@ -69,7 +69,9 @@ bool AdvancedActionSelector::selectRestorative
 )
 {
 	auto stats = Cast<UNpcPlayerStats>(ally->Stats);
-	int hpPercent = (100 * stats->HitPoints) / stats->MaxHitPoints;
+	auto HP = stats->GetStat(EStatClass::HitPoints);
+	auto maxHP = stats->GetStat(EStatClass::MaxHitPoints);
+	int hpPercent = (100 * HP) / maxHP;
 	if (hpPercent < 20)
 	{
 		Action * best = findMaximal( stats, healers, EStatClass::HitPoints, acceptMultiple );
@@ -81,7 +83,8 @@ bool AdvancedActionSelector::selectRestorative
 		}
 	}
 
-	int ergPercent = (100 * stats->Ergs) / stats->MaxErgs;
+	auto energy = stats->GetStat(EStatClass::Energy);
+	int ergPercent = (100 * energy) / stats->MaxErgs;
 	if (ergPercent < 20)
 	{
 		Action * best = findMaximal(stats, healers, EStatClass::Energy, acceptMultiple);

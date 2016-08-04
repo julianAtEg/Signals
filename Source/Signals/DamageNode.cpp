@@ -91,7 +91,9 @@ void DamageNode::executeInner( ASignalsBattleMode * const battle, Combatant * ta
 	auto rng = battle->GetRandom();
 	if (_isAvoidable)
 	{
-		if (!Combat::GetHitOrMiss(rng, attackStats->Dexterity, defenceStats->Evasion))
+		auto dex = attackStats->GetStat(EStatClass::Dexterity);
+		auto eva = defenceStats->GetStat(EStatClass::Evasion);
+		if (!Combat::GetHitOrMiss(rng, dex, eva))
 		{
 			// Oops, missed!
 			// TODO: trigger DODGE animation.

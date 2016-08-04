@@ -41,7 +41,6 @@ Combatant::Combatant(APlayerStart * start, bool human, ACharacter * avatar, UPla
 , IsAlive(true)
 , _shields()
 , _tasks()
-, _status(0U)
 {
 	for (int i = 0; i < EAttackClass::NumAttackClasses; ++i)
 	{
@@ -96,14 +95,33 @@ bool Combatant::DeactivateShield(EAttackClass type)
 	return true;
 }
 
+bool Combatant::HasStatus(EPlayerStatus status) const
+{
+	return((Stats->Status & (1U << status)) != 0);
+}
+
 void Combatant::SetStatus(EPlayerStatus status)
 {
-	// TODO.
+	UE_LOG(SignalsLog, Log, TEXT("Combatant::SetStatus(%s)"), *PlayerStatus::ToString(status));
+
+	if (!HasStatus(status))
+	{
+		auto mask = 1u << (int)status;
+		Stats->Status |= mask;
+		PlayerStatus::Apply(status, this);
+	}
 }
 
 void Combatant::ClearStatus(EPlayerStatus status)
 {
-	// TODO.
+	UE_LOG(SignalsLog, Log, TEXT("Combatant::ClearStatus(%s)"), *PlayerStatus::ToString(status));
+
+	if (HasStatus(status))
+	{
+		auto mask = 1u << (int)status;
+		Stats->Status &= ~mask;
+		PlayerStatus::Remove(status, this);
+	}
 }
 
 void Combatant::AddTask(PlayerTask * task)

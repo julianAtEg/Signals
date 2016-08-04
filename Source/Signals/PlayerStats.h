@@ -5,6 +5,7 @@
 #include "Ability.h"
 #include "AttackClass.h"
 #include "StatType.h"
+#include "Stat.h"
 #include "PlayerStats.generated.h"
 
 class Random;
@@ -18,41 +19,17 @@ class SIGNALS_API UPlayerStats : public UObject
 {
 	GENERATED_UCLASS_BODY()
 public:
-	// Health level.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	int HitPoints;
-
-	// Maximum health level at this rank.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	int MaxHitPoints;
-
-	// Determines how frequently the agent gets a turn in battle. Max out at 100.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	int Speed;
-
-	// How hard the agent hits, max out at 100.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	int Strength;
-
-	// How good the agent is at attacking.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	int Dexterity;
-
-	// How good the agent is at avoiding attacks.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	int Evasion;
-
-	// How resistant to attacks, max out at 100 (parameterised by EAttackClass)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	TArray<int> Defence;
-
-	// Character development level. [0,99].
+	// Character development level. [1,100].
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	int Level;
 
 	// Index of the icon in the UI.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	int IconIndex;
+
+	// Status flags (see PlayerStatus.h)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	int Status;
 
 	// Loads stats data from a file.
 	void Load( FString const & filePath );
@@ -67,14 +44,20 @@ public:
 	virtual TArray<FString> GetActions() const;
 
 	// Changes a stat.
-	virtual void ApplyStatChange(EStatClass stat, int delta, bool transient);
+	void ApplyStatChange(EStatClass stat, int delta);
 
 	// Called at start and end of battle.
 	virtual void BeginBattle();
 	virtual void EndBattle();
 
+	UFUNCTION(BlueprintPure, Category = "Stats")
 	int GetStat(EStatClass stat) const;
+
+	UFUNCTION(BlueprintCallable, Category="Stats")
 	void SetStat(EStatClass stat, int value);
+
+	// Gets a reference (pointer!) to the stat.
+	Stat * GetStatRef(EStatClass stat);
 
 protected:
 	virtual void fromXml(FXmlNode * const node);
@@ -83,5 +66,11 @@ protected:
 	virtual void setEnergy(int energy);
 
 private:
-
+	Stat _hitPoints;
+	Stat _maxHitPoints;
+	Stat _speed;
+	Stat _strength;
+	Stat _dexterity;
+	Stat _evasion;
+	TArray<Stat> _defence;
 };

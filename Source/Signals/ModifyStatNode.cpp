@@ -18,22 +18,23 @@ namespace
 {
 	struct UndoStatChangeTask : public PlayerTask
 	{
-		UndoStatChangeTask(EStatClass whichStat, int amount, int interval)
+		UndoStatChangeTask( EStatClass whichStat, StatModifier * modifier, int interval )
 		: PlayerTask( interval, 1 )
 		, Stat( whichStat )
-		, Amount( amount )
+		, Modifier( modifier )
 		{
 
 		}
 
 		bool Run(Combatant * player) override
 		{
-			player->Stats->ApplyStatChange(Stat, -Amount, false);
+			auto statPtr = player->Stats->GetStatRef(Stat);
+			statPtr->RemoveModifier(Modifier);
 			return true;
 		}
 
-		const EStatClass Stat;
-		const int Amount;
+		EStatClass const Stat;
+		StatModifier * const Modifier;
 	};
 }
 
@@ -70,18 +71,9 @@ void ModifyStatNode::FromXml(FXmlNode * node)
 	_delta = FCString::Atoi(*deltaStr);
 
 	auto durStr = node->GetAttribute(TEXT("duration"));
-	durStr.ToLowerInline();
-	if (durStr == TEXT("permanent"))
+	_duration = ActionDuration::FromString(durStr);
+	if (_duration == EDuration::dtTurns)
 	{
-		_duration = EDuration::dtPermanent;
-	}
-	else if (durStr == TEXT("battle"))
-	{
-		_duration = EDuration::dtBattle;
-	}
-	else if (durStr == TEXT("turns"))
-	{
-		_duration = EDuration::dtTurns;
 		auto turnsStr = node->GetAttribute(TEXT("turns"));
 		_turns = FCString::Atoi(*turnsStr);
 		if (_turns <= 0)
@@ -90,11 +82,6 @@ void ModifyStatNode::FromXml(FXmlNode * node)
 			_turns = 1;
 		}
 	}
-	else
-	{
-		UE_LOG(SignalsLog, Error, TEXT("Invalid modifyStat duration '%s'"), *durStr);
-		_duration = EDuration::dtNone;
-	}
 
 	auto showStr = node->GetAttribute(TEXT("show"));
 	_show = showStr.ToBool();
@@ -102,12 +89,12 @@ void ModifyStatNode::FromXml(FXmlNode * node)
 
 void ModifyStatNode::Apply(UPlayerStats * stats)
 {
-	stats->ApplyStatChange(_whichStat, _delta, false);
+	stats->ApplyStatChange(_whichStat, _delta);
 }
 
 void ModifyStatNode::Remove(UPlayerStats * stats)
 {
-	stats->ApplyStatChange(_whichStat, -_delta, false);
+	stats->ApplyStatChange(_whichStat, -_delta);
 }
 
 void ModifyStatNode::executeInner(ASignalsBattleMode * battle, Combatant * target)
@@ -121,25 +108,11 @@ void ModifyStatNode::executeInner(ASignalsBattleMode * battle, Combatant * targe
 		_delta = FCString::Atoi(*deltaStr);
 
 		auto durStr = battle->GetActionArgument(TEXT("duration"));
-		durStr.ToLowerInline();
-		if (durStr == TEXT("permanent"))
+		_duration = ActionDuration::FromString(durStr);
+		if (_duration == EDuration::dtTurns)
 		{
-			_duration = EDuration::dtPermanent;
-		}
-		else if (durStr == TEXT("battle"))
-		{
-			_duration = EDuration::dtBattle;
-		}
-		else if (durStr == TEXT("turns"))
-		{
-			_duration = EDuration::dtTurns;
 			auto turnsStr = battle->GetActionArgument(TEXT("turns"));
 			_turns = FCString::Atoi(*turnsStr);
-		}
-		else
-		{
-			UE_LOG(SignalsLog, Error, TEXT("Invalid modifyStat duration '%s'"), *durStr);
-			_duration = EDuration::dtNone;
 		}
 
 		auto showStr = battle->GetActionArgument(TEXT("show"));
@@ -152,16 +125,22 @@ void ModifyStatNode::executeInner(ASignalsBattleMode * battle, Combatant * targe
 		return;
 
 	case EDuration::dtPermanent:
-		target->Stats->ApplyStatChange(_whichStat, _delta, false);
+		target->Stats->ApplyStatChange(_whichStat, _delta);
 		break;
 
 	case EDuration::dtBattle:
-		target->Stats->ApplyStatChange(_whichStat, _delta, true);
+	{
+		auto modifier = new AddStatModifier(_delta);
+		auto stat = target->Stats->GetStatRef(_whichStat);
+		stat->AddModifier(modifier);
 		break;
+	}
 
 	case EDuration::dtTurns:
-		target->Stats->ApplyStatChange(_whichStat, _delta, false);
-		target->AddTask(new UndoStatChangeTask(_whichStat, _delta, _turns));
+		auto modifier = new AddStatModifier(_delta);
+		auto stat = target->Stats->GetStatRef(_whichStat);
+		stat->AddModifier(modifier);
+		target->AddTask(new UndoStatChangeTask(_whichStat, modifier, _turns));
 		break;
 	}
 

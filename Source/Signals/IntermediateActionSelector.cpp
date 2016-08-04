@@ -29,7 +29,9 @@ SelectionResult IntermediateActionSelector::Run(BasicStrategy * strategy, TArray
 	}
 
 	// Am I in need of defence or restoration?
-	auto hpPercent = (100 * stats->HitPoints) / stats->MaxHitPoints;
+	auto HP = stats->GetStat(EStatClass::HitPoints);
+	auto maxHP = stats->GetStat(EStatClass::MaxHitPoints);
+	auto hpPercent = (100 * HP) / maxHP;
 	if (hpPercent < 20)
 	{
 		// If I'm aggressive, use defence rather than heal.

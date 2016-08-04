@@ -1,22 +1,46 @@
 > Status
-o Apply pending tasks at end of battle
+	- Sick: lose HP at start of every turn (vomit animation?) Until "interferon" / "penicillin" / end of battle. FX
+	- Deranged: picks random action and target, no control. For N turns. Cancelled by Halo[peridol] FX
+	- Slow: reduces speed by X for N turns. Cancelled by 'fast' (completely), Caffeine (partly), CtrlAltDel. FX?
+	- Fast: raises speed by X for N turns. Cancelled by 'slow' (completely), Lithium (partly), CtrlAltDel (resets all status) FX?
+	- Sloppy: reduces evasion and dexterity by X for N turns
+	- Sharp: increases evasion and dexterity by X for N turns. Cancelled by 'sloppy', CtrlAltDel. FX
+	- Feeble: reduces strength by X for N turns. Cancelled by 'titan', CtrlAltDel.
+	- Titan: increases strength by X for N turns. Cancelled by 'feeble', CtrlAltDel.
+	- Paralyzed: miss a turn for N turns.
+	- Selfish: won't participate in cooperative ir helpful actions
+> Apply pending tasks at end of battle
+	- Needs testing. Had to create a distinction between mandatory (temporary) tasks and other ones. The former *only* need
+	  to be applied at the end. For example, if you had strength-1 during a battle, you'd need to restore that at the end. OTOH
+	  if there was a task to kill a characterm in 3 turns (FF Doom style) then you wouldn't want to apply that.
 o Status icons in HUD?
+	- need to make the panel showing HP switchable, right trigger to cycle panels?
 o Defend action - puts player into "defend" pose for one turn, increases physical defence by +N
-o More boost types
+o Extended 'boost' functionality
 	- Gesture recognition
 o More monsters
 o Monster types (land / water / reptile / dragon / avian / humanoid)
 o Monster attack groups
+o More boost types
 o Merge of Anim blueprints to save hassle of per-character rigging
+	- May not be possible universally due to skeleton constraints
 o More items
 o Item customisation / combination
 o More actions
 o More fx
+o Prop-based development. Combine key items in multiple ways to acquire different skills.
+o Skill affinities: each character can wield any skill, only one can do it it better.
+o "Delay" ability that stalls an action (eg heal) for a turn so that you can repair after an anticipated hit.
+o Cooperative spells
+o Spell sequences
+o "Solar panel" - gain energy as you walk
 o Better music track
 o Resource management
+	- Review
 o Improve ring menu gfx
 o Analog control to move selectors
 o Projected textures for cloud shadows
 o Merge of battle tasks and turn schedule
+	- Not sure. Tasks are heap-based so only the top item is valid. Turns need the ordered look-ahead to draw the UI.
 
 

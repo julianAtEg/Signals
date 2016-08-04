@@ -43,7 +43,9 @@ int UHumanPlayerStats::ComputeRegain(Random * rng, int base, int levelScale, FSt
 
 void UHumanPlayerStats::SetInitialValues()
 {
-	HitPoints = MaxHitPoints = _hpCurve.GetValue(1);
+	auto hp = _hpCurve.GetValue(1);
+	SetStat(EStatClass::HitPoints, hp);
+	SetStat(EStatClass::MaxHitPoints, hp);
 	// TODO: speed, strength...
 
 	EXP = 0;
@@ -234,28 +236,6 @@ void UHumanPlayerStats::UnequipItem(int itemID)
 	_inventory.AddItem(itemID);
 }
 
-void UHumanPlayerStats::ApplyStatChange(EStatClass stat, int delta, bool transient)
-{
-	if (transient)
-	{
-		TransientStatChange delta1;
-		delta1.Stat = stat;
-		delta1.Value = GetStat(stat);
-		_transientStatChanges.Emplace(delta1);
-
-		// Changing a max means caching the max'd stat, too.
-		if (stat == EStatClass::MaxHitPoints)
-		{
-			TransientStatChange delta2;
-			delta2.Stat = EStatClass::HitPoints;
-			delta2.Value = HitPoints;
-			_transientStatChanges.Emplace(delta2);
-		}
-	}
-
-	UPlayerStats::ApplyStatChange(stat, delta, transient);
-}
-
 int UHumanPlayerStats::getEnergy() const
 {
 	auto world = GEngine->GetWorld();
@@ -268,19 +248,4 @@ void UHumanPlayerStats::setEnergy(int value)
 	auto world = GEngine->GetWorld();
 	auto instance = Cast<USignalsInstance>(UGameplayStatics::GetGameInstance(world));
 	instance->Ergs = value;
-}
-
-void UHumanPlayerStats::BeginBattle()
-{
-	_transientStatChanges.Empty();
-}
-
-void UHumanPlayerStats::EndBattle()
-{
-	// Apply in reverse order to maintain consistency.
-	for (int i = _transientStatChanges.Num() - 1; i >= 0; --i)
-	{
-		SetStat(_transientStatChanges[i].Stat, _transientStatChanges[i].Value);
-	}
-	_transientStatChanges.Empty();
 }

@@ -109,7 +109,3 @@ inline bool Combatant::IsShielded(EAttackClass type) const
 	return(_shields[type] > 0);
 }
 
-inline bool Combatant::HasStatus(EPlayerStatus status) const
-{
-	return((_status & (1U << status)) != 0);
-}

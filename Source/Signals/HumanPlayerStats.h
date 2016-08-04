@@ -17,19 +17,6 @@ enum
 	MAX_EQUIP_SLOTS  = 3
 };
 
-// A general stat change.
-struct Change;
-
-// Holds info about transient stat changes (single battle duration).
-struct TransientStatChange
-{
-	// The stat to change.
-	EStatClass Stat;
-
-	// The pre-modification level of the stat.
-	int Value;
-};
-
 /**
  * Stats for a player character controlled agent.
  */
@@ -85,11 +72,6 @@ public:
 	void EquipItem(int id);
 	void UnequipItem(int id);
 
-	void ApplyStatChange( EStatClass stat, int delta, bool transient ) override;
-
-	void BeginBattle() override;
-	void EndBattle() override;
-
 protected:
 	void fromXml(FXmlNode * const root) override;
 	int getEnergy() const override;
@@ -104,7 +86,6 @@ private:
 	TSet<BattleSkill> _skills;
 	Inventory _inventory;
 	TArray<int> _equippedItems;
-	TArray<TransientStatChange> _transientStatChanges;
 };
 
 inline const TArray<int> & UHumanPlayerStats::GetEquippedItems() const

@@ -51,12 +51,7 @@ void RestoreNode::executeInner(ASignalsBattleMode * battle, Combatant * target)
 	auto targetStats = target->Stats;
 
 	// TODO: handle other types of stat?
-	targetStats->HitPoints += regain;
-	if (targetStats->HitPoints > targetStats->MaxHitPoints)
-	{
-		targetStats->HitPoints = targetStats->MaxHitPoints;
-	}
-
+	targetStats->ApplyStatChange(EStatClass::HitPoints, regain);
 	FVector green(0.25, 1, 0.05);
 	auto visual = FString::Printf(TEXT("+%dHP"), regain);
 	battle->AddFloatingNotification(target->Avatar, visual, green);

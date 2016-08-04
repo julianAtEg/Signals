@@ -3,6 +3,11 @@
 #include "Signals.h"
 #include "XmlParser.h"
 
+#define REGISTER_NODE_TYPE( typeName, typeClass )\
+	static ActionNode * ctor() { return new typeClass(); }\
+	static const FString s_type(TEXT(#typeName));\
+	static ActionNode::Ctor s_ctor = ActionNode::RegisterCtor(s_type,ctor);
+
 class ASignalsBattleMode;
 class ActionNode;
 class Action;
