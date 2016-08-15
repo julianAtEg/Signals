@@ -305,6 +305,18 @@ void UPlayerStats::ApplyStatChange(EStatClass stat, int delta)
 	}
 }
 
+void UPlayerStats::AddStatModifier(StatModifier * modifier)
+{
+	auto stat = GetStatRef(modifier->Stat);
+	stat->AddModifier(modifier);
+}
+
+void UPlayerStats::RemoveStatModifier(StatModifier * modifier)
+{
+	auto stat = GetStatRef(modifier->Stat);
+	stat->RemoveModifier(modifier);
+}
+
 Stat * UPlayerStats::GetStatRef(EStatClass stat)
 {
 	switch (stat)

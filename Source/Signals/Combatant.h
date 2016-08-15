@@ -10,6 +10,7 @@
 class UPlayerStats;
 class ActionInstance;
 class Action;
+class StatModifier;
 
 // What a character is currently doing.
 enum class ActionState
@@ -34,6 +35,9 @@ enum class ActionState
 
 	// Paused
 	Paused,
+
+	// Miss a turn.
+	SkipTurn,
 };
 
 /**
@@ -97,12 +101,19 @@ struct SIGNALS_API Combatant
 
 	// Tasks.
 	void AddTask(PlayerTask * task);
+	PlayerSchedule & GetTaskSchedule();
 
 private:
 	int _shields[EAttackClass::NumAttackClasses];	
 	PlayerSchedule _tasks;
 	unsigned _status;
+	TMap< EPlayerStatus, TArray<StatModifier*> > _statusStatChanges;
 };
+
+inline PlayerSchedule & Combatant::GetTaskSchedule()
+{
+	return _tasks;
+}
 
 inline bool Combatant::IsShielded(EAttackClass type) const
 {

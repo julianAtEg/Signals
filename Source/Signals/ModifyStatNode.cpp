@@ -18,9 +18,8 @@ namespace
 {
 	struct UndoStatChangeTask : public PlayerTask
 	{
-		UndoStatChangeTask( EStatClass whichStat, StatModifier * modifier, int interval )
-		: PlayerTask( interval, 1 )
-		, Stat( whichStat )
+		UndoStatChangeTask( StatModifier * modifier, int interval )
+		: PlayerTask( TypeID, interval, 1 )
 		, Modifier( modifier )
 		{
 
@@ -28,14 +27,17 @@ namespace
 
 		bool Run(Combatant * player) override
 		{
-			auto statPtr = player->Stats->GetStatRef(Stat);
+			auto statPtr = player->Stats->GetStatRef(Modifier->Stat);
 			statPtr->RemoveModifier(Modifier);
 			return true;
 		}
 
-		EStatClass const Stat;
 		StatModifier * const Modifier;
+
+		static const TaskType TypeID;
 	};
+
+	const TaskType UndoStatChangeTask::TypeID = (const TaskType)&UndoStatChangeTask::TypeID;
 }
 
 //-----------------------------------------------------------------------------
@@ -130,17 +132,17 @@ void ModifyStatNode::executeInner(ASignalsBattleMode * battle, Combatant * targe
 
 	case EDuration::dtBattle:
 	{
-		auto modifier = new AddStatModifier(_delta);
+		auto modifier = new AddStatModifier(_whichStat,_delta);
 		auto stat = target->Stats->GetStatRef(_whichStat);
 		stat->AddModifier(modifier);
 		break;
 	}
 
 	case EDuration::dtTurns:
-		auto modifier = new AddStatModifier(_delta);
+		auto modifier = new AddStatModifier(_whichStat,_delta);
 		auto stat = target->Stats->GetStatRef(_whichStat);
 		stat->AddModifier(modifier);
-		target->AddTask(new UndoStatChangeTask(_whichStat, modifier, _turns));
+		target->AddTask(new UndoStatChangeTask(modifier, _turns));
 		break;
 	}
 

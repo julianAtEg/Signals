@@ -18,6 +18,23 @@ static std::map<FString, EPlayerStatus> s_map =
 	{ TEXT("paralysed"), EPlayerStatus::Paralyzed },
 };
 
+//-----------------------------------------------------------------------------
+
+static StatModifier * addModifier(UPlayerStats * stats, EStatClass stat, int delta)
+{
+	auto mod = new AddStatModifier(stat, delta);
+	stats->AddStatModifier(mod);
+	return mod;
+}
+
+static StatModifier * percentModifier(UPlayerStats * stats, EStatClass stat, int percent)
+{
+	auto mod = new PercentageStatModifier(stat, percent);
+	stats->AddStatModifier(mod);
+	return mod;
+}
+//-----------------------------------------------------------------------------
+
 namespace PlayerStatus
 {
 	EPlayerStatus FromString(FString const & str)
@@ -45,6 +62,7 @@ namespace PlayerStatus
 		{
 		case EPlayerStatus::Fast:
 		case EPlayerStatus::Slow:
+		case EPlayerStatus::Sick:
 			return true;
 
 		default:
@@ -52,37 +70,87 @@ namespace PlayerStatus
 		}
 	}
 
-	void Apply(EPlayerStatus status, Combatant * player)
+	TArray<StatModifier *> Apply(EPlayerStatus status, Combatant * player)
 	{
+		auto world = player->Avatar->GetWorld();
+		auto battle = Cast<ASignalsBattleMode>(world->GetAuthGameMode());
+
+		TArray<StatModifier *> mods;
 		switch (status)
 		{
 		case EPlayerStatus::Fast:
-			player->Stats->ApplyStatChange(EStatClass::Speed, 5);
+			mods.Add(addModifier(player->Stats, EStatClass::Speed, 5));
+			mods.Add(addModifier(player->Stats, EStatClass::Dexterity, 1));
+			mods.Add(addModifier(player->Stats, EStatClass::Evasion, 1));
 			break;
 
 		case EPlayerStatus::Slow:
-			player->Stats->ApplyStatChange(EStatClass::Speed, -5);
+			mods.Add(addModifier(player->Stats, EStatClass::Speed, -5));
+			mods.Add(addModifier(player->Stats, EStatClass::Dexterity, -1));
+			mods.Add(addModifier(player->Stats, EStatClass::Evasion, -1));
+			break;
+
+		case EPlayerStatus::Sick:
+			mods.Add(addModifier(player->Stats, EStatClass::Speed, -1));
+			mods.Add(addModifier(player->Stats, EStatClass::Dexterity, -1));
+			mods.Add(addModifier(player->Stats, EStatClass::Evasion, -1));
+			break;
+
+		case EPlayerStatus::Sloppy:
+			mods.Add(percentModifier(player->Stats, EStatClass::Dexterity, -20));
+			mods.Add(percentModifier(player->Stats, EStatClass::Evasion, -20));
+			break;
+
+		case EPlayerStatus::Sharp:
+			mods.Add(percentModifier(player->Stats, EStatClass::Dexterity, 20));
+			mods.Add(percentModifier(player->Stats, EStatClass::Evasion, 20));
+			break;
+
+		case EPlayerStatus::Weak:
+			mods.Add(percentModifier(player->Stats, EStatClass::Strength, -20));
+			mods.Add(percentModifier(player->Stats, EStatClass::PhysicalDefence, -20));
+			break;
+
+		case EPlayerStatus::Titan:
+			mods.Add(percentModifier(player->Stats, EStatClass::Strength, 20));
+			mods.Add(percentModifier(player->Stats, EStatClass::PhysicalDefence, 20));
+			break;
+
+		case EPlayerStatus::Paralyzed:
+			battle->PlayAnimation(player->Avatar, TEXT("freeze"), nullptr, false);
 			break;
 
 		default:
 			break;
 		}
+
+		return mods;
 	}
 
-	void Remove(EPlayerStatus status, Combatant * player)
+	EPlayerStatus GetAntiStatus(EPlayerStatus status)
 	{
 		switch (status)
 		{
 		case EPlayerStatus::Fast:
-			player->Stats->ApplyStatChange(EStatClass::Speed, -5);
-			break;
+			return EPlayerStatus::Slow;
 
 		case EPlayerStatus::Slow:
-			player->Stats->ApplyStatChange(EStatClass::Speed, 5);
-			break;
+			return EPlayerStatus::Fast;
+
+		case EPlayerStatus::Titan:
+			return EPlayerStatus::Weak;
+
+		case EPlayerStatus::Weak:
+			return EPlayerStatus::Titan;
+
+		case EPlayerStatus::Sloppy:
+			return EPlayerStatus::Sharp;
+
+		case EPlayerStatus::Sharp:
+			return EPlayerStatus::Sloppy;
 
 		default:
-			break;
+			return EPlayerStatus::NumStatusTypes;
 		}
 	}
 }

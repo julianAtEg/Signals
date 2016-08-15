@@ -96,12 +96,48 @@
 			<anim destination="source" name="Cast1" cue="twinkle" block="true"/>
 		</activity>
 		<payload>
-			<modifyStat destination="targets" stat="speed" delta="-5" duration="turns" turns="4" show="false"/>
-			<modifyStat destination="targets" stat="evasion" delta="-5" duration="turns" turns="4" show="false"/>
+			<set-status destination="targets" status="slow" duration="turns" turns="4"/>
 			<indicator destination="targets" text="Slow" colour="1,1,1"/>
 			<audio cue="slowdown" destination="targets"/>
 		</payload>
 	</action>
+	<action id="8" name="Man-flu" target="single" cost="8" category="status" class="offensive"
+	        menuIcon="0" description="Give a player a nasty disease">
+		<warmup/>
+		<activity>
+			<effect name="P_positiveCircle" destination="source"/>
+			<anim destination="source" name="Cast1" cue="twinkle" block="true"/>
+		</activity>
+		<payload>
+			<set-status destination="targets" status="sick" duration="battle"/>
+			<indicator destination="targets" text="Sick" colour="1,1,1"/>		
+			<audio cue="cough" destination="targets"/>
+		</payload>
+	</action>	
+	<action id="9" name="Sharpen" target="single" cost="5" category="status" class="neutral"
+	        menuIcon="0" description="Increase player reactions">
+		<warmup/>
+		<activity>
+			<effect name="P_positiveCircle" destination="source"/>
+			<anim destination="source" name="Cast1" cue="twinkle" block="true"/>
+		</activity>
+		<payload>
+			<set-status destination="targets" status="sharp" duration="turns" turns="6"/>
+			<indicator destination="targets" text="[+]" colour="1,1,1"/>		
+		</payload>
+	</action>	
+	<action id="10" name="Blunt" target="single" cost="5" category="status" class="offensive"
+	        menuIcon="0" description="Decrease player reactions">
+		<warmup/>
+		<activity>
+			<effect name="P_negativeCircle" destination="source"/>
+			<anim destination="source" name="Cast1" cue="twinkle" block="true"/>
+		</activity>
+		<payload>
+			<set-status destination="targets" status="sloppy" duration="turns" turns="6"/>
+			<indicator destination="targets" text="[-]" colour="1,1,1"/>		
+		</payload>
+	</action>	
 	
 	<!--Item actions-->
 	<action id="1000" name="Tonic" target="single" cost="0" class="restorative">
@@ -114,7 +150,7 @@
 			<effect name="P_magicCircle1" destination="targets"/>
 		</payload>
 	</action>
-	<action id="1001" name="ModifyStat" target="single" cost="0" class="neutral">
+	<action id="1001" name="ModifyStat" target="single" cost="0" class="neutral">	
 		<warmup/>
 		<activity>
 			<anim destination="source" name="Drink" cue="twinkle" block="true"/>				
@@ -124,4 +160,45 @@
 			<effect name="P_healGlow" destination="targets"/>			
 		</payload>
 	</action>	
+	<action id="1002" name="Halol" target="single" cost="0" class="restorative">
+		<warmup/>
+		<activity>
+			<anim destination="source" name="Drink" cue="twinkle" block="true"/>				
+		</activity>
+		<payload>
+			<clear-status destination="targets" status="deranged"/>
+			<effect name="P_magicCircle1" destination="targets"/>
+		</payload>
+	</action>	
+	<action id="1003" name="Interferon" target="single" cost="0" class="restorative">
+		<warmup/>
+		<activity>
+			<anim destination="source" name="Drink" cue="sigh" block="true"/>				
+		</activity>
+		<payload>
+			<clear-status destination="targets" status="deranged"/>
+			<effect name="P_magicCircle1" destination="targets"/>
+		</payload>
+	</action>		
+	<action id="1004" name="Reset" target="single" cost="0" class="restorative">
+		<warmup/>
+		<activity>
+			<anim destination="source" name="Drink" cue="sigh" block="true"/>				
+		</activity>
+		<payload>
+			<clear-status destination="targets" status="*"/>
+			<effect name="P_magicCircle1" destination="targets"/>
+		</payload>
+	</action>				
+	<action id="1005" name="Sharp" target="single" cost="0" class="neutral">
+		<warmup/>
+		<activity>
+			<effect name="P_positiveCircle" destination="source"/>
+			<anim destination="source" name="Cast1" cue="twinkle" block="true"/>
+		</activity>
+		<payload>
+			<set-status destination="targets" status="sharp" duration="turns" turns="6"/>
+			<indicator destination="targets" text="[+]" colour="1,1,1"/>		
+		</payload>
+	</action>		
 </actions>

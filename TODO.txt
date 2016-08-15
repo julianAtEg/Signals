@@ -1,20 +1,10 @@
-> Status
-	- Sick: lose HP at start of every turn (vomit animation?) Until "interferon" / "penicillin" / end of battle. FX
-	- Deranged: picks random action and target, no control. For N turns. Cancelled by Halo[peridol] FX
-	- Slow: reduces speed by X for N turns. Cancelled by 'fast' (completely), Caffeine (partly), CtrlAltDel. FX?
-	- Fast: raises speed by X for N turns. Cancelled by 'slow' (completely), Lithium (partly), CtrlAltDel (resets all status) FX?
-	- Sloppy: reduces evasion and dexterity by X for N turns
-	- Sharp: increases evasion and dexterity by X for N turns. Cancelled by 'sloppy', CtrlAltDel. FX
-	- Feeble: reduces strength by X for N turns. Cancelled by 'titan', CtrlAltDel.
-	- Titan: increases strength by X for N turns. Cancelled by 'feeble', CtrlAltDel.
-	- Paralyzed: miss a turn for N turns.
-	- Selfish: won't participate in cooperative ir helpful actions
-> Apply pending tasks at end of battle
-	- Needs testing. Had to create a distinction between mandatory (temporary) tasks and other ones. The former *only* need
-	  to be applied at the end. For example, if you had strength-1 during a battle, you'd need to restore that at the end. OTOH
-	  if there was a task to kill a characterm in 3 turns (FF Doom style) then you wouldn't want to apply that.
-o Status icons in HUD?
-	- need to make the panel showing HP switchable, right trigger to cycle panels?
+Battle
+> Cooperative spells
+	- caching of actions etc
+	- definition of cooperative / joint spells
+o Status
+	- Deranged: picks random action and target, no control. For N turns. Cancelled by Halol FX
+	- Selfish: won't participate in cooperative or helpful actions
 o Defend action - puts player into "defend" pose for one turn, increases physical defence by +N
 o Extended 'boost' functionality
 	- Gesture recognition
@@ -31,8 +21,8 @@ o More fx
 o Prop-based development. Combine key items in multiple ways to acquire different skills.
 o Skill affinities: each character can wield any skill, only one can do it it better.
 o "Delay" ability that stalls an action (eg heal) for a turn so that you can repair after an anticipated hit.
-o Cooperative spells
-o Spell sequences
+o "Interrupt" spell to defuse joint actions.
+o Spell sequences / combos
 o "Solar panel" - gain energy as you walk
 o Better music track
 o Resource management
@@ -43,4 +33,25 @@ o Projected textures for cloud shadows
 o Merge of battle tasks and turn schedule
 	- Not sure. Tasks are heap-based so only the top item is valid. Turns need the ordered look-ahead to draw the UI.
 
+Field	
+o Levels
+o Story flow
+o Battle transitions
+o NPC conversations
+o Cutscenes
 
+DONE:
+26/07/16 Apply pending tasks at end of battle
+	- Needs testing. Had to create a distinction between mandatory (temporary) tasks and other ones. The former *only* need
+	  to be applied at the end. For example, if you had strength-1 during a battle, you'd need to restore that at the end. OTOH
+	  if there was a task to kill a character in 3 turns (FF Doom style) then you wouldn't want to apply that.
+Status
+	26/07/16 - Slow: reduces speed by X for N turns. Cancelled by 'fast' (completely), Caffeine (partly), CtrlAltDel. FX?
+	26/07/16 - Fast: raises speed by X for N turns. Cancelled by 'slow' (completely), Lithium (partly), CtrlAltDel (resets all status) FX?
+	05/08/16 - Sick: lose HP at start of every turn (vomit animation?) Until "interferon" / "penicillin" / end of battle. FX
+	06/08/16 - Sloppy: reduces evasion and dexterity by X% for N turns
+	06/08/16 - Sharp: increases evasion and dexterity by X% for N turns. Cancelled by 'sloppy', CtrlAltDel. FX
+			 - Status icons in HUD
+	11/08/16 - Feeble: reduces strength by X% for N turns. Cancelled by 'titan', CtrlAltDel.
+	11/08/16 - Titan: increases strength by X% for N turns. Cancelled by 'feeble', CtrlAltDel.
+	13/08/16 - Paralyzed: miss a turn for N turns.

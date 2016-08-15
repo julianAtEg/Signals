@@ -1,19 +1,41 @@
 #include "Signals.h"
 #include "TaskSchedule.h"
 
-static bool less(TaskBase & a, TaskBase & b)
+//-----------------------------------------------------------------------------
+
+namespace
 {
-	return( a.GetNextRunFrame() < b.GetNextRunFrame() );
+	inline bool less(TaskBase & a, TaskBase & b)
+	{
+		return(a.GetNextRunFrame() < b.GetNextRunFrame());
+	}
 }
 
-TaskBase::TaskBase(int interval, int iterations, bool mandatory)
-: _interval(interval)
+//-----------------------------------------------------------------------------
+
+TaskBase::TaskBase(TaskType typeID, int interval, int iterations, bool mandatory)
+: _typeID(typeID)
+, _interval(interval)
 , _iterations(iterations)
 , _mandatory(mandatory)
 {
 	check(interval > 0);
 	check(iterations != 0);
 }
+
+void TaskBase::Extend(int numTurns)
+{
+	if (_nextRunFrame < INT_MAX)
+	{
+		_nextRunFrame += numTurns;
+		if (_nextRunFrame < 0)
+		{
+			_nextRunFrame = 0;
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 
 TaskScheduleBase::TaskScheduleBase()
 : _currentFrame(-1)
@@ -34,6 +56,12 @@ void TaskScheduleBase::Clear()
 	}
 	_tasks.Empty();
 	_currentFrame = 0;
+}
+
+void TaskScheduleBase::Reschedule(TaskBase * task)
+{
+	_tasks.Remove(task);
+	_tasks.HeapPush(task, less);
 }
 
 void TaskScheduleBase::schedule(TaskBase * task)

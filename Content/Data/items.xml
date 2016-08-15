@@ -14,4 +14,19 @@
 			<run action="ModifyStat" stat="strength" delta="1" duration="battle" show="true"/>
 		</use>
 	</item>	
+	<item id="4" name="Interferon" description="Cures sickness" icon="3" ergValue="3">
+		<use>
+			<run action="Interferon" />
+		</use>
+	</item>
+	<item id="5" name="CtrlAltDel" description="Cures all status ailments" icon="4" ergValue="5">
+		<use>
+			<run action="Reset" />
+		</use>
+	</item>	
+	<item id="6" name="Bodhi" description="Heightened awareness" icon="4" ergValue="5">
+		<use>
+			<run action="Sharp" />
+		</use>
+	</item>		
 </items>

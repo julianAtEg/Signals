@@ -1,6 +1,7 @@
 #pragma once
 
 struct Combatant;
+class StatModifier;
 
 enum EPlayerStatus
 {
@@ -40,9 +41,20 @@ enum EPlayerStatus
 
 namespace PlayerStatus
 {
+	// Converts a string to a status.
 	EPlayerStatus FromString(FString const & str);
+
+	// Convets a status to a string.
 	FString ToString(EPlayerStatus status);
-	void Apply(EPlayerStatus status, Combatant * player);
-	void Remove(EPlayerStatus status, Combatant * player);
+
+	// Applies a status to a player. Returns an array of stat modifiers which
+	// should be removed at some point by a task if the status is not sticky.
+	TArray<StatModifier *> Apply(EPlayerStatus status, Combatant * player);
+
+	// Determines if a status affects the turn schedule.
 	bool AffectsSchedule(EPlayerStatus status);
+
+	// Gets the inverse status of a status (ef 'fast' for 'slow') or NumStatusTypes
+	// if none.
+	EPlayerStatus GetAntiStatus(EPlayerStatus status);
 }

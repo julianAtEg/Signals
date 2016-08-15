@@ -10,7 +10,7 @@ namespace
 	struct DeactivateShieldsTask : public PlayerTask
 	{
 		DeactivateShieldsTask(EAttackClass shield, int interval)
-		: PlayerTask(interval, 1)
+		: PlayerTask(TypeID, interval, 1)
 		, Shield(shield)
 		{
 
@@ -23,7 +23,11 @@ namespace
 		}
 
 		const EAttackClass Shield;
+
+		static const TaskType TypeID;
 	};
+
+	const TaskType DeactivateShieldsTask::TypeID = (const TaskType)&DeactivateShieldsTask::TypeID;
 }
 
 Combatant::Combatant(APlayerStart * start, bool human, ACharacter * avatar, UPlayerStats * stats)
@@ -48,13 +52,11 @@ Combatant::Combatant(APlayerStart * start, bool human, ACharacter * avatar, UPla
 	}
 }
 
-
 void Combatant::OnTurnBeginning()
 {
 	HPDamageThisTurn = 0;
 	ActionMissed = false;
 	TookDamage = false;
-
 	_tasks.RunPendingTasks(this);
 }
 
@@ -75,6 +77,7 @@ void Combatant::EndBattle()
 {
 	_tasks.Finish(this);
 	Stats->EndBattle();
+	_statusStatChanges.Empty();
 }
 
 void Combatant::ActivateShield(EAttackClass type, int duration)
@@ -106,9 +109,20 @@ void Combatant::SetStatus(EPlayerStatus status)
 
 	if (!HasStatus(status))
 	{
-		auto mask = 1u << (int)status;
-		Stats->Status |= mask;
-		PlayerStatus::Apply(status, this);
+		// If the supplied status cancels out an existing status, just do that.
+		auto antiStatus = PlayerStatus::GetAntiStatus(status);
+		if ((antiStatus != EPlayerStatus::NumStatusTypes) && HasStatus(antiStatus))
+		{
+			ClearStatus(antiStatus);
+		}
+		else
+		{
+			// Set the new status.
+			auto mask = 1u << (int)status;
+			Stats->Status |= mask;
+			auto result = PlayerStatus::Apply(status, this);
+			_statusStatChanges.Add(status, result);
+		}
 	}
 }
 
@@ -119,8 +133,17 @@ void Combatant::ClearStatus(EPlayerStatus status)
 	if (HasStatus(status))
 	{
 		auto mask = 1u << (int)status;
-		Stats->Status &= ~mask;
-		PlayerStatus::Remove(status, this);
+		Stats->Status &= ~mask;	
+		auto pmods = _statusStatChanges.Find(status);
+		if (pmods != nullptr)
+		{
+			auto & mods = *pmods;
+			for (auto mod : mods)
+			{
+				Stats->RemoveStatModifier(mod);
+			}
+			_statusStatChanges.Remove(status);
+		}
 	}
 }
 

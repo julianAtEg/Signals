@@ -45,6 +45,8 @@ public:
 
 	// Changes a stat.
 	void ApplyStatChange(EStatClass stat, int delta);
+	void AddStatModifier(StatModifier * modifier);
+	void RemoveStatModifier(StatModifier * modifier);
 
 	// Called at start and end of battle.
 	virtual void BeginBattle();

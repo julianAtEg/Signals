@@ -195,6 +195,11 @@ TArray<ACharacter *> & ASignalsBattleMode::GetHumanPlayers()
 	return _players;
 }
 
+EBattleState ASignalsBattleMode::GetBattleState() const
+{
+	return _state;
+}
+
 void ASignalsBattleMode::EndPlay(EEndPlayReason::Type reason)
 {
 	Super::EndPlay(reason);
@@ -224,6 +229,8 @@ void ASignalsBattleMode::BeginPlay()
 
 	_resMgr = NewObject<UResourceManager>();
 	_resMgr->AddToRoot();
+
+	_state = EBattleState::BattleIdle;
 
 	// Find all the player starts in the scene.
 	TSubclassOf<AActor> targetClass = APlayerStart::StaticClass();
@@ -310,6 +317,7 @@ void ASignalsBattleMode::BeginPlay()
 	_infoIcon = -1;
 	_infoText = TEXT("");
 	_showSchedule = true;
+	_state = EBattleState::InProgress;
 	nextTurn( true );
 }
 
@@ -387,10 +395,30 @@ void ASignalsBattleMode::Tick(float dt)
 			//}
 
 			// Main player loop
-			auto currentPlayer = &_combatants[_currentPlayerIndex];
-			if (updateCombatant(world, currentPlayer, dt))
+			switch (_state)
 			{
-				nextTurn( false );
+			case EBattleState::BattleIdle:
+				break;
+
+			case EBattleState::InProgress:
+			{
+				auto currentPlayer = &_combatants[_currentPlayerIndex];
+				if (updateCombatant(world, currentPlayer, dt))
+				{
+					nextTurn(false);
+				}
+				break;
+			}
+
+			case EBattleState::WonByHumans:
+				UE_LOG(SignalsLog, Log, TEXT("Humans win!"));
+				// TODO
+				break;
+
+			case EBattleState::WonByOthers:
+				UE_LOG(SignalsLog, Log, TEXT("Others win!"));
+				// TODO
+				break;
 			}
 		}
 	}
@@ -436,68 +464,76 @@ void ASignalsBattleMode::OnActionComplete()
 	currentAction->NotifyActionComplete(this);
 }
 
+void ASignalsBattleMode::applyDamageToPlayer(int playerIndex, int damage)
+{
+	Combatant * player = &_combatants[playerIndex];
+	UE_LOG(SignalsLog, Warning, TEXT("Damaging %s"), *player->Avatar->GetName());
+	FString text;
+	FVector color(1, 1, 1);
+	if (damage > 0)
+	{
+		text = FString::Printf(TEXT("-%dHP"), damage);
+	}
+	else
+	{
+		text = TEXT("0HP");
+	}
+
+	AddFloatingNotification(player->Avatar, text, color);
+
+	auto stats = player->Stats;
+	auto HP = stats->GetStat(EStatClass::HitPoints);
+	HP -= damage;
+	bool dead = false;
+	if (HP <= 0)
+	{
+		HP = 0;
+		dead = true;
+	}
+	stats->SetStat(EStatClass::HitPoints, HP);
+
+	if (dead)
+	{
+		// Remove player from schedule.
+		_scheduler.Cancel(playerIndex);
+
+		player->IsAlive = false;
+		PlayAnimation(player->Avatar, TEXT("Death"), nullptr, false);
+
+		// Check for win / lose.
+		if (player->IsHuman)
+		{
+			// Check all human players to see if they're alive.
+			if (checkForWin(_combatants, false))
+			{
+				// Win!
+				_state = EBattleState::WonByHumans;
+			}
+		}
+		else
+		{
+			// Check all non-human players.
+			if (checkForWin(_combatants, true))
+			{
+				// Lose!.
+				_state = EBattleState::WonByOthers;
+			}
+		}
+	}
+}
+
 void ASignalsBattleMode::ApplyDamage()
 {
 	for( int i = 0; i < _combatants.Num(); ++i )
 	{
 		auto & combatant = _combatants[i];
-		FString indicator;
-		FVector color(1, 1, 1);
 		if (combatant.TookDamage)
 		{
-			UE_LOG(SignalsLog, Warning, TEXT("Damaging %s"), *combatant.Avatar->GetName());
-			FString text;
-			if (combatant.HPDamageThisTurn > 0)
-			{
-				text = FString::Printf(TEXT("-%dHP"), combatant.HPDamageThisTurn);
-			}
-			else
-			{
-				text = TEXT("0HP");
-			}
-
-			AddFloatingNotification(combatant.Avatar, text, color);
-
-			auto stats = combatant.Stats;
-			auto HP = stats->GetStat(EStatClass::HitPoints);
-			HP -= combatant.HPDamageThisTurn;
-			bool dead = false;
-			if (HP <= 0)
-			{
-				HP = 0;
-				dead = true;
-			}
-			stats->SetStat(EStatClass::HitPoints, HP);
-
-			if (dead)
-			{
-				// Remove player from schedule.
-				_scheduler.Cancel(i);
-
-				combatant.IsAlive = false;
-				PlayAnimation(combatant.Avatar, TEXT("Death"), nullptr, false);
-
-				// Check for win / lose.
-				if (combatant.IsHuman)
-				{
-					// Check all human players to see if they're alive.
-					if (checkForWin(_combatants,false))
-					{
-						// Win!
-					}
-				}
-				else
-				{
-					// Check all non-human players.
-					if (checkForWin(_combatants,true))
-					{
-						// Lose!.
-					}
-				}
-			}
+			applyDamageToPlayer(i, combatant.HPDamageThisTurn);
 		}
 		else if (combatant.ActionMissed)
 		{
+			FVector color(1, 1, 1);
 			AddFloatingNotification(combatant.Avatar, TEXT("Miss"), color);
 		}
 
@@ -507,7 +543,7 @@ void ASignalsBattleMode::ApplyDamage()
 	}
 }
 
-void ASignalsBattleMode::nextTurn( bool firstTurn )
+void ASignalsBattleMode::nextTurn(bool firstTurn)
 {
 	// Add the current player back to the schedule.
 	if (!firstTurn)
@@ -520,14 +556,45 @@ void ASignalsBattleMode::nextTurn( bool firstTurn )
 	_targets.Empty();
 	_actionArgs.Empty();
 	_selectedItem = nullptr;
-	_currentPlayerIndex = _scheduler.Next();
-	_tasks.RunPendingTasks(this);
-	auto player = &_combatants[_currentPlayerIndex];
-	player->OnTurnBeginning();
 	_infoIcon = -1;
 	_boostGaugeActive = false;
 	_boostTime = 0.0f;
 	_boostMaxTime = 1.0f;
+
+	_tasks.RunPendingTasks(this);
+	Combatant * player = nullptr;
+	do
+	{
+		if (_scheduler.Size() == 0)
+		{
+			UE_LOG(SignalsLog, Warning, TEXT("Empty schedule!?"));
+			_state = EBattleState::BattleIdle;
+			return;
+		}
+
+		_currentPlayerIndex = _scheduler.Next();
+		player = &_combatants[_currentPlayerIndex];
+		checkf(player->IsAlive, TEXT("Dead player in the schedule?"));
+		player->OnTurnBeginning();
+
+		// If player is sick, knock off some hit points. They might die. Tragic. 
+		// If so, move on to the next player.
+		if (player->HasStatus(EPlayerStatus::Sick))
+		{
+			auto HP = player->Stats->GetStat(EStatClass::HitPoints);
+			auto delta = FMath::Max(10, HP / 10);
+			applyDamageToPlayer(_currentPlayerIndex, delta);
+		}
+	} 
+	while (!player->IsAlive);
+
+	// If player is paralyzed, miss a turn.
+	if (player->HasStatus(EPlayerStatus::Paralyzed))
+	{
+		player->State = ActionState::SkipTurn;
+		return;
+	}
+
 	if (player->IsHuman)
 	{
 		// Boost gauge.
@@ -547,9 +614,10 @@ void ASignalsBattleMode::nextTurn( bool firstTurn )
 	{
 		_infoText = FString::Printf(TEXT("%s..."), *player->Avatar->GetName());
 	}
-	EnablePlayerInput(false,firstTurn);
+	EnablePlayerInput(false, firstTurn);
 	OnTurnBeginning(player->Avatar, player->IsHuman);
 	RefreshScheduleUI(_showSchedule);
+
 }
 
 void ASignalsBattleMode::findAvailableActions(Combatant * const combatant)
@@ -757,6 +825,12 @@ bool ASignalsBattleMode::updateCombatant( UWorld * world, Combatant * combatant,
 			UE_LOG(SignalsLog, Log, TEXT("%s turn complete"), *combatant->Avatar->GetName());
 			delete combatant->Activity;
 			combatant->Activity = nullptr;
+			combatant->State = ActionState::Idle;
+			advance = true;
+			break;
+
+		case ActionState::SkipTurn:
+			UE_LOG(SignalsLog, Log, TEXT("%s skipping turn"), *combatant->Avatar->GetName());
 			combatant->State = ActionState::Idle;
 			advance = true;
 			break;

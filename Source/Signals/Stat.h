@@ -1,21 +1,29 @@
 #pragma once
 
+#include "StatType.h"
+
 class StatModifier
 {
 public:
 	virtual ~StatModifier() = default;
 	virtual int Apply(int statValue) = 0;
 
+	const EStatClass Stat;
+
 protected:
-	StatModifier() = default;
+	StatModifier(EStatClass stat)
+		: Stat(stat)
+	{
+
+	}
 };
 
 class AddStatModifier : public StatModifier
 {
 public:
-	AddStatModifier(int delta)
-	: StatModifier()
-	, _delta( delta )
+	AddStatModifier(EStatClass stat, int delta)
+		: StatModifier(stat)
+		, _delta(delta)
 	{
 	}
 
@@ -31,10 +39,10 @@ private:
 class PercentageStatModifier : public StatModifier
 {
 public:
-	PercentageStatModifier(int percent)
-	: StatModifier()
+	PercentageStatModifier(EStatClass stat, int percent)
+		: StatModifier(stat)
+		, _percent(percent)
 	{
-
 	}
 
 	int Apply(int value) override

@@ -27,6 +27,18 @@ enum class EMenuState
 };
 
 /**
+ * State of the battle.
+ */
+UENUM(BlueprintType)
+enum class EBattleState
+{
+	BattleIdle,
+	InProgress,
+	WonByHumans,
+	WonByOthers
+};
+
+/**
 * Battle mode of the game. Turn-based fighting action.
 */
 UCLASS()
@@ -212,6 +224,8 @@ public:
 	// Adds a start-of-turn task.
 	void AddTask( BattleTask * task );
 
+	UFUNCTION(BlueprintPure, Category="Battle State")
+	EBattleState GetBattleState() const;
 private:
 	bool updateCombatant(UWorld * world, Combatant * combatant,float dt);
 	void nextTurn( bool firstTurn );
@@ -222,6 +236,7 @@ private:
 	void refreshTargetInfo();
 	void handleUseItem();
 	void dumpSchedule();
+	void applyDamageToPlayer(int playerIndex, int damage);
 
 	enum { MAX_PLAYER_STARTS = 3 };
 	APlayerStart * _playerStarts[MAX_PLAYER_STARTS];
@@ -251,6 +266,7 @@ private:
 	float _pauseTimer;
 	bool _showSchedule;
 	BattleSchedule _tasks;
+	EBattleState _state;
 
 	UPROPERTY()
 	UResourceManager * _resMgr;
